@@ -6,6 +6,15 @@ A Claude Code mod: one band above the prompt with an animated Clawd buddy, your 
 Compact button.
 
 <p>
+  <img src="docs/demo/band-wide.png" width="733" alt="The band in a wide window, mid-turn"><br>
+  <sub>The band in a wide window, mid-turn</sub>
+</p>
+<p>
+  <img src="docs/demo/band-compact.png" width="484" alt="In a narrow window, idle: buttons and the cache countdown show"><br>
+  <sub>In a narrow window, idle: buttons and the cache countdown show</sub>
+</p>
+
+<p>
   <img src="docs/pets/thinking.wizard.svg" width="150" alt="Clawd casting a spell while thinking">
   <img src="docs/pets/running.jog.svg" width="150" alt="Clawd jogging while a command runs">
   <img src="docs/pets/done.roid.svg" width="150" alt="Clawd flexing when a turn is done">

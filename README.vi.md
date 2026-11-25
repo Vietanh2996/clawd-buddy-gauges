@@ -6,6 +6,15 @@ Mod cho Claude Code: một dải nằm trên ô nhập, có bạn Clawd hoạt h
 Compact.
 
 <p>
+  <img src="docs/demo/band-wide.png" width="733" alt="Dải trên cửa sổ rộng, đang chạy một lượt"><br>
+  <sub>Dải trên cửa sổ rộng, đang chạy một lượt</sub>
+</p>
+<p>
+  <img src="docs/demo/band-compact.png" width="484" alt="Trên cửa sổ hẹp, lúc rảnh: hiện nút và đếm ngược cache"><br>
+  <sub>Trên cửa sổ hẹp, lúc rảnh: hiện nút và đếm ngược cache</sub>
+</p>
+
+<p>
   <img src="docs/pets/thinking.wizard.svg" width="150" alt="Clawd làm phép lúc đang nghĩ">
   <img src="docs/pets/running.jog.svg" width="150" alt="Clawd chạy bộ lúc chạy lệnh">
   <img src="docs/pets/done.roid.svg" width="150" alt="Clawd khoe cơ lúc xong lượt">
