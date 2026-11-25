@@ -1,0 +1,23 @@
+{
+  "name": "clawd-buddy-gauges",
+  "version": "0.3.0",
+  "description": "An animated Clawd buddy on the left, context and usage gauges in the middle, a Compact button on the right",
+  "author": {
+    "name": "Vietanh2996",
+    "url": "https://github.com/Vietanh2996"
+  },
+  "homepage": "https://github.com/Vietanh2996/clawd-buddy-gauges",
+  "repository": "https://github.com/Vietanh2996/clawd-buddy-gauges",
+  "license": "GPL-3.0-or-later",
+  "keywords": [
+    "clawd",
+    "pet",
+    "buddy",
+    "gauges",
+    "context",
+    "usage",
+    "mod",
+    "claude-code-mod"
+  ],
+  "types": "./types/index.d.ts"
+}

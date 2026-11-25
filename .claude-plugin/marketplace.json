@@ -1,0 +1,19 @@
+{
+  "name": "clawd-buddy-gauges",
+  "owner": {
+    "name": "Vietanh2996",
+    "url": "https://github.com/Vietanh2996"
+  },
+  "metadata": {
+    "description": "A Clawd buddy plus context and usage gauges in one band above the Claude Code prompt"
+  },
+  "plugins": [
+    {
+      "name": "clawd-buddy-gauges",
+      "source": "./plugins/clawd-buddy-gauges",
+      "description": "An animated Clawd buddy on the left, context and usage gauges in the middle, a Compact button on the right",
+      "version": "0.3.0",
+      "category": "fun"
+    }
+  ]
+}
