@@ -2,17 +2,29 @@
 
 [Tiếng Việt](README.vi.md)
 
-A Claude Code mod: one band above the prompt with an animated Clawd buddy, your context and usage gauges, and a
-Compact button.
+A little crab that keeps you company while Claude Code works, and tells you at a glance what is going on.
 
-<p>
-  <img src="docs/demo/band-wide.png" width="733" alt="The band in a wide window, mid-turn"><br>
-  <sub>The band in a wide window, mid-turn</sub>
-</p>
-<p>
-  <img src="docs/demo/band-compact.png" width="484" alt="In a narrow window, idle: buttons and the cache countdown show"><br>
-  <sub>In a narrow window, idle: buttons and the cache countdown show</sub>
-</p>
+**clawd-buddy-gauges** puts one band above the prompt. Clawd acts out every step: thinks with a wizard hat, types
+in the Matrix, jogs while a command runs, flexes when the turn is done. Beside it sit the gauges you otherwise go
+looking for: how full the context is, how much of your 5-hour and weekly limits is left, and how long the prompt
+cache still holds. When the cache runs out, the band says so in red, and Compact is one click away.
+
+**Thinking**<br>
+<img src="docs/demo/band-thinking.png" width="760" alt="Thinking">
+
+**Editing a file**<br>
+<img src="docs/demo/band-coding.png" width="760" alt="Editing a file">
+
+**Turn done**<br>
+<img src="docs/demo/band-done.png" width="760" alt="Turn done">
+
+**Resting, the prompt cache counting down**<br>
+<img src="docs/demo/band-idle.png" width="760" alt="Resting, the prompt cache counting down">
+
+**Cache run out: time to Compact**<br>
+<img src="docs/demo/band-cache-expired.png" width="760" alt="Cache run out: time to Compact">
+
+<sub>Drawn from the mod's own code with sample numbers.</sub>
 
 <p>
   <img src="docs/pets/thinking.wizard.svg" width="150" alt="Clawd casting a spell while thinking">
@@ -36,25 +48,6 @@ Compact button.
 - **⎇** opens the session folder's git repos and their branches, to switch branch from the band.
 
 Shows in the Claude Code desktop app and in the VS Code extension. The terminal is left as it is.
-
-## The band, state by state
-
-Drawn by the mod's own meters code with sample numbers, the Clawd frames from the real sprites.
-
-**Thinking**<br>
-<img src="docs/demo/band-thinking.png" width="760" alt="Thinking">
-
-**Editing a file**<br>
-<img src="docs/demo/band-coding.png" width="760" alt="Editing a file">
-
-**Turn done**<br>
-<img src="docs/demo/band-done.png" width="760" alt="Turn done">
-
-**Resting between turns, the prompt cache counting down**<br>
-<img src="docs/demo/band-idle.png" width="760" alt="Resting between turns, the prompt cache counting down">
-
-**Cache run out: time to Compact**<br>
-<img src="docs/demo/band-cache-expired.png" width="760" alt="Cache run out: time to Compact">
 
 ## Install
 

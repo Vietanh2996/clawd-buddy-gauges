@@ -2,17 +2,29 @@
 
 [English](README.md)
 
-Mod cho Claude Code: một dải nằm trên ô nhập, có bạn Clawd hoạt hình, các thanh đo context và hạn mức, cùng nút
-Compact.
+Một bạn cua nhỏ ngồi cạnh khi Claude Code làm việc, liếc qua là biết nó đang làm gì.
 
-<p>
-  <img src="docs/demo/band-wide.png" width="733" alt="Dải trên cửa sổ rộng, đang chạy một lượt"><br>
-  <sub>Dải trên cửa sổ rộng, đang chạy một lượt</sub>
-</p>
-<p>
-  <img src="docs/demo/band-compact.png" width="484" alt="Trên cửa sổ hẹp, lúc rảnh: hiện nút và đếm ngược cache"><br>
-  <sub>Trên cửa sổ hẹp, lúc rảnh: hiện nút và đếm ngược cache</sub>
-</p>
+**clawd-buddy-gauges** đặt một dải ngay trên ô nhập. Clawd diễn lại từng bước: đội mũ phù thủy lúc nghĩ, gõ phím kiểu
+Matrix lúc sửa file, chạy bộ lúc chạy lệnh, khoe cơ khi xong lượt. Bên cạnh là các con số bình thường phải đi tìm:
+context đã đầy bao nhiêu, hạn mức 5 giờ và theo tuần còn bao nhiêu, cache prompt còn giữ được bao lâu. Hết cache thì
+dải báo chữ đỏ, bấm Compact là xong.
+
+**Đang nghĩ**<br>
+<img src="docs/demo/band-thinking.png" width="760" alt="Đang nghĩ">
+
+**Đang sửa file**<br>
+<img src="docs/demo/band-coding.png" width="760" alt="Đang sửa file">
+
+**Xong lượt**<br>
+<img src="docs/demo/band-done.png" width="760" alt="Xong lượt">
+
+**Nghỉ giữa các lượt, cache đang đếm ngược**<br>
+<img src="docs/demo/band-idle.png" width="760" alt="Nghỉ giữa các lượt, cache đang đếm ngược">
+
+**Hết cache: nên bấm Compact**<br>
+<img src="docs/demo/band-cache-expired.png" width="760" alt="Hết cache: nên bấm Compact">
+
+<sub>Vẽ từ chính code của mod, với số liệu mẫu.</sub>
 
 <p>
   <img src="docs/pets/thinking.wizard.svg" width="150" alt="Clawd làm phép lúc đang nghĩ">
@@ -35,25 +47,6 @@ Compact.
 - **⎇** mở danh sách repo git trong thư mục session và các nhánh của chúng, đổi nhánh ngay trên dải.
 
 Hiện trên app desktop Claude Code và extension VS Code. Terminal giữ nguyên, không đổi.
-
-## Dải theo từng trạng thái
-
-Vẽ bằng chính code thanh đo của mod với số liệu mẫu, Clawd lấy từ bộ hình thật.
-
-**Đang nghĩ**<br>
-<img src="docs/demo/band-thinking.png" width="760" alt="Đang nghĩ">
-
-**Đang sửa file**<br>
-<img src="docs/demo/band-coding.png" width="760" alt="Đang sửa file">
-
-**Xong lượt**<br>
-<img src="docs/demo/band-done.png" width="760" alt="Xong lượt">
-
-**Nghỉ giữa các lượt, cache đang đếm ngược**<br>
-<img src="docs/demo/band-idle.png" width="760" alt="Nghỉ giữa các lượt, cache đang đếm ngược">
-
-**Hết cache: nên bấm Compact**<br>
-<img src="docs/demo/band-cache-expired.png" width="760" alt="Hết cache: nên bấm Compact">
 
 ## Cài đặt
 
