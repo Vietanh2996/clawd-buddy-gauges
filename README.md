@@ -27,6 +27,9 @@ cache still holds. When the cache runs out, the band says so in red, and Compact
 **An hour at the desk: stand up**<br>
 <img src="docs/demo/band-standup.png" width="760" alt="An hour at the desk: stand up">
 
+**45 minutes on: a sip of water**<br>
+<img src="docs/demo/band-water.png" width="760" alt="45 minutes on: a sip of water">
+
 <sub>Drawn from the mod's own code with sample numbers.</sub>
 
 <p>
@@ -41,7 +44,7 @@ cache still holds. When the cache runs out, the band says so in red, and Compact
 ## What's in the band
 
 - **Left, the buddy.** Clawd acts out what Claude is doing: thinking, reading, editing, running commands, waiting
-  for you, done, failing tests, compacting. Seventeen moods, three to six animations each.
+  for you, done, failing tests, compacting. Seventeen moods, three to seven animations each.
   [See them all](docs/PETS.md). In the desktop app, click Clawd to step through the animations of the mood it is in.
 - **Middle, the gauges.** `CTX` (context used, with a tick where auto-compact kicks in), `5H` and `7D` (your
   5-hour and weekly usage limits, with the 5-hour pace projected to its reset), and the turn clock. Under them, a
@@ -52,6 +55,8 @@ cache still holds. When the cache runs out, the band says so in red, and Compact
 - **Stand up!** Every hour at the desk, the status line turns amber and asks you to stand up, and Clawd stretches.
   Click Clawd once you have (in VS Code, `/clawd remind`): the next hour counts from then. One reminder for all
   your sessions, and answering it in one clears it in all.
+- **Drink water!** Every 45 minutes, on a clock of its own, the line turns light blue and Clawd drinks a glass of
+  water. Click Clawd once you have had a sip. When both are due, standing up comes first.
 - **Hats and the time of day.** Clawd wears a khăn đóng for Tết, a Santa hat at Christmas, a party hat at New Year,
   a pumpkin for Halloween, and a nightcap late at night, when it also yawns and dozes off sooner. Mornings bring
   coffee and stretches. [The hats](docs/PETS.md#hats).
@@ -90,6 +95,8 @@ claude plugin marketplace update clawd-buddy-gauges
 - `/clawd` shows or hides the band; `/clawd on` and `/clawd off` say which.
 - `/clawd remind 45` reminds you to stand up every 45 minutes instead of 60; `/clawd remind off` stops it;
   `/clawd remind` alone answers the reminder and counts afresh.
+- `/clawd water 30` reminds you to drink water every 30 minutes instead of 45; `/clawd water off` stops it;
+  `/clawd water` alone answers it.
 - `/clawd hat santa` keeps a hat on (`tet`, `santa`, `party`, `pumpkin`, `nightcap`); `/clawd hat none` takes it off;
   `/clawd hat auto` follows the calendar again.
 
@@ -103,7 +110,7 @@ patch version each time; `--minor` for a bigger round). Tests sit in `plugins/cl
 Built on three open projects, with thanks:
 
 - [clawd-crew](https://github.com/hudcolighting/clawd-crew) by hudcolighting (GPL-3.0-or-later): the Clawd pixel
-  art and its animations. Nineteen more animations and the hats were drawn here in the same style.
+  art and its animations. Twenty more animations and the hats were drawn here in the same style.
 - [clawd-pet](https://github.com/Revono/clawd-pet) by Revono (MIT): where the band started, and its icon.
 - [clawd-companion](https://github.com/DevVaradPatil/clawd-companion) by Varad Patil (MIT): the gauges, from its
   clawd-bar mod.

@@ -59,3 +59,34 @@ test('desktop: not due yet, no reminder', async ($, on) => {
   expect(await ui.find({ type: 'Text', text: 'Stand up!' })).toBeUndefined()
   await ui.unmount()
 })
+
+test('desktop: drink water when due; with both due, standing up comes first, then water', async ($, on) => {
+  on('clock.now', () => ({ value: NOW }))
+  const store: Record<string, unknown> = { stand: { next: NOW - 60_000 }, water: { next: NOW - 30_000 } }
+  on('store.get', (_$, e: any) => ({ value: store[e.key] }) as never)
+  on('store.set', (_$, e: any) => {
+    store[e.key] = e.value
+    return { value: undefined } as never
+  })
+  const ui = await mount($)
+  expect(await ui.find({ type: 'Text', text: 'Stand up!' })).toBeDefined()
+  await ui.pointer({ in: 'pet', type: 'down', x: 2, y: 1, button: 'left' })
+  await new Promise(r => setTimeout(r, 50))
+  await ui.unmount()
+  const again = await mount($)
+  expect(await again.find({ type: 'Text', text: 'Drink water!' })).toBeDefined()
+  expect(await again.find({ type: 'Text', text: /45m since the last sip · click Clawd when done/ })).toBeDefined()
+  await again.pointer({ in: 'pet', type: 'down', x: 2, y: 1, button: 'left' })
+  await new Promise(r => setTimeout(r, 50))
+  await again.unmount()
+  expect(store.water).toEqual({ next: NOW + 45 * 60_000 })
+  const third = await mount($)
+  expect(await third.find({ type: 'Text', text: 'Drink water!' })).toBeUndefined()
+  await third.unmount()
+})
+
+test('sprites: the water look drinks the glass down', () => {
+  const { frames } = framesOf('idle.drink')
+  expect(frames.length).toBeGreaterThan(20)
+  expect(frames[0]).not.toEqual(frames[frames.length - 5])
+})

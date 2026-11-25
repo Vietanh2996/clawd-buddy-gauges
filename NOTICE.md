@@ -11,7 +11,7 @@ It merges and changes code from three projects. Their notices follow, kept as th
 <https://github.com/hudcolighting/clawd-crew> by hudcolighting.
 
 - `plugins/clawd-buddy-gauges/hooks/crew-sprites.js`: the Clawd pixel art, copied unchanged except the section
-  marked "drawn for clawd-buddy-gauges" and its entries at the end of `VARIANTS`, which were added here (nineteen
+  marked "drawn for clawd-buddy-gauges" and its entries at the end of `VARIANTS`, which were added here (twenty
   more animations and the hats, 2026-11).
 - `plugins/clawd-buddy-gauges/hooks/crew-pet.ts`: which animation shows for which tool follows clawd-crew's
   `describeTool`; a click steps through a mood's animations in order.

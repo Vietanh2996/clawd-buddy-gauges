@@ -17,6 +17,8 @@ export type Settings = {
   isHidden: boolean
   /** minutes between stand-up reminders: unset 60, 0 off */
   remindMin?: number
+  /** minutes between drink-water reminders: unset 45, 0 off */
+  waterMin?: number
   /** `auto` (the calendar and the clock), `none`, or a hat's name */
   hat?: string
 }

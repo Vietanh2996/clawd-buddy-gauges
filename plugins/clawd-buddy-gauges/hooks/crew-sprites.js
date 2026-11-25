@@ -2620,9 +2620,31 @@ Object.assign(ANIMS, {
   },
 })
 
+// A glass of water in his hand, drunk down a row at each sip: `level` rows
+// of water left (3 full), `at` his hand, `near` on its way up, `lips` to drink.
+PROPS.glass = (g, { at = 'hand', level = 3 } = {}) => {
+  const [x, y] = { hand: [20, 8], near: [18, 8], lips: [15, 9] }[at]
+  const rows = ['l..l', ...[3, 2, 1].map(r => (level >= r ? 'lbbl' : 'l..l')), '.ll.']
+  art(g, x, y, rows, { l: L, b: BL })
+}
+HELD.add('glass')
+
 Object.assign(ANIMS, {
   // A morning stretch: arms up, taller on his toes, a lean to each side with
   // his eyes shut, then a shake and back to himself, bright eyed.
+  // A drink of water: the glass up to his lips three times, a row gone each
+  // time, then a happy, sparkly, watered Clawd.
+  'idle.drink': { ms: 200, frames: [
+    ...loop(3, n => ({ armR: 'mid', eyes: 'right', breathe: n % 2, prop: ['glass', {}] })),
+    ...[2, 1, 0].flatMap(level => [
+      { armR: 'mid', eyes: 'right', prop: ['glass', { at: 'near', level: level + 1 }] },
+      ...loop(3, n => ({ armR: 'mid', eyes: 'closed', prop: ['glass', { at: 'lips', level: n < 2 ? level + 1 : level }] })),
+      { armR: 'mid', eyes: 'happy', prop: ['glass', { at: 'near', level }] },
+      ...loop(2, n => ({ armR: 'mid', eyes: 'happy', breathe: n % 2, prop: ['glass', { level }] })),
+    ]),
+    ...loop(4, n => ({ armR: 'mid', eyes: 'happy', breathe: n % 2, props: [['sparkles', n], ['glass', { level: 0 }]] })),
+    ...loop(3, n => ({ breathe: n % 2 })),
+  ] },
   'idle.stretch': {
     ms: 200,
     frames: [
@@ -2740,7 +2762,7 @@ export const VARIANTS = {
   ['waiting', 'waiting.butt', 'Wiggle'], ['error', 'error.fart', 'Toot'], ['done', 'done.wink', 'Wink'],
   ['error', 'error.tongue', 'Raspberry'], ['typing', 'typing.nod', 'Nod off'],
   ['running', 'running.jog', 'Jog'], ['running', 'running.squat', 'Squat'],
-  ['done', 'done.roid', 'Juiced'], ['idle', 'idle.stretch', 'Stretch'],
+  ['done', 'done.roid', 'Juiced'], ['idle', 'idle.stretch', 'Stretch'], ['idle', 'idle.drink', 'Water'],
 ].forEach(([mood, anim, label]) => VARIANTS[mood].push([anim, label]))
 
 

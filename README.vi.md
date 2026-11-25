@@ -27,6 +27,9 @@ dải báo chữ đỏ, bấm Compact là xong.
 **Ngồi đủ 1 tiếng: đứng dậy đi**<br>
 <img src="docs/demo/band-standup.png" width="760" alt="Ngồi đủ 1 tiếng: đứng dậy đi">
 
+**45 phút: uống ngụm nước**<br>
+<img src="docs/demo/band-water.png" width="760" alt="45 phút: uống ngụm nước">
+
 <sub>Vẽ từ chính code của mod, với số liệu mẫu.</sub>
 
 <p>
@@ -41,7 +44,7 @@ dải báo chữ đỏ, bấm Compact là xong.
 ## Trên dải có gì
 
 - **Bên trái, bạn Clawd.** Clawd diễn lại việc Claude đang làm: nghĩ, đọc, sửa file, chạy lệnh, chờ bạn, xong lượt,
-  test fail, đang compact. Có 17 trạng thái, mỗi trạng thái 3 tới 6 kiểu. [Xem hết các kiểu](docs/PETS.vi.md).
+  test fail, đang compact. Có 17 trạng thái, mỗi trạng thái 3 tới 7 kiểu. [Xem hết các kiểu](docs/PETS.vi.md).
   Trên app desktop, bấm vào Clawd để đổi lần lượt các kiểu của trạng thái đang hiện.
 - **Ở giữa, các thanh đo.** `CTX` (context đã dùng, có vạch chỗ tự compact), `5H` và `7D` (hạn mức 5 giờ và theo
   tuần, kèm dự báo tốc độ dùng của hạn 5 giờ tới lúc reset), và đồng hồ lượt. Bên dưới là dòng chữ Claude đang làm gì.
@@ -51,6 +54,8 @@ dải báo chữ đỏ, bấm Compact là xong.
 - **Stand up!** Ngồi đủ 1 tiếng thì dòng trạng thái chuyển chữ vàng nhắc đứng dậy, Clawd vươn vai. Đứng dậy xong
   bấm vào Clawd (VS Code thì gõ `/clawd remind`), tiếng tiếp theo tính từ lúc đó. Mọi session dùng chung một lời
   nhắc, tắt ở một session là tắt hết.
+- **Drink water!** Cứ 45 phút, đếm riêng, dòng trạng thái chuyển chữ xanh nhạt nhắc uống nước, Clawd cầm cốc uống.
+  Uống xong bấm vào Clawd. Hai lời nhắc trùng giờ thì nhắc đứng dậy trước.
 - **Mũ và giờ trong ngày.** Tết Clawd đội khăn đóng, Noel đội mũ ông già Noel, năm mới đội mũ tiệc, Halloween đội
   bí ngô, khuya đội mũ ngủ, hay ngáp và ngủ sớm hơn. Sáng sớm thì cà phê và vươn vai. [Xem các mũ](docs/PETS.vi.md#mũ).
 
@@ -88,6 +93,7 @@ claude plugin marketplace update clawd-buddy-gauges
 - `/clawd` bật hoặc tắt dải; `/clawd on`, `/clawd off` để chỉ rõ.
 - `/clawd remind 45` nhắc đứng dậy mỗi 45 phút thay vì 60; `/clawd remind off` tắt nhắc; `/clawd remind` trơn là
   đã đứng dậy, đếm lại từ đầu.
+- `/clawd water 30` nhắc uống nước mỗi 30 phút thay vì 45; `/clawd water off` tắt; `/clawd water` trơn là đã uống.
 - `/clawd hat santa` đội cố định một mũ (`tet`, `santa`, `party`, `pumpkin`, `nightcap`); `/clawd hat none` bỏ mũ;
   `/clawd hat auto` quay về theo lịch.
 
@@ -101,7 +107,7 @@ Clone repo, sửa, rồi chạy `./reinstall.sh` để cài bản đang sửa th
 Dựa trên ba dự án mở, xin cảm ơn:
 
 - [clawd-crew](https://github.com/hudcolighting/clawd-crew) của hudcolighting (GPL-3.0-or-later): hình pixel Clawd
-  và các animation. Vẽ thêm 19 animation và bộ mũ cùng phong cách.
+  và các animation. Vẽ thêm 20 animation và bộ mũ cùng phong cách.
 - [clawd-pet](https://github.com/Revono/clawd-pet) của Revono (MIT): khung ban đầu của dải, và icon.
 - [clawd-companion](https://github.com/DevVaradPatil/clawd-companion) của Varad Patil (MIT): các thanh đo, từ mod
   clawd-bar.

@@ -258,44 +258,52 @@ async function saveSettings($: Dollar, patch: Partial<Settings>) {
   await $.store.set(SETTINGS_KEY, await read($, settings))
 }
 
-// ---------------------------------------------------------------- stand up
+// ---------------------------------------------------------------- reminders
 
-// the stand-up reminder, every remindMin minutes (60 unless set, 0 off) by the clock. Its due time sits in $.store,
-// shared by every session: one reminder, and a click in any session clears it for all. Read again every 30 s.
-const STAND_KEY = 'stand'
-const STAND_STALE_MS = 3 * 3_600_000 // due this long ago and never answered (the computer slept): start over
-let standNext = 0
-let standReadAt = 0
+// two reminders, each on its own clock: stand up (every 60 minutes unless set) and drink water (every 45). 0 turns
+// one off. Each due time sits in $.store, shared by every session: one reminder, and a click in any session clears it
+// for all. Read again every 30 s. When both are due, standing up comes first.
+type Nudge = 'stand' | 'water'
+const NUDGE_ORDER: Nudge[] = ['stand', 'water']
+const NUDGES = {
+  stand: { command: 'remind', name: 'Stand-up', main: 'Stand up!', since: 'at the desk', color: '#f0a030', anim: 'idle.stretch', thanks: 'Nice stretch!' },
+  water: { command: 'water', name: 'Water', main: 'Drink water!', since: 'since the last sip', color: '#5bc0de', anim: 'idle.drink', thanks: 'Glug glug!' },
+} as const
+const NUDGE_STALE_MS = 3 * 3_600_000 // due this long ago and never answered (the computer slept): start over
+const nudgeNext: Record<Nudge, number> = { stand: 0, water: 0 }
+let nudgeReadAt = 0
 
-const remindMinOf = (s: Settings) => s.remindMin ?? 60
+const everyMinOf = (s: Settings, n: Nudge) => (n === 'stand' ? (s.remindMin ?? 60) : (s.waterMin ?? 45))
 
-async function syncStand($: Dollar, now: number, isForced = false) {
-  const every = remindMinOf(await read($, settings)) * 60_000
-  if (!every) {
-    standNext = 0
-    return
+async function syncNudges($: Dollar, now: number, isForced = false) {
+  if (!isForced && now - nudgeReadAt < 30_000) return
+  nudgeReadAt = now
+  const s = await read($, settings)
+  for (const n of NUDGE_ORDER) {
+    const every = everyMinOf(s, n) * 60_000
+    if (!every) {
+      nudgeNext[n] = 0
+      continue
+    }
+    // the store unreachable: the reminder keeps this session's own count
+    const saved = (await $.store.get(n).catch(() => undefined)) as { next?: number } | undefined
+    let next = saved?.next ?? nudgeNext[n]
+    if (!next || now - next > NUDGE_STALE_MS || next - now > every) {
+      next = now + every
+      await $.store.set(n, { next }).catch(() => undefined)
+    }
+    nudgeNext[n] = next
   }
-  if (!isForced && standNext && now - standReadAt < 30_000) return
-  standReadAt = now
-  // the store unreachable: the reminder keeps this session's own count
-  const saved = (await $.store.get(STAND_KEY).catch(() => undefined)) as { next?: number } | undefined
-  let next = saved?.next ?? standNext
-  if (!next || now - next > STAND_STALE_MS || next - now > every) {
-    next = now + every
-    await $.store.set(STAND_KEY, { next }).catch(() => undefined)
-  }
-  standNext = next
 }
 
 // the reminder answered (or restarted): due again a full interval from now
-async function restartStand($: Dollar, now: number) {
-  const every = remindMinOf(await read($, settings)) * 60_000
-  standNext = every ? now + every : 0
-  standReadAt = now
-  await $.store.set(STAND_KEY, { next: standNext }).catch(() => undefined)
+async function restartNudge($: Dollar, n: Nudge, now: number) {
+  const every = everyMinOf(await read($, settings), n) * 60_000
+  nudgeNext[n] = every ? now + every : 0
+  await $.store.set(n, { next: nudgeNext[n] }).catch(() => undefined)
 }
 
-const isStandDue = (now: number) => standNext > 0 && now >= standNext
+const dueNudge = (now: number) => NUDGE_ORDER.find(n => nudgeNext[n] > 0 && now >= nudgeNext[n]) ?? null
 const minutesLabel = (min: number) => (min % 60 ? `${min}m` : `${min / 60}h`)
 
 // ---------------------------------------------------------------- time
@@ -429,7 +437,9 @@ type Scene = {
   isMainDim?: boolean
 }
 
-function compose(b: Base, r: Reaction | null, l: Local, now: number, tools: number, standMin = 0): Scene {
+type DueNudge = { main: string; sub: string; color: string; anim: string }
+
+function compose(b: Base, r: Reaction | null, l: Local, now: number, tools: number, nudge: DueNudge | null = null): Scene {
   const scene: Scene = { mood: 'idle', main: '', sub: '' }
   const age = now - b.since
 
@@ -495,15 +505,15 @@ function compose(b: Base, r: Reaction | null, l: Local, now: number, tools: numb
       break
   }
 
-  // time to stand up: the words in amber, and Clawd stretches when it is not busy (a question waiting comes first)
-  if (standMin && kind !== 'needs') {
-    scene.main = 'Stand up!'
-    scene.sub = `${minutesLabel(standMin)} at the desk · click Clawd when done`
-    scene.color = AMBER
+  // a reminder due: its words in its colour, and Clawd acts it out when it is not busy (a question waiting comes first)
+  if (nudge && kind !== 'needs') {
+    scene.main = nudge.main
+    scene.sub = nudge.sub
+    scene.color = nudge.color
     scene.isMainDim = false
     if (kind === 'idle' || kind === 'sleep' || kind === 'done') {
       scene.mood = 'idle'
-      scene.anim = 'idle.stretch'
+      scene.anim = nudge.anim
     }
   }
 
@@ -548,7 +558,9 @@ async function viewAt($: Dollar) {
   const counted = await read($, toolsToday)
   const tools = counted.date === dateKey(l) ? counted.count : 0
   const s = await read($, settings)
-  const scene = compose(b, r, l, now, tools, isStandDue(now) ? remindMinOf(s) : 0)
+  const due = dueNudge(now)
+  const nudge = due && { ...NUDGES[due], sub: `${minutesLabel(everyMinOf(s, due))} ${NUDGES[due].since} · click Clawd when done` }
+  const scene = compose(b, r, l, now, tools, nudge)
   const shown = petAnim(scene.mood, now, dayPartOf(l.hour))
   const hat = hatFor(s.hat, l)
   const anim = (scene.anim ?? shown.anim) + (hat ? `+${hat}` : '')
@@ -566,7 +578,7 @@ async function onTick($: Dollar) {
   const s = await read($, settings)
   if (s.isHidden) return
   await loadCache($)
-  await syncStand($, await $.clock.now())
+  await syncNudges($, await $.clock.now())
   // the desktop's pet animates itself in its Client: redraw only when the text, colours, pet or meters change
   const v = await viewAt($)
   metersFor(v.now)
@@ -586,7 +598,7 @@ export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     await $.command.register({
       name: 'clawd',
-      description: 'Clawd: show or hide (on|off), remind <minutes>|off, hat <name>|auto|none',
+      description: 'Clawd: show or hide (on|off), remind <minutes>|off, water <minutes>|off, hat <name>|auto|none',
     })
     const saved = (await $.store.get(SETTINGS_KEY)) as Partial<Settings> | undefined
     if (saved) await update($, settings, s => ({ ...s, ...saved }))
@@ -604,19 +616,21 @@ export const register: Register = on => {
   on('command.run', { command: 'clawd' }, async ($, e) => {
     const [word = '', arg = ''] = e.args.trim().toLowerCase().split(/\s+/)
     const now = await $.clock.now()
-    if (word === 'remind') {
+    const n = NUDGE_ORDER.find(x => NUDGES[x].command === word)
+    if (n) {
+      const key = n === 'stand' ? 'remindMin' : 'waterMin'
+      const what = n === 'stand' ? 'stand up' : 'drink water'
       if (arg === 'off' || arg === '0') {
-        await saveSettings($, { remindMin: 0 })
-        await syncStand($, now, true)
-        return { text: 'Stand-up reminder off.' }
+        await saveSettings($, { [key]: 0 })
+        await syncNudges($, now, true)
+        return { text: `${NUDGES[n].name} reminder off.` }
       }
       const min = Number(arg)
-      if (arg && !(Number.isInteger(min) && min >= 5 && min <= 600)) return { text: 'Usage: /clawd remind <minutes, 5-600> | off' }
-      if (arg) await saveSettings($, { remindMin: min })
-      const every = remindMinOf(await read($, settings))
-      if (!every) await saveSettings($, { remindMin: 60 })
-      await restartStand($, now)
-      return { text: `Clawd will remind you to stand up every ${minutesLabel(remindMinOf(await read($, settings)))}, next one counted from now.` }
+      if (arg && !(Number.isInteger(min) && min >= 5 && min <= 600)) return { text: `Usage: /clawd ${word} <minutes, 5-600> | off` }
+      if (arg) await saveSettings($, { [key]: min })
+      else if (!everyMinOf(await read($, settings), n)) await saveSettings($, { [key]: n === 'stand' ? 60 : 45 })
+      await restartNudge($, n, now)
+      return { text: `Clawd will remind you to ${what} every ${minutesLabel(everyMinOf(await read($, settings), n))}, next one counted from now.` }
     }
     if (word === 'hat') {
       const choice = arg || 'auto'
@@ -854,10 +868,11 @@ export const register: Register = on => {
   on('ui.message', async ($, e, next) => {
     if (e.element !== 'pet') return next(e)
     const now = await $.clock.now()
-    // a click while the stand-up reminder shows answers it, in every session, and starts the next interval
-    if (isStandDue(now)) {
-      await restartStand($, now)
-      $.ui.toast(`Nice stretch! Next reminder in ${minutesLabel(remindMinOf(await read($, settings)))}.`)
+    // a click while a reminder shows answers it, in every session, and starts its next interval
+    const due = dueNudge(now)
+    if (due) {
+      await restartNudge($, due, now)
+      $.ui.toast(`${NUDGES[due].thanks} Next one in ${minutesLabel(everyMinOf(await read($, settings), due))}.`)
     }
     const hat = hatFor((await read($, settings)).hat, localTime(now))
     const anim = shufflePet(now) + (hat ? `+${hat}` : '')
@@ -868,7 +883,7 @@ export const register: Register = on => {
     const s: Settings = { ...(await read($, settings)) } as Settings
     if (e.props.hasSurvey || s.isHidden) return next(e)
     await loadCache($)
-    await syncStand($, await $.clock.now())
+    await syncNudges($, await $.clock.now())
 
     // the app only, not the terminal; read deskTick so the band redraws when onTick finds a change
     if (e.surface === 'terminal') return next(e)
@@ -916,7 +931,7 @@ export const register: Register = on => {
                 {scene.main}
                 {sub ? (
                   <Text color={LABEL} weight="regular">
-                    {` · ${e.surface === 'desktop' ? sub : sub.replace('click Clawd', '/clawd remind')}`}
+                    {` · ${e.surface === 'desktop' ? sub : sub.replace('click Clawd', `/clawd ${NUDGES[dueNudge(now) ?? 'stand'].command}`)}`}
                   </Text>
                 ) : null}
               </Text>
