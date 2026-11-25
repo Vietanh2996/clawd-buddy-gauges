@@ -26,6 +26,22 @@ The first three looks of each mood are from [clawd-crew](https://github.com/hudc
 | **error**<br>A command failed; tests failed | <img src="pets/error.svg" width="140" alt="error"><br><sub>Classic</sub> | <img src="pets/error.smoke.svg" width="140" alt="error.smoke"><br><sub>Smoke</sub> | <img src="pets/error.rain.svg" width="140" alt="error.rain"><br><sub>Rain</sub> | <img src="pets/error.debug.svg" width="140" alt="error.debug"><br><sub>Debug</sub> | <img src="pets/error.fart.svg" width="140" alt="error.fart"><br><sub>Toot</sub> | <img src="pets/error.tongue.svg" width="140" alt="error.tongue"><br><sub>Raspberry</sub> |  |
 | **compacting**<br>Compacting | <img src="pets/compacting.svg" width="140" alt="compacting"><br><sub>Classic</sub> | <img src="pets/compacting.squeeze.svg" width="140" alt="compacting.squeeze"><br><sub>Squeeze</sub> | <img src="pets/compacting.vacuum.svg" width="140" alt="compacting.vacuum"><br><sub>Vacuum</sub> | <img src="pets/compacting.sweep.svg" width="140" alt="compacting.sweep"><br><sub>Sweep</sub> |  |  |  |
 
+## Reminders
+
+Two reminders, each on its own clock and shared by all your sessions. When one is due the status line says so in
+its colour, and Clawd acts it out when it is not busy. Click Clawd once you have done it (in VS Code, type the
+command): the next one counts from then, in every session. When both are due, standing up comes first.
+
+| Stand up · every 60 min · `/clawd remind <min>\|off` | Drink water · every 45 min · `/clawd water <min>\|off` |
+|:-:|:-:|
+| <img src="pets/idle.stretch.svg" width="140" alt="idle.stretch"><br><sub>Stretch</sub> | <img src="pets/idle.drink.svg" width="140" alt="idle.drink"><br><sub>Water</sub> |
+
+**Stand up!**<br>
+<img src="demo/band-standup.png" width="760" alt="Stand up reminder">
+
+**Drink water!**<br>
+<img src="demo/band-water.png" width="760" alt="Drink water reminder">
+
 ## Hats
 
 On holidays Clawd wears a hat over every look, and a nightcap late at night. `/clawd hat <name>` keeps one on

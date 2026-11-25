@@ -26,6 +26,22 @@ Ba kiểu đầu của mỗi trạng thái lấy từ [clawd-crew](https://githu
 | **error**<br>Lệnh lỗi; test fail | <img src="pets/error.svg" width="140" alt="error"><br><sub>Classic</sub> | <img src="pets/error.smoke.svg" width="140" alt="error.smoke"><br><sub>Smoke</sub> | <img src="pets/error.rain.svg" width="140" alt="error.rain"><br><sub>Rain</sub> | <img src="pets/error.debug.svg" width="140" alt="error.debug"><br><sub>Debug</sub> | <img src="pets/error.fart.svg" width="140" alt="error.fart"><br><sub>Toot</sub> | <img src="pets/error.tongue.svg" width="140" alt="error.tongue"><br><sub>Raspberry</sub> |  |
 | **compacting**<br>Đang /compact | <img src="pets/compacting.svg" width="140" alt="compacting"><br><sub>Classic</sub> | <img src="pets/compacting.squeeze.svg" width="140" alt="compacting.squeeze"><br><sub>Squeeze</sub> | <img src="pets/compacting.vacuum.svg" width="140" alt="compacting.vacuum"><br><sub>Vacuum</sub> | <img src="pets/compacting.sweep.svg" width="140" alt="compacting.sweep"><br><sub>Sweep</sub> |  |  |  |
 
+## Lời nhắc
+
+Hai lời nhắc, mỗi cái đếm giờ riêng, mọi session dùng chung. Tới giờ thì dòng trạng thái đổi màu báo, Clawd đang
+rảnh thì diễn luôn. Làm xong bấm vào Clawd (VS Code thì gõ lệnh), lần sau tính từ lúc đó, ở mọi session. Hai cái trùng
+giờ thì nhắc đứng dậy trước.
+
+| Đứng dậy · mỗi 60 phút · `/clawd remind <phút>\|off` | Uống nước · mỗi 45 phút · `/clawd water <phút>\|off` |
+|:-:|:-:|
+| <img src="pets/idle.stretch.svg" width="140" alt="idle.stretch"><br><sub>Stretch</sub> | <img src="pets/idle.drink.svg" width="140" alt="idle.drink"><br><sub>Water</sub> |
+
+**Stand up!**<br>
+<img src="demo/band-standup.png" width="760" alt="Nhắc đứng dậy">
+
+**Drink water!**<br>
+<img src="demo/band-water.png" width="760" alt="Nhắc uống nước">
+
 ## Mũ
 
 Dịp lễ Clawd đội mũ trên mọi kiểu, khuya thì đội mũ ngủ. `/clawd hat <tên>` để đội cố định một mũ (`tet`, `santa`,
