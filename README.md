@@ -12,6 +12,8 @@ Compact button.
   <img src="docs/pets/idle.crab.svg" width="150" alt="Clawd scuttling sideways while idle">
 </p>
 
+**[▶ See every Clawd animation, mood by mood](docs/PETS.md)**
+
 ## What's in the band
 
 - **Left, the buddy.** Clawd acts out what Claude is doing: thinking, reading, editing, running commands, waiting
@@ -27,6 +29,17 @@ Compact button.
 Shows in the Claude Code desktop app and in the VS Code extension. The terminal is left as it is.
 
 ## Install
+
+**The easy way:** open Claude Code (desktop app or VS Code), paste this in and send it:
+
+```text
+Install the Claude Code plugin clawd-buddy-gauges for me. Run these two commands in the terminal:
+claude plugin marketplace add Vietanh2996/clawd-buddy-gauges
+claude plugin install clawd-buddy-gauges@clawd-buddy-gauges
+Then run "claude plugin list" to check it is installed and enabled, and tell me in plain words whether it worked. If it did, remind me to start a new session to see the band.
+```
+
+**Or by hand,** in a terminal:
 
 ```bash
 claude plugin marketplace add Vietanh2996/clawd-buddy-gauges

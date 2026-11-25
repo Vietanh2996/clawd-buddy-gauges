@@ -12,6 +12,8 @@ Compact.
   <img src="docs/pets/idle.crab.svg" width="150" alt="Clawd bò ngang lúc rảnh">
 </p>
 
+**[▶ Xem hết các con Clawd, theo từng tình huống](docs/PETS.vi.md)**
+
 ## Trên dải có gì
 
 - **Bên trái, bạn Clawd.** Clawd diễn lại việc Claude đang làm: nghĩ, đọc, sửa file, chạy lệnh, chờ bạn, xong lượt,
@@ -26,6 +28,17 @@ Compact.
 Hiện trên app desktop Claude Code và extension VS Code. Terminal giữ nguyên, không đổi.
 
 ## Cài đặt
+
+**Cách dễ nhất:** mở Claude Code (app desktop hoặc VS Code), dán đoạn này vào rồi gửi:
+
+```text
+Cài giúp tôi plugin Claude Code tên clawd-buddy-gauges. Chạy hai lệnh này trong terminal:
+claude plugin marketplace add Vietanh2996/clawd-buddy-gauges
+claude plugin install clawd-buddy-gauges@clawd-buddy-gauges
+Sau đó chạy "claude plugin list" để kiểm tra đã cài và đang bật chưa, rồi báo tôi bằng lời dễ hiểu là được hay chưa. Nếu được thì nhắc tôi mở session mới để thấy dải.
+```
+
+**Hoặc tự gõ** trong terminal:
 
 ```bash
 claude plugin marketplace add Vietanh2996/clawd-buddy-gauges
