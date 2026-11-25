@@ -37,9 +37,20 @@ const HOLD_MS = 2_000
 const URGENT = new Set<Mood>(['waiting', 'done', 'error'])
 let shown: { mood: Mood; anim: string; since: number } | null = null
 
-const randomAnim = (mood: Mood) => {
-  const list = VARIANTS[mood] ?? [[mood, 'Classic']]
-  return list[Math.floor(Math.random() * list.length)]![0]
+// the time of day leans some moods to some looks: coffee and a stretch in the morning, yawns at night
+export type DayPart = 'morning' | 'day' | 'night'
+export const dayPartOf = (hour: number): DayPart => (hour >= 6 && hour < 9 ? 'morning' : hour >= 23 || hour < 5 ? 'night' : 'day')
+const PREFER: Record<DayPart, Partial<Record<Mood, string[]>>> = {
+  morning: { idle: ['idle.coffee', 'idle.stretch'] },
+  day: {},
+  night: { idle: ['idle.yawn', 'idle'] },
+}
+
+const randomAnim = (mood: Mood, part: DayPart = 'day') => {
+  const pick = <T,>(xs: T[]) => xs[Math.floor(Math.random() * xs.length)]!
+  const preferred = PREFER[part][mood]
+  if (preferred && Math.random() < 0.75) return pick(preferred)
+  return pick(VARIANTS[mood] ?? [[mood, 'Classic']])[0]
 }
 
 // a click on the pet: the next animation of the mood it is in (each has three to six), in list order and wrapping
@@ -52,10 +63,10 @@ export const shufflePet = (now: number) => {
 }
 
 // the animation to show now, and when it started
-export const petAnim = (wanted: Mood, now: number) => {
+export const petAnim = (wanted: Mood, now: number, part: DayPart = 'day') => {
   if (shown?.mood === wanted) return shown
   const isDue = !shown || URGENT.has(wanted) || URGENT.has(shown.mood) || now - shown.since >= HOLD_MS
-  if (isDue) shown = { mood: wanted, anim: randomAnim(wanted), since: now }
+  if (isDue) shown = { mood: wanted, anim: randomAnim(wanted, part), since: now }
   return shown!
 }
 

@@ -2620,6 +2620,25 @@ Object.assign(ANIMS, {
   },
 })
 
+Object.assign(ANIMS, {
+  // A morning stretch: arms up, taller on his toes, a lean to each side with
+  // his eyes shut, then a shake and back to himself, bright eyed.
+  'idle.stretch': {
+    ms: 200,
+    frames: [
+      ...loop(3, n => ({ breathe: n % 2 })),
+      { eyes: 'closed', armL: 'mid', armR: 'mid' },
+      ...loop(4, () => ({ eyes: 'closed', squash: -1, armL: 'up', armR: 'up' })),
+      ...loop(3, () => ({ dx: -1, eyes: 'closed', squash: -1, armL: 'up', armR: 'up' })),
+      ...loop(3, () => ({ dx: 1, eyes: 'closed', squash: -1, armL: 'up', armR: 'up' })),
+      { eyes: 'closed', armL: 'mid', armR: 'mid' },
+      ...loop(2, n => ({ dx: n % 2 ? 1 : -1, eyes: 'happy' })),
+      ...loop(4, n => ({ eyes: 'happy', breathe: n % 2, prop: ['sparkles', n] })),
+      ...loop(4, n => ({ breathe: n % 2 })),
+    ],
+  },
+})
+
 // What each mood can be drawn as, its own animation first, each with the
 // short name the settings show.
 export const VARIANTS = {
@@ -2721,25 +2740,102 @@ export const VARIANTS = {
   ['waiting', 'waiting.butt', 'Wiggle'], ['error', 'error.fart', 'Toot'], ['done', 'done.wink', 'Wink'],
   ['error', 'error.tongue', 'Raspberry'], ['typing', 'typing.nod', 'Nod off'],
   ['running', 'running.jog', 'Jog'], ['running', 'running.squat', 'Squat'],
-  ['done', 'done.roid', 'Juiced'],
+  ['done', 'done.roid', 'Juiced'], ['idle', 'idle.stretch', 'Stretch'],
 ].forEach(([mood, anim, label]) => VARIANTS[mood].push([anim, label]))
+
+
+// ------------------------------------------- hats, drawn for clawd-buddy-gauges --
+//
+// Worn over any animation: framesOf('idle.coffee+santa'). Each hat is rows of
+// characters, its last row sitting on the top of his head, centred on him.
+
+const DR = PALETTE.push('#A8322C') - 1 // dark red
+const OR = PALETTE.push('#EE8B2E') - 1 // pumpkin
+const OD = PALETTE.push('#C0631A') - 1 // pumpkin's ridges
+const NV = PALETTE.push('#4F6FA8') - 1 // nightcap blue
+
+const HAT_INK = { r: R, d: DR, w: WT, y: Y, b: BL, g: GR, o: OR, O: OD, n: NV, k: K, x: BR }
+
+export const HATS = {
+  // Father Christmas's, its tip and bobble flopping over to his left.
+  santa: [
+    '........rrww',
+    '......rrrrww',
+    '....rrrrrr..',
+    '..rrrrrrrr..',
+    '.wwwwwwwwww.',
+  ],
+  // A striped party cone with a star on top, for the new year.
+  party: [
+    '...y...',
+    '..yyy..',
+    '...b...',
+    '..byb..',
+    '..yby..',
+    '.bybyb.',
+  ],
+  // A pumpkin balanced on his head, two eyes cut in it.
+  pumpkin: [
+    '....xg..',
+    '...xx...',
+    '.oOoOoO.',
+    'oOkoOkoO',
+    'oOoOoOoO',
+    '.oOoOoO.',
+  ],
+  // For Tết: a red khăn đóng wrapped round, its folds in two reds, a gold band.
+  tet: [
+    '..rdrdrdrd..',
+    '.rdrdrdrdrd.',
+    'yyyyyyyyyyyy',
+  ],
+  // A striped nightcap, its bobble hanging by his ear.
+  nightcap: [
+    '...nwnw.....',
+    '..nwnwnwn...',
+    '.nwnwnwnwnn.',
+    '.wwwwwwwwwnw',
+    '..........ww',
+  ],
+}
+
+// already wearing something on his head, or not quite himself
+const HATLESS = new Set(['thinking.wizard', 'running.jog', 'thinking.cube', 'rallying.horde', 'delegating.tower'])
+
+// where his head is in this frame, as clawd() works it out
+const wearHat = (g, o, rows) => {
+  const sq = o.squash ?? o.lie ?? 0
+  const bw = BODY_W + 2 * sq
+  const bh = BODY_H - sq
+  const bx = BX + (o.dx ?? 0) - sq
+  const by = o.lie !== undefined ? GROUND - bh : BY + (o.dy ?? 0) + sq + (o.breathe ? 1 : 0)
+  const w = Math.max(...rows.map(r => r.length))
+  const last = rows.length - 1
+  // the last row (a brim) sits on his head, all but the nightcap's bobble, which hangs beside it
+  const lift = rows === HATS.nightcap ? 1 : 0
+  art(g, bx + Math.floor((bw - w) / 2), by - last - 1 + lift, rows, HAT_INK)
+}
 
 export const ANIMATIONS = Object.keys(ANIMS)
 
 const cache = new Map()
 
 // The frames of one animation as grids, and how long each frame shows.
+// `name` may end in `+<hat>` (see HATS): the hat is drawn on his head in every frame.
 export const framesOf = name => {
-  const key = ANIMS[name] ? name : 'idle'
+  const [base, hatName] = name.split('+')
+  const hat = HATS[hatName] && !HATLESS.has(base) ? HATS[hatName] : null
+  const key = (ANIMS[base] ? base : 'idle') + (hat ? `+${hatName}` : '')
   const hit = cache.get(key)
   if (hit) return hit
-  const anim = ANIMS[key]
+  const anim = ANIMS[ANIMS[base] ? base : 'idle']
   const frames = anim.frames.map(o => {
     const g = new Uint8Array(W * H)
     const props = o.props ?? (o.prop ? [o.prop] : [])
     for (const [prop, step] of props) if (!HELD.has(prop)) PROPS[prop](g, step)
     clawd(g, o)
     for (const [prop, step] of props) if (HELD.has(prop)) PROPS[prop](g, step)
+    if (hat) wearHat(g, o, hat)
     return g
   })
   const out = { ms: anim.ms, frames }

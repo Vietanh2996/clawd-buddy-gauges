@@ -2,14 +2,14 @@
 
 [English](PETS.md)
 
-Mỗi trạng thái có từ 3 tới 6 kiểu, pet chọn ngẫu nhiên một kiểu khi đổi trạng thái. Bấm vào pet trên app desktop để đổi lần lượt sang kiểu kế tiếp của trạng thái đang hiện, hết thì quay lại kiểu đầu.
+Mỗi trạng thái có từ 3 tới 6 kiểu, pet chọn ngẫu nhiên một kiểu khi đổi trạng thái (sáng sớm hay uống cà phê, vươn vai; khuya hay ngáp). Bấm vào pet trên app desktop để đổi lần lượt sang kiểu kế tiếp của trạng thái đang hiện, hết thì quay lại kiểu đầu.
 
 Ba kiểu đầu của mỗi trạng thái lấy từ [clawd-crew](https://github.com/hudcolighting/clawd-crew) (GPL-3.0). Các kiểu sau đó tự vẽ cho clawd-buddy-gauges, cùng bộ thân, mắt, tay, chân.
 
 | Trạng thái · khi nào hiện | Kiểu 1 | Kiểu 2 | Kiểu 3 | Kiểu 4 | Kiểu 5 | Kiểu 6 |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|
-| **idle**<br>Rảnh, chờ bạn gõ | <img src="pets/idle.svg" width="140" alt="idle"><br><sub>Classic</sub> | <img src="pets/idle.coffee.svg" width="140" alt="idle.coffee"><br><sub>Coffee</sub> | <img src="pets/idle.tune.svg" width="140" alt="idle.tune"><br><sub>Humming</sub> | <img src="pets/idle.yawn.svg" width="140" alt="idle.yawn"><br><sub>Yawn</sub> | <img src="pets/idle.crab.svg" width="140" alt="idle.crab"><br><sub>Crab</sub> |  |
-| **sleeping**<br>Rảnh lâu hơn 10 phút | <img src="pets/sleeping.svg" width="140" alt="sleeping"><br><sub>Classic</sub> | <img src="pets/sleeping.blanket.svg" width="140" alt="sleeping.blanket"><br><sub>Tucked in</sub> | <img src="pets/sleeping.doze.svg" width="140" alt="sleeping.doze"><br><sub>Dozing</sub> |  |  |  |
+| **idle**<br>Rảnh, chờ bạn gõ | <img src="pets/idle.svg" width="140" alt="idle"><br><sub>Classic</sub> | <img src="pets/idle.coffee.svg" width="140" alt="idle.coffee"><br><sub>Coffee</sub> | <img src="pets/idle.tune.svg" width="140" alt="idle.tune"><br><sub>Humming</sub> | <img src="pets/idle.yawn.svg" width="140" alt="idle.yawn"><br><sub>Yawn</sub> | <img src="pets/idle.crab.svg" width="140" alt="idle.crab"><br><sub>Crab</sub> | <img src="pets/idle.stretch.svg" width="140" alt="idle.stretch"><br><sub>Stretch</sub> |
+| **sleeping**<br>Rảnh lâu hơn 10 phút (khuya thì 3 phút) | <img src="pets/sleeping.svg" width="140" alt="sleeping"><br><sub>Classic</sub> | <img src="pets/sleeping.blanket.svg" width="140" alt="sleeping.blanket"><br><sub>Tucked in</sub> | <img src="pets/sleeping.doze.svg" width="140" alt="sleeping.doze"><br><sub>Dozing</sub> |  |  |  |
 | **thinking**<br>Claude đang nghĩ | <img src="pets/thinking.svg" width="140" alt="thinking"><br><sub>Classic</sub> | <img src="pets/thinking.pace.svg" width="140" alt="thinking.pace"><br><sub>Pacing</sub> | <img src="pets/thinking.cube.svg" width="140" alt="thinking.cube"><br><sub>Cube</sub> | <img src="pets/thinking.wizard.svg" width="140" alt="thinking.wizard"><br><sub>Wizard</sub> | <img src="pets/thinking.ultrathink.svg" width="140" alt="thinking.ultrathink"><br><sub>Ultrathink</sub> |  |
 | **responding**<br>Claude đang viết câu trả lời | <img src="pets/responding.svg" width="140" alt="responding"><br><sub>Classic</sub> | <img src="pets/responding.letter.svg" width="140" alt="responding.letter"><br><sub>Letter</sub> | <img src="pets/responding.board.svg" width="140" alt="responding.board"><br><sub>Board</sub> |  |  |  |
 | **typing**<br>Sửa / ghi file (Edit, Write) | <img src="pets/typing.svg" width="140" alt="typing"><br><sub>Classic</sub> | <img src="pets/typing.matrix.svg" width="140" alt="typing.matrix"><br><sub>Matrix</sub> | <img src="pets/typing.desk.svg" width="140" alt="typing.desk"><br><sub>Desk</sub> | <img src="pets/typing.nod.svg" width="140" alt="typing.nod"><br><sub>Nod off</sub> |  |  |
@@ -25,5 +25,15 @@ Ba kiểu đầu của mỗi trạng thái lấy từ [clawd-crew](https://githu
 | **done**<br>Xong lượt; test qua; bấm vào pet | <img src="pets/done.svg" width="140" alt="done"><br><sub>Classic</sub> | <img src="pets/done.trophy.svg" width="140" alt="done.trophy"><br><sub>Trophy</sub> | <img src="pets/done.dance.svg" width="140" alt="done.dance"><br><sub>Dance</sub> | <img src="pets/done.wink.svg" width="140" alt="done.wink"><br><sub>Wink</sub> | <img src="pets/done.roid.svg" width="140" alt="done.roid"><br><sub>Juiced</sub> |  |
 | **error**<br>Lệnh lỗi; test fail | <img src="pets/error.svg" width="140" alt="error"><br><sub>Classic</sub> | <img src="pets/error.smoke.svg" width="140" alt="error.smoke"><br><sub>Smoke</sub> | <img src="pets/error.rain.svg" width="140" alt="error.rain"><br><sub>Rain</sub> | <img src="pets/error.debug.svg" width="140" alt="error.debug"><br><sub>Debug</sub> | <img src="pets/error.fart.svg" width="140" alt="error.fart"><br><sub>Toot</sub> | <img src="pets/error.tongue.svg" width="140" alt="error.tongue"><br><sub>Raspberry</sub> |
 | **compacting**<br>Đang /compact | <img src="pets/compacting.svg" width="140" alt="compacting"><br><sub>Classic</sub> | <img src="pets/compacting.squeeze.svg" width="140" alt="compacting.squeeze"><br><sub>Squeeze</sub> | <img src="pets/compacting.vacuum.svg" width="140" alt="compacting.vacuum"><br><sub>Vacuum</sub> | <img src="pets/compacting.sweep.svg" width="140" alt="compacting.sweep"><br><sub>Sweep</sub> |  |  |
+
+## Mũ
+
+Dịp lễ Clawd đội mũ trên mọi kiểu, khuya thì đội mũ ngủ. `/clawd hat <tên>` để đội cố định một mũ (`tet`, `santa`,
+`party`, `pumpkin`, `nightcap`), `/clawd hat none` bỏ mũ, `/clawd hat auto` quay về theo lịch. Tết tính từ 3 ngày
+trước mùng 1 tới mùng 5.
+
+| Khăn đóng · Tết | Santa · 20–26/12 | Mũ tiệc · 31/12–1/1 | Bí ngô · 25–31/10 | Mũ ngủ · 23h–5h |
+|:-:|:-:|:-:|:-:|:-:|
+| <img src="pets/idle.hat-tet.svg" width="140" alt="idle.hat-tet"><br><sub>tet</sub> | <img src="pets/idle.coffee.hat-santa.svg" width="140" alt="idle.coffee.hat-santa"><br><sub>santa</sub> | <img src="pets/done.dance.hat-party.svg" width="140" alt="done.dance.hat-party"><br><sub>party</sub> | <img src="pets/idle.tune.hat-pumpkin.svg" width="140" alt="idle.tune.hat-pumpkin"><br><sub>pumpkin</sub> | <img src="pets/sleeping.hat-nightcap.svg" width="140" alt="sleeping.hat-nightcap"><br><sub>nightcap</sub> |
 
 <!-- Hình trong pets/ vẽ từ plugins/clawd-buddy-gauges/hooks/crew-sprites.js. -->

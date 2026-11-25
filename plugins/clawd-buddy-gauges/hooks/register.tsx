@@ -2,7 +2,8 @@ import { atom, read, update } from 'claude-code'
 import type { Elements, EngineInterface, Register } from 'claude-code'
 
 import type { Base, BaseKind, BranchMenu, Reaction, ReactionKind, Settings, ToolsToday } from '../types'
-import { PET_ASPECT, moodForTool, petAnim, petSvg, shufflePet, type Mood } from './crew-pet'
+import { HAT_NAMES, hatFor, isNight } from './calendar'
+import { PET_ASPECT, dayPartOf, moodForTool, petAnim, petSvg, shufflePet, type Mood } from './crew-pet'
 import { burnOf, k, metersSvg, span, type Info, type Sample } from './meters'
 
 // ---------------------------------------------------------------- state
@@ -257,6 +258,46 @@ async function saveSettings($: Dollar, patch: Partial<Settings>) {
   await $.store.set(SETTINGS_KEY, await read($, settings))
 }
 
+// ---------------------------------------------------------------- stand up
+
+// the stand-up reminder, every remindMin minutes (60 unless set, 0 off) by the clock. Its due time sits in $.store,
+// shared by every session: one reminder, and a click in any session clears it for all. Read again every 30 s.
+const STAND_KEY = 'stand'
+const STAND_STALE_MS = 3 * 3_600_000 // due this long ago and never answered (the computer slept): start over
+let standNext = 0
+let standReadAt = 0
+
+const remindMinOf = (s: Settings) => s.remindMin ?? 60
+
+async function syncStand($: Dollar, now: number, isForced = false) {
+  const every = remindMinOf(await read($, settings)) * 60_000
+  if (!every) {
+    standNext = 0
+    return
+  }
+  if (!isForced && standNext && now - standReadAt < 30_000) return
+  standReadAt = now
+  // the store unreachable: the reminder keeps this session's own count
+  const saved = (await $.store.get(STAND_KEY).catch(() => undefined)) as { next?: number } | undefined
+  let next = saved?.next ?? standNext
+  if (!next || now - next > STAND_STALE_MS || next - now > every) {
+    next = now + every
+    await $.store.set(STAND_KEY, { next }).catch(() => undefined)
+  }
+  standNext = next
+}
+
+// the reminder answered (or restarted): due again a full interval from now
+async function restartStand($: Dollar, now: number) {
+  const every = remindMinOf(await read($, settings)) * 60_000
+  standNext = every ? now + every : 0
+  standReadAt = now
+  await $.store.set(STAND_KEY, { next: standNext }).catch(() => undefined)
+}
+
+const isStandDue = (now: number) => standNext > 0 && now >= standNext
+const minutesLabel = (min: number) => (min % 60 ? `${min}m` : `${min / 60}h`)
+
 // ---------------------------------------------------------------- time
 
 type Local = { year: number; month: number; day: number; hour: number; minute: number }
@@ -381,13 +422,14 @@ const RED = '#e05252'
 
 type Scene = {
   mood: Mood // the crew Clawd to show
+  anim?: string // a set animation instead of one of the mood's
   main: string
   sub: string
   color?: string
   isMainDim?: boolean
 }
 
-function compose(b: Base, r: Reaction | null, l: Local, now: number, tools: number): Scene {
+function compose(b: Base, r: Reaction | null, l: Local, now: number, tools: number, standMin = 0): Scene {
   const scene: Scene = { mood: 'idle', main: '', sub: '' }
   const age = now - b.since
 
@@ -403,7 +445,8 @@ function compose(b: Base, r: Reaction | null, l: Local, now: number, tools: numb
   if (kind === 'done') expire(300_000)
   else if (kind === 'thinking' || kind === 'working' || kind === 'compacting') expire(1_200_000)
   else if (kind === 'needs') expire(3_600_000)
-  if (kind === 'idle' && now - idleSince > 600_000) kind = 'sleep'
+  // late at night Clawd dozes off after 3 minutes, not 10
+  if (kind === 'idle' && now - idleSince > (isNight(l.hour) ? 180_000 : 600_000)) kind = 'sleep'
 
   switch (kind) {
     case 'thinking':
@@ -452,6 +495,18 @@ function compose(b: Base, r: Reaction | null, l: Local, now: number, tools: numb
       break
   }
 
+  // time to stand up: the words in amber, and Clawd stretches when it is not busy (a question waiting comes first)
+  if (standMin && kind !== 'needs') {
+    scene.main = 'Stand up!'
+    scene.sub = `${minutesLabel(standMin)} at the desk · click Clawd when done`
+    scene.color = AMBER
+    scene.isMainDim = false
+    if (kind === 'idle' || kind === 'sleep' || kind === 'done') {
+      scene.mood = 'idle'
+      scene.anim = 'idle.stretch'
+    }
+  }
+
   // reactions sit on top for a few seconds
   if (r !== null && now < r.until) {
     scene.isMainDim = false
@@ -492,8 +547,12 @@ async function viewAt($: Dollar) {
   const l = localTime(now)
   const counted = await read($, toolsToday)
   const tools = counted.date === dateKey(l) ? counted.count : 0
-  const scene = compose(b, r, l, now, tools)
-  const pet = petAnim(scene.mood, now)
+  const s = await read($, settings)
+  const scene = compose(b, r, l, now, tools, isStandDue(now) ? remindMinOf(s) : 0)
+  const shown = petAnim(scene.mood, now, dayPartOf(l.hour))
+  const hat = hatFor(s.hat, l)
+  const anim = (scene.anim ?? shown.anim) + (hat ? `+${hat}` : '')
+  const pet = { anim, since: scene.anim ? 0 : shown.since }
   const note = compactNote && Date.now() - compactNote.at < 15_000 ? compactNote.text : ''
   const clockNow = [turnClock(now), note].filter(Boolean).join(' · ')
   const sub = clockNow ? (scene.sub ? `${scene.sub} · ${clockNow}` : clockNow) : scene.sub
@@ -507,6 +566,7 @@ async function onTick($: Dollar) {
   const s = await read($, settings)
   if (s.isHidden) return
   await loadCache($)
+  await syncStand($, await $.clock.now())
   // the desktop's pet animates itself in its Client: redraw only when the text, colours, pet or meters change
   const v = await viewAt($)
   metersFor(v.now)
@@ -526,7 +586,7 @@ export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     await $.command.register({
       name: 'clawd',
-      description: 'Clawd: show or hide (on|off)',
+      description: 'Clawd: show or hide (on|off), remind <minutes>|off, hat <name>|auto|none',
     })
     const saved = (await $.store.get(SETTINGS_KEY)) as Partial<Settings> | undefined
     if (saved) await update($, settings, s => ({ ...s, ...saved }))
@@ -542,7 +602,29 @@ export const register: Register = on => {
   })
 
   on('command.run', { command: 'clawd' }, async ($, e) => {
-    const word = e.args.trim().toLowerCase()
+    const [word = '', arg = ''] = e.args.trim().toLowerCase().split(/\s+/)
+    const now = await $.clock.now()
+    if (word === 'remind') {
+      if (arg === 'off' || arg === '0') {
+        await saveSettings($, { remindMin: 0 })
+        await syncStand($, now, true)
+        return { text: 'Stand-up reminder off.' }
+      }
+      const min = Number(arg)
+      if (arg && !(Number.isInteger(min) && min >= 5 && min <= 600)) return { text: 'Usage: /clawd remind <minutes, 5-600> | off' }
+      if (arg) await saveSettings($, { remindMin: min })
+      const every = remindMinOf(await read($, settings))
+      if (!every) await saveSettings($, { remindMin: 60 })
+      await restartStand($, now)
+      return { text: `Clawd will remind you to stand up every ${minutesLabel(remindMinOf(await read($, settings)))}, next one counted from now.` }
+    }
+    if (word === 'hat') {
+      const choice = arg || 'auto'
+      if (choice !== 'auto' && choice !== 'none' && !(HAT_NAMES as string[]).includes(choice))
+        return { text: `Hats: ${HAT_NAMES.join(', ')}, or auto (by the calendar) or none.` }
+      await saveSettings($, { hat: choice })
+      return { text: choice === 'auto' ? 'Hats follow the calendar again.' : choice === 'none' ? 'No hat.' : `Clawd wears the ${choice} hat.` }
+    }
     const hidden = word === 'on' ? false : word === 'off' ? true : !(await read($, settings)).isHidden
     await saveSettings($, { isHidden: hidden })
     return { text: hidden ? 'Clawd went to nap.' : 'Clawd is back.' }
@@ -771,7 +853,14 @@ export const register: Register = on => {
   // a click on the pet (pet-client.tsx posts it): the next animation of the same mood, in turn, handed straight back as the next props
   on('ui.message', async ($, e, next) => {
     if (e.element !== 'pet') return next(e)
-    const anim = shufflePet(await $.clock.now())
+    const now = await $.clock.now()
+    // a click while the stand-up reminder shows answers it, in every session, and starts the next interval
+    if (isStandDue(now)) {
+      await restartStand($, now)
+      $.ui.toast(`Nice stretch! Next reminder in ${minutesLabel(remindMinOf(await read($, settings)))}.`)
+    }
+    const hat = hatFor((await read($, settings)).hat, localTime(now))
+    const anim = shufflePet(now) + (hat ? `+${hat}` : '')
     return { props: { anim, px: PET_H / 18 / 8 } }
   })
 
@@ -779,6 +868,7 @@ export const register: Register = on => {
     const s: Settings = { ...(await read($, settings)) } as Settings
     if (e.props.hasSurvey || s.isHidden) return next(e)
     await loadCache($)
+    await syncStand($, await $.clock.now())
 
     // the app only, not the terminal; read deskTick so the band redraws when onTick finds a change
     if (e.surface === 'terminal') return next(e)
@@ -826,7 +916,7 @@ export const register: Register = on => {
                 {scene.main}
                 {sub ? (
                   <Text color={LABEL} weight="regular">
-                    {` · ${sub}`}
+                    {` · ${e.surface === 'desktop' ? sub : sub.replace('click Clawd', '/clawd remind')}`}
                   </Text>
                 ) : null}
               </Text>

@@ -24,6 +24,9 @@ cache still holds. When the cache runs out, the band says so in red, and Compact
 **Cache run out: time to Compact**<br>
 <img src="docs/demo/band-cache-expired.png" width="760" alt="Cache run out: time to Compact">
 
+**An hour at the desk: stand up**<br>
+<img src="docs/demo/band-standup.png" width="760" alt="An hour at the desk: stand up">
+
 <sub>Drawn from the mod's own code with sample numbers.</sub>
 
 <p>
@@ -46,6 +49,12 @@ cache still holds. When the cache runs out, the band says so in red, and Compact
 - **Right, Compact.** Runs the same compaction as `/compact`. In the desktop app it also counts down the prompt
   cache and turns red when the cache has run out.
 - **⎇** opens the session folder's git repos and their branches, to switch branch from the band.
+- **Stand up!** Every hour at the desk, the status line turns amber and asks you to stand up, and Clawd stretches.
+  Click Clawd once you have (in VS Code, `/clawd remind`): the next hour counts from then. One reminder for all
+  your sessions, and answering it in one clears it in all.
+- **Hats and the time of day.** Clawd wears a khăn đóng for Tết, a Santa hat at Christmas, a party hat at New Year,
+  a pumpkin for Halloween, and a nightcap late at night, when it also yawns and dozes off sooner. Mornings bring
+  coffee and stretches. [The hats](docs/PETS.md#hats).
 
 Shows in the Claude Code desktop app and in the VS Code extension. The terminal is left as it is.
 
@@ -79,6 +88,10 @@ claude plugin marketplace update clawd-buddy-gauges
 ## Use
 
 - `/clawd` shows or hides the band; `/clawd on` and `/clawd off` say which.
+- `/clawd remind 45` reminds you to stand up every 45 minutes instead of 60; `/clawd remind off` stops it;
+  `/clawd remind` alone answers the reminder and counts afresh.
+- `/clawd hat santa` keeps a hat on (`tet`, `santa`, `party`, `pumpkin`, `nightcap`); `/clawd hat none` takes it off;
+  `/clawd hat auto` follows the calendar again.
 
 ## Work on it
 
@@ -90,7 +103,7 @@ patch version each time; `--minor` for a bigger round). Tests sit in `plugins/cl
 Built on three open projects, with thanks:
 
 - [clawd-crew](https://github.com/hudcolighting/clawd-crew) by hudcolighting (GPL-3.0-or-later): the Clawd pixel
-  art and its animations. Eighteen more animations were drawn here in the same style.
+  art and its animations. Nineteen more animations and the hats were drawn here in the same style.
 - [clawd-pet](https://github.com/Revono/clawd-pet) by Revono (MIT): where the band started, and its icon.
 - [clawd-companion](https://github.com/DevVaradPatil/clawd-companion) by Varad Patil (MIT): the gauges, from its
   clawd-bar mod.

@@ -24,6 +24,9 @@ dải báo chữ đỏ, bấm Compact là xong.
 **Hết cache: nên bấm Compact**<br>
 <img src="docs/demo/band-cache-expired.png" width="760" alt="Hết cache: nên bấm Compact">
 
+**Ngồi đủ 1 tiếng: đứng dậy đi**<br>
+<img src="docs/demo/band-standup.png" width="760" alt="Ngồi đủ 1 tiếng: đứng dậy đi">
+
 <sub>Vẽ từ chính code của mod, với số liệu mẫu.</sub>
 
 <p>
@@ -45,6 +48,11 @@ dải báo chữ đỏ, bấm Compact là xong.
 - **Bên phải, nút Compact.** Chạy y như `/compact`. Trên app desktop nút này còn đếm ngược cache prompt, hết cache
   thì chuyển đỏ.
 - **⎇** mở danh sách repo git trong thư mục session và các nhánh của chúng, đổi nhánh ngay trên dải.
+- **Stand up!** Ngồi đủ 1 tiếng thì dòng trạng thái chuyển chữ vàng nhắc đứng dậy, Clawd vươn vai. Đứng dậy xong
+  bấm vào Clawd (VS Code thì gõ `/clawd remind`), tiếng tiếp theo tính từ lúc đó. Mọi session dùng chung một lời
+  nhắc, tắt ở một session là tắt hết.
+- **Mũ và giờ trong ngày.** Tết Clawd đội khăn đóng, Noel đội mũ ông già Noel, năm mới đội mũ tiệc, Halloween đội
+  bí ngô, khuya đội mũ ngủ, hay ngáp và ngủ sớm hơn. Sáng sớm thì cà phê và vươn vai. [Xem các mũ](docs/PETS.vi.md#mũ).
 
 Hiện trên app desktop Claude Code và extension VS Code. Terminal giữ nguyên, không đổi.
 
@@ -78,6 +86,10 @@ claude plugin marketplace update clawd-buddy-gauges
 ## Dùng
 
 - `/clawd` bật hoặc tắt dải; `/clawd on`, `/clawd off` để chỉ rõ.
+- `/clawd remind 45` nhắc đứng dậy mỗi 45 phút thay vì 60; `/clawd remind off` tắt nhắc; `/clawd remind` trơn là
+  đã đứng dậy, đếm lại từ đầu.
+- `/clawd hat santa` đội cố định một mũ (`tet`, `santa`, `party`, `pumpkin`, `nightcap`); `/clawd hat none` bỏ mũ;
+  `/clawd hat auto` quay về theo lịch.
 
 ## Sửa mod
 
@@ -89,7 +101,7 @@ Clone repo, sửa, rồi chạy `./reinstall.sh` để cài bản đang sửa th
 Dựa trên ba dự án mở, xin cảm ơn:
 
 - [clawd-crew](https://github.com/hudcolighting/clawd-crew) của hudcolighting (GPL-3.0-or-later): hình pixel Clawd
-  và các animation. Vẽ thêm 18 animation cùng phong cách.
+  và các animation. Vẽ thêm 19 animation và bộ mũ cùng phong cách.
 - [clawd-pet](https://github.com/Revono/clawd-pet) của Revono (MIT): khung ban đầu của dải, và icon.
 - [clawd-companion](https://github.com/DevVaradPatil/clawd-companion) của Varad Patil (MIT): các thanh đo, từ mod
   clawd-bar.

@@ -15,6 +15,10 @@ export type Reaction = { kind: ReactionKind; line: string; until: number }
 
 export type Settings = {
   isHidden: boolean
+  /** minutes between stand-up reminders: unset 60, 0 off */
+  remindMin?: number
+  /** `auto` (the calendar and the clock), `none`, or a hat's name */
+  hat?: string
 }
 
 /** a button of the branch rows: `repo:<dir>`, `branch:<name>` or `branch-back` */

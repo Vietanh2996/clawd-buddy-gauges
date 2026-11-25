@@ -2,14 +2,14 @@
 
 [Tiếng Việt](PETS.vi.md)
 
-Each mood has three to six looks; the buddy picks one at random when the mood changes. Click it in the desktop app to step to the next look of the mood it is in, wrapping round after the last.
+Each mood has three to six looks; the buddy picks one at random when the mood changes (in the morning it leans to coffee and a stretch, late at night to yawns). Click it in the desktop app to step to the next look of the mood it is in, wrapping round after the last.
 
 The first three looks of each mood are from [clawd-crew](https://github.com/hudcolighting/clawd-crew) (GPL-3.0-or-later). The ones after them were drawn for clawd-buddy-gauges from the same body, eyes, arms and legs.
 
 | Mood · when it shows | Look 1 | Look 2 | Look 3 | Look 4 | Look 5 | Look 6 |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|
-| **idle**<br>Idle, waiting for you | <img src="pets/idle.svg" width="140" alt="idle"><br><sub>Classic</sub> | <img src="pets/idle.coffee.svg" width="140" alt="idle.coffee"><br><sub>Coffee</sub> | <img src="pets/idle.tune.svg" width="140" alt="idle.tune"><br><sub>Humming</sub> | <img src="pets/idle.yawn.svg" width="140" alt="idle.yawn"><br><sub>Yawn</sub> | <img src="pets/idle.crab.svg" width="140" alt="idle.crab"><br><sub>Crab</sub> |  |
-| **sleeping**<br>Idle for over 10 minutes | <img src="pets/sleeping.svg" width="140" alt="sleeping"><br><sub>Classic</sub> | <img src="pets/sleeping.blanket.svg" width="140" alt="sleeping.blanket"><br><sub>Tucked in</sub> | <img src="pets/sleeping.doze.svg" width="140" alt="sleeping.doze"><br><sub>Dozing</sub> |  |  |  |
+| **idle**<br>Idle, waiting for you | <img src="pets/idle.svg" width="140" alt="idle"><br><sub>Classic</sub> | <img src="pets/idle.coffee.svg" width="140" alt="idle.coffee"><br><sub>Coffee</sub> | <img src="pets/idle.tune.svg" width="140" alt="idle.tune"><br><sub>Humming</sub> | <img src="pets/idle.yawn.svg" width="140" alt="idle.yawn"><br><sub>Yawn</sub> | <img src="pets/idle.crab.svg" width="140" alt="idle.crab"><br><sub>Crab</sub> | <img src="pets/idle.stretch.svg" width="140" alt="idle.stretch"><br><sub>Stretch</sub> |
+| **sleeping**<br>Idle for over 10 minutes (3 late at night) | <img src="pets/sleeping.svg" width="140" alt="sleeping"><br><sub>Classic</sub> | <img src="pets/sleeping.blanket.svg" width="140" alt="sleeping.blanket"><br><sub>Tucked in</sub> | <img src="pets/sleeping.doze.svg" width="140" alt="sleeping.doze"><br><sub>Dozing</sub> |  |  |  |
 | **thinking**<br>Claude is thinking | <img src="pets/thinking.svg" width="140" alt="thinking"><br><sub>Classic</sub> | <img src="pets/thinking.pace.svg" width="140" alt="thinking.pace"><br><sub>Pacing</sub> | <img src="pets/thinking.cube.svg" width="140" alt="thinking.cube"><br><sub>Cube</sub> | <img src="pets/thinking.wizard.svg" width="140" alt="thinking.wizard"><br><sub>Wizard</sub> | <img src="pets/thinking.ultrathink.svg" width="140" alt="thinking.ultrathink"><br><sub>Ultrathink</sub> |  |
 | **responding**<br>Claude is writing its reply | <img src="pets/responding.svg" width="140" alt="responding"><br><sub>Classic</sub> | <img src="pets/responding.letter.svg" width="140" alt="responding.letter"><br><sub>Letter</sub> | <img src="pets/responding.board.svg" width="140" alt="responding.board"><br><sub>Board</sub> |  |  |  |
 | **typing**<br>Editing or writing files (Edit, Write) | <img src="pets/typing.svg" width="140" alt="typing"><br><sub>Classic</sub> | <img src="pets/typing.matrix.svg" width="140" alt="typing.matrix"><br><sub>Matrix</sub> | <img src="pets/typing.desk.svg" width="140" alt="typing.desk"><br><sub>Desk</sub> | <img src="pets/typing.nod.svg" width="140" alt="typing.nod"><br><sub>Nod off</sub> |  |  |
@@ -25,5 +25,15 @@ The first three looks of each mood are from [clawd-crew](https://github.com/hudc
 | **done**<br>Turn done; tests passed; clicked | <img src="pets/done.svg" width="140" alt="done"><br><sub>Classic</sub> | <img src="pets/done.trophy.svg" width="140" alt="done.trophy"><br><sub>Trophy</sub> | <img src="pets/done.dance.svg" width="140" alt="done.dance"><br><sub>Dance</sub> | <img src="pets/done.wink.svg" width="140" alt="done.wink"><br><sub>Wink</sub> | <img src="pets/done.roid.svg" width="140" alt="done.roid"><br><sub>Juiced</sub> |  |
 | **error**<br>A command failed; tests failed | <img src="pets/error.svg" width="140" alt="error"><br><sub>Classic</sub> | <img src="pets/error.smoke.svg" width="140" alt="error.smoke"><br><sub>Smoke</sub> | <img src="pets/error.rain.svg" width="140" alt="error.rain"><br><sub>Rain</sub> | <img src="pets/error.debug.svg" width="140" alt="error.debug"><br><sub>Debug</sub> | <img src="pets/error.fart.svg" width="140" alt="error.fart"><br><sub>Toot</sub> | <img src="pets/error.tongue.svg" width="140" alt="error.tongue"><br><sub>Raspberry</sub> |
 | **compacting**<br>Compacting | <img src="pets/compacting.svg" width="140" alt="compacting"><br><sub>Classic</sub> | <img src="pets/compacting.squeeze.svg" width="140" alt="compacting.squeeze"><br><sub>Squeeze</sub> | <img src="pets/compacting.vacuum.svg" width="140" alt="compacting.vacuum"><br><sub>Vacuum</sub> | <img src="pets/compacting.sweep.svg" width="140" alt="compacting.sweep"><br><sub>Sweep</sub> |  |  |
+
+## Hats
+
+On holidays Clawd wears a hat over every look, and a nightcap late at night. `/clawd hat <name>` keeps one on
+(`tet`, `santa`, `party`, `pumpkin`, `nightcap`), `/clawd hat none` takes it off, `/clawd hat auto` goes back to the
+calendar. Tết runs from three days before the first day of the lunar year to four days after.
+
+| Khăn đóng · Tết | Santa · 20–26 Dec | Party · 31 Dec–1 Jan | Pumpkin · 25–31 Oct | Nightcap · 23:00–05:00 |
+|:-:|:-:|:-:|:-:|:-:|
+| <img src="pets/idle.hat-tet.svg" width="140" alt="idle.hat-tet"><br><sub>tet</sub> | <img src="pets/idle.coffee.hat-santa.svg" width="140" alt="idle.coffee.hat-santa"><br><sub>santa</sub> | <img src="pets/done.dance.hat-party.svg" width="140" alt="done.dance.hat-party"><br><sub>party</sub> | <img src="pets/idle.tune.hat-pumpkin.svg" width="140" alt="idle.tune.hat-pumpkin"><br><sub>pumpkin</sub> | <img src="pets/sleeping.hat-nightcap.svg" width="140" alt="sleeping.hat-nightcap"><br><sub>nightcap</sub> |
 
 <!-- The pictures in pets/ are drawn from plugins/clawd-buddy-gauges/hooks/crew-sprites.js. -->
