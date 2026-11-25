@@ -258,6 +258,14 @@ async function saveSettings($: Dollar, patch: Partial<Settings>) {
   await $.store.set(SETTINGS_KEY, await read($, settings))
 }
 
+async function syncSettings($: Dollar) {
+  const saved = (await $.store.get(SETTINGS_KEY).catch(() => undefined)) as Partial<Settings> | undefined
+  if (!saved) return
+  const now = await read($, settings)
+  if (Object.entries(saved).some(([k, v]) => JSON.stringify(now[k as keyof Settings]) !== JSON.stringify(v)))
+    await update($, settings, s => ({ ...s, ...saved }))
+}
+
 // ---------------------------------------------------------------- reminders
 
 // two reminders, each on its own clock: stand up (every 60 minutes unless set) and drink water (every 45). 0 turns
@@ -693,6 +701,7 @@ export const register: Register = on => {
     const short = CLAWD_SHORTCUTS.find(c => c.name === e.command)
     if (e.command !== 'clawd' && !short) return next(e)
     const args = short ? `${short.args} ${e.args}` : e.args
+    await syncSettings($) // start from what the latest /clawd in any session left
     const [word = '', arg = ''] = args.trim().toLowerCase().split(/\s+/)
     const now = await $.clock.now()
     const n = NUDGE_ORDER.find(x => NUDGES[x].command === word)
@@ -784,6 +793,8 @@ export const register: Register = on => {
 
   on('prompt.submit', async ($, e, next) => {
     setWaiting(false)
+    // /clawd in another open session wrote the shared store; this session takes it up when you next chat here
+    await syncSettings($)
     if (e.text.trim().startsWith('/')) return next(e)
     isTurnRunning = true
     turnStartedAt = await $.clock.now()

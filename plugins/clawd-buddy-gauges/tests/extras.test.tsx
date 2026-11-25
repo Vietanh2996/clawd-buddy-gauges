@@ -158,3 +158,12 @@ test('shortcuts: /clawd-hat-santa does what /clawd hat santa does', async ($, on
   const back: any = await $.command.run({ command: 'clawd-hat-auto', args: '' } as never)
   expect(back?.text).toBe('Hats follow the calendar again.')
 })
+
+test('settings: a change another session saved shows up here', async ($, on) => {
+  on('clock.now', () => ({ value: NOW }))
+  on('store.set', () => ({ value: undefined }) as never)
+  on('store.get', () => ({ value: { isHidden: true } }) as never)
+  // plain /clawd toggles, so having picked up "hidden" it brings Clawd back
+  const out: any = await $.command.run({ command: 'clawd', args: '' } as never)
+  expect(out?.text).toBe('Clawd is back.')
+})
