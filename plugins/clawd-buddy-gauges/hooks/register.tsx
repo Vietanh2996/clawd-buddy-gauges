@@ -2,8 +2,8 @@ import { atom, read, update } from 'claude-code'
 import type { Elements, EngineInterface, Register } from 'claude-code'
 
 import type { Base, BaseKind, BranchMenu, Reaction, ReactionKind, Settings, ToolsToday } from '../types'
-import { HAT_NAMES, hatFor, isNight } from './calendar'
-import { PET_ASPECT, dayPartOf, moodForTool, petAnim, petSvg, shufflePet, type Mood } from './crew-pet'
+import { HAT_NAMES, hatFor, holidayHat, isNight } from './calendar'
+import { PET_ASPECT, dayPartOf, moodForTool, petAnim, petSvg, setSeason, shufflePet, type Mood } from './crew-pet'
 import { burnOf, k, metersSvg, span, type Info, type Sample } from './meters'
 
 // ---------------------------------------------------------------- state
@@ -439,7 +439,23 @@ type Scene = {
 
 type DueNudge = { main: string; sub: string; color: string; anim: string }
 
-function compose(b: Base, r: Reaction | null, l: Local, now: number, tools: number, nudge: DueNudge | null = null): Scene {
+// a usage limit used up: which one, and how long until it resets (NaN when unknown)
+type Broke = { name: string; left: number }
+const LIMIT_NAMES: Record<string, string> = { five_hour: '5-hour', seven_day: 'weekly' }
+function brokeAt(now: number): Broke | null {
+  const out = info.limits.filter(l => l.pct >= 100)
+  if (!out.length) return null
+  // the one that frees him last is the one that matters
+  const left = (l: { resetsAt?: string }) => (l.resetsAt ? Date.parse(l.resetsAt) - now : NaN)
+  const worst = out.reduce((a, c) => (left(c) > left(a) ? c : a))
+  return { name: LIMIT_NAMES[worst.kind] ?? worst.kind.replace(/_/g, ' '), left: left(worst) }
+}
+const hoursMin = (ms: number) => {
+  const m = Math.max(1, Math.round(ms / 60_000))
+  return m >= 60 ? `${Math.floor(m / 60)}h ${m % 60}m` : `${m}m`
+}
+
+function compose(b: Base, r: Reaction | null, l: Local, now: number, tools: number, nudge: DueNudge | null = null, broke: Broke | null = null): Scene {
   const scene: Scene = { mood: 'idle', main: '', sub: '' }
   const age = now - b.since
 
@@ -517,6 +533,17 @@ function compose(b: Base, r: Reaction | null, l: Local, now: number, tools: numb
     }
   }
 
+  // out of usage: no Claude till it resets, so the band says when (a question waiting comes first); Clawd idles on
+  // in his usual looks until one is drawn for it
+  if (broke && (kind === 'idle' || kind === 'sleep' || kind === 'done')) {
+    scene.mood = 'idle'
+    scene.anim = undefined
+    scene.main = 'Out of usage'
+    scene.sub = `${broke.name} limit resets ${Number.isFinite(broke.left) ? `in ${hoursMin(broke.left)}` : 'soon'}`
+    scene.color = RED
+    scene.isMainDim = false
+  }
+
   // reactions sit on top for a few seconds
   if (r !== null && now < r.until) {
     scene.isMainDim = false
@@ -560,9 +587,10 @@ async function viewAt($: Dollar) {
   const s = await read($, settings)
   const due = dueNudge(now)
   const nudge = due && { ...NUDGES[due], sub: `${minutesLabel(everyMinOf(s, due))} ${NUDGES[due].since} · click Clawd when done` }
-  const scene = compose(b, r, l, now, tools, nudge)
-  const shown = petAnim(scene.mood, now, dayPartOf(l.hour))
+  const scene = compose(b, r, l, now, tools, nudge, brokeAt(now))
   const hat = hatFor(s.hat, l)
+  setSeason(hat === 'tet' || holidayHat(l.year, l.month, l.day) === 'tet' ? 'tet' : null)
+  const shown = petAnim(scene.mood, now, dayPartOf(l.hour))
   const anim = (scene.anim ?? shown.anim) + (hat ? `+${hat}` : '')
   const pet = { anim, since: scene.anim ? 0 : shown.since }
   const note = compactNote && Date.now() - compactNote.at < 15_000 ? compactNote.text : ''
@@ -589,6 +617,44 @@ async function onTick($: Dollar) {
   }
 }
 
+// what /clawd takes, each with the line the typeahead shows beside it
+const HAT_LINES: Record<string, string> = {
+  tet: 'red áo dài for Tết', santa: 'Santa hat', party: 'party hat', pumpkin: 'pumpkin for Halloween',
+  nightcap: 'nightcap', auto: 'hats by the calendar', none: 'no hat',
+}
+const CLAWD_FORMS: [string, string][] = [
+  ['on', 'show Clawd'], ['off', 'hide Clawd'],
+  ...Object.entries(HAT_LINES).map(([hat, line]): [string, string] => [`hat ${hat}`, line]),
+  ['remind 60', 'stand-up reminder every 60 min'], ['remind off', 'no stand-up reminder'],
+  ['water 45', 'water reminder every 45 min'], ['water off', 'no water reminder'],
+]
+// each form of /clawd as a command of its own, so the slash menu lists them all: /clawd-hat-tet runs /clawd hat tet
+export const CLAWD_SHORTCUTS: { name: string; args: string; description: string; argumentHint?: string }[] = [
+  ...CLAWD_FORMS.filter(([form]) => !/^(remind|water) \d/.test(form))
+    .map(([form, line]) => ({ name: `clawd-${form.replace(/ /g, '-')}`, args: form, description: `Clawd: ${line}` })),
+  { name: 'clawd-remind', args: 'remind', description: 'Clawd: stand-up reminder every <minutes>; alone, you stood up', argumentHint: '<minutes>' },
+  { name: 'clawd-water', args: 'water', description: 'Clawd: water reminder every <minutes>; alone, you drank', argumentHint: '<minutes>' },
+]
+export const clawdSuggestions = (before: string, token: string, start: number) => {
+  // typing the command itself: offer each full form
+  if (start === 0 && token.startsWith('/') && token.length > 1 && '/clawd'.startsWith(token))
+    return CLAWD_FORMS.map(([form, line]) => ({ text: `/clawd ${form}`, description: line }))
+  if (!before.startsWith('/clawd ')) return []
+  const words = before.slice(7).split(/\s+/)
+  const typed = words.slice(0, -1).join(' ')
+  const pool = CLAWD_FORMS.map(([form, line]) => ({ parts: form.split(' '), line }))
+    .filter(f => f.parts.length > words.length - 1 && f.parts.slice(0, words.length - 1).join(' ') === typed)
+    .filter(f => f.parts[words.length - 1]!.startsWith(token.toLowerCase()))
+  const seen = new Set<string>()
+  return pool.flatMap(f => {
+    const word = f.parts[words.length - 1]!
+    if (seen.has(word)) return []
+    seen.add(word)
+    const isLast = f.parts.length === words.length
+    return [isLast ? { text: word, description: f.line } : { text: word, label: `${word} …` }]
+  })
+}
+
 export const register: Register = on => {
   let isTurnRunning = false
   let turnStartedAt = 0
@@ -599,7 +665,10 @@ export const register: Register = on => {
     await $.command.register({
       name: 'clawd',
       description: 'Clawd: show or hide (on|off), remind <minutes>|off, water <minutes>|off, hat <name>|auto|none',
+      argumentHint: 'on|off · hat <name> · remind <min> · water <min>',
     })
+    for (const { name, description, argumentHint } of CLAWD_SHORTCUTS)
+      await $.command.register(argumentHint ? { name, description, argumentHint } : { name, description })
     const saved = (await $.store.get(SETTINGS_KEY)) as Partial<Settings> | undefined
     if (saved) await update($, settings, s => ({ ...s, ...saved }))
     const tools = (await $.store.get(TOOLS_KEY)) as ToolsToday | undefined
@@ -613,8 +682,18 @@ export const register: Register = on => {
     return next(e)
   })
 
-  on('command.run', { command: 'clawd' }, async ($, e) => {
-    const [word = '', arg = ''] = e.args.trim().toLowerCase().split(/\s+/)
+  // the typeahead for /clawd: while typing the command, every full form of it; after it, the words that can come next
+  on('prompt.autocomplete', async ($, e, next) => {
+    const rows = clawdSuggestions(e.text.slice(0, e.cursor), e.token, e.start)
+    if (!rows.length) return next(e)
+    return { suggestions: [...(await next(e)).suggestions, ...rows] }
+  })
+
+  on('command.run', async ($, e, next) => {
+    const short = CLAWD_SHORTCUTS.find(c => c.name === e.command)
+    if (e.command !== 'clawd' && !short) return next(e)
+    const args = short ? `${short.args} ${e.args}` : e.args
+    const [word = '', arg = ''] = args.trim().toLowerCase().split(/\s+/)
     const now = await $.clock.now()
     const n = NUDGE_ORDER.find(x => NUDGES[x].command === word)
     if (n) {
@@ -874,7 +953,9 @@ export const register: Register = on => {
       await restartNudge($, due, now)
       $.ui.toast(`${NUDGES[due].thanks} Next one in ${minutesLabel(everyMinOf(await read($, settings), due))}.`)
     }
-    const hat = hatFor((await read($, settings)).hat, localTime(now))
+    const l = localTime(now)
+    const hat = hatFor((await read($, settings)).hat, l)
+    setSeason(hat === 'tet' || holidayHat(l.year, l.month, l.day) === 'tet' ? 'tet' : null)
     const anim = shufflePet(now) + (hat ? `+${hat}` : '')
     return { props: { anim, px: PET_H / 18 / 8 } }
   })

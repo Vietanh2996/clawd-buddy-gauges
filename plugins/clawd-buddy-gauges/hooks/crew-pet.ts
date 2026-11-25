@@ -41,23 +41,34 @@ let shown: { mood: Mood; anim: string; since: number } | null = null
 export type DayPart = 'morning' | 'day' | 'night'
 export const dayPartOf = (hour: number): DayPart => (hour >= 6 && hour < 9 ? 'morning' : hour >= 23 || hour < 5 ? 'night' : 'day')
 const PREFER: Record<DayPart, Partial<Record<Mood, string[]>>> = {
-  morning: { idle: ['idle.coffee', 'idle.stretch'] },
+  morning: { idle: ['idle.coffee'] },
   day: {},
   night: { idle: ['idle.yawn', 'idle'] },
 }
+
+// looks kept for their moment, never picked at random or by a click: the reminders' stretch and drink
+const CUED = new Set(['idle.stretch', 'idle.drink'])
+// looks put away: still drawn by crew-sprites.js (docs/PETS.md lists them), never shown
+export const ARCHIVED = new Set(['idle.crab', 'thinking.cube', 'thinking.ultrathink', 'running.progress', 'idle.lixi'])
+// looks kept for their season: the peach-branch photo only over Tết
+const SEASONAL: Record<string, string> = { 'idle.peach': 'tet' }
+let season: string | null = null
+export const setSeason = (s: string | null) => { season = s }
+const variantsOf = (mood: Mood): [string, string][] =>
+  (VARIANTS[mood] ?? [[mood, 'Classic']]).filter(([anim]) => !CUED.has(anim) && !ARCHIVED.has(anim) && (!SEASONAL[anim] || SEASONAL[anim] === season))
 
 const randomAnim = (mood: Mood, part: DayPart = 'day') => {
   const pick = <T,>(xs: T[]) => xs[Math.floor(Math.random() * xs.length)]!
   const preferred = PREFER[part][mood]
   if (preferred && Math.random() < 0.75) return pick(preferred)
-  return pick(VARIANTS[mood] ?? [[mood, 'Classic']])[0]
+  return pick(variantsOf(mood))[0]
 }
 
 // a click on the pet: the next animation of the mood it is in (each has three to six), in list order and wrapping
 // round, kept until the mood changes
 export const shufflePet = (now: number) => {
   const mood = shown?.mood ?? 'idle'
-  const list = (VARIANTS[mood] ?? []).map(([anim]) => anim)
+  const list = variantsOf(mood).map(([anim]) => anim)
   if (list.length) shown = { mood, anim: list[(list.indexOf(shown?.anim ?? '') + 1) % list.length]!, since: now }
   return shown?.anim ?? randomAnim(mood)
 }

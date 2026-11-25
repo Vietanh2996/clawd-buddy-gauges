@@ -44,7 +44,7 @@ dải báo chữ đỏ, bấm Compact là xong.
 ## Trên dải có gì
 
 - **Bên trái, bạn Clawd.** Clawd diễn lại việc Claude đang làm: nghĩ, đọc, sửa file, chạy lệnh, chờ bạn, xong lượt,
-  test fail, đang compact. Có 17 trạng thái, mỗi trạng thái 3 tới 7 kiểu. [Xem hết các kiểu](docs/PETS.vi.md).
+  test fail, đang compact. Có 17 trạng thái, mỗi trạng thái 3 tới 6 kiểu. [Xem hết các kiểu](docs/PETS.vi.md).
   Trên app desktop, bấm vào Clawd để đổi lần lượt các kiểu của trạng thái đang hiện.
 - **Ở giữa, các thanh đo.** `CTX` (context đã dùng, có vạch chỗ tự compact), `5H` và `7D` (hạn mức 5 giờ và theo
   tuần, kèm dự báo tốc độ dùng của hạn 5 giờ tới lúc reset), và đồng hồ lượt. Bên dưới là dòng chữ Claude đang làm gì.
@@ -56,8 +56,8 @@ dải báo chữ đỏ, bấm Compact là xong.
   nhắc, tắt ở một session là tắt hết.
 - **Drink water!** Cứ 45 phút, đếm riêng, dòng trạng thái chuyển chữ xanh nhạt nhắc uống nước, Clawd cầm cốc uống.
   Uống xong bấm vào Clawd. Hai lời nhắc trùng giờ thì nhắc đứng dậy trước.
-- **Mũ và giờ trong ngày.** Tết Clawd đội khăn đóng, Noel đội mũ ông già Noel, năm mới đội mũ tiệc, Halloween đội
-  bí ngô, khuya đội mũ ngủ, hay ngáp và ngủ sớm hơn. Sáng sớm thì cà phê và vươn vai. [Xem các mũ](docs/PETS.vi.md#mũ).
+- **Mũ và giờ trong ngày.** Tết Clawd mặc áo dài đỏ, Noel đội mũ ông già Noel, năm mới đội mũ tiệc, Halloween đội
+  bí ngô, khuya đội mũ ngủ, hay ngáp và ngủ sớm hơn. Sáng sớm thì cà phê. [Xem các mũ](docs/PETS.vi.md#mũ).
 
 Hiện trên app desktop Claude Code và extension VS Code. Terminal giữ nguyên, không đổi.
 
@@ -96,6 +96,8 @@ claude plugin marketplace update clawd-buddy-gauges
 - `/clawd water 30` nhắc uống nước mỗi 30 phút thay vì 45; `/clawd water off` tắt; `/clawd water` trơn là đã uống.
 - `/clawd hat santa` đội cố định một mũ (`tet`, `santa`, `party`, `pumpkin`, `nightcap`); `/clawd hat none` bỏ mũ;
   `/clawd hat auto` quay về theo lịch.
+- Mỗi dạng trên cũng là một lệnh riêng, gõ `/clawd` là menu hiện đủ: `/clawd-on`, `/clawd-hat-tet`, `/clawd-hat-auto`,
+  `/clawd-remind 45`, `/clawd-water-off`…
 
 ## Sửa mod
 

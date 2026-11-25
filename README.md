@@ -44,7 +44,7 @@ cache still holds. When the cache runs out, the band says so in red, and Compact
 ## What's in the band
 
 - **Left, the buddy.** Clawd acts out what Claude is doing: thinking, reading, editing, running commands, waiting
-  for you, done, failing tests, compacting. Seventeen moods, three to seven animations each.
+  for you, done, failing tests, compacting. Seventeen moods, three to six animations each.
   [See them all](docs/PETS.md). In the desktop app, click Clawd to step through the animations of the mood it is in.
 - **Middle, the gauges.** `CTX` (context used, with a tick where auto-compact kicks in), `5H` and `7D` (your
   5-hour and weekly usage limits, with the 5-hour pace projected to its reset), and the turn clock. Under them, a
@@ -57,9 +57,9 @@ cache still holds. When the cache runs out, the band says so in red, and Compact
   your sessions, and answering it in one clears it in all.
 - **Drink water!** Every 45 minutes, on a clock of its own, the line turns light blue and Clawd drinks a glass of
   water. Click Clawd once you have had a sip. When both are due, standing up comes first.
-- **Hats and the time of day.** Clawd wears a khăn đóng for Tết, a Santa hat at Christmas, a party hat at New Year,
+- **Hats and the time of day.** Clawd wears a red áo dài for Tết, a Santa hat at Christmas, a party hat at New Year,
   a pumpkin for Halloween, and a nightcap late at night, when it also yawns and dozes off sooner. Mornings bring
-  coffee and stretches. [The hats](docs/PETS.md#hats).
+  coffee. [The hats](docs/PETS.md#hats).
 
 Shows in the Claude Code desktop app and in the VS Code extension. The terminal is left as it is.
 
@@ -99,6 +99,8 @@ claude plugin marketplace update clawd-buddy-gauges
   `/clawd water` alone answers it.
 - `/clawd hat santa` keeps a hat on (`tet`, `santa`, `party`, `pumpkin`, `nightcap`); `/clawd hat none` takes it off;
   `/clawd hat auto` follows the calendar again.
+- Each of these is also a command of its own, so typing `/clawd` lists them all: `/clawd-on`, `/clawd-hat-tet`,
+  `/clawd-hat-auto`, `/clawd-remind 45`, `/clawd-water-off` and the rest.
 
 ## Work on it
 
