@@ -37,6 +37,25 @@ Compact button.
 
 Shows in the Claude Code desktop app and in the VS Code extension. The terminal is left as it is.
 
+## The band, state by state
+
+Drawn by the mod's own meters code with sample numbers, the Clawd frames from the real sprites.
+
+**Thinking**<br>
+<img src="docs/demo/band-thinking.png" width="760" alt="Thinking">
+
+**Editing a file**<br>
+<img src="docs/demo/band-coding.png" width="760" alt="Editing a file">
+
+**Turn done**<br>
+<img src="docs/demo/band-done.png" width="760" alt="Turn done">
+
+**Resting between turns, the prompt cache counting down**<br>
+<img src="docs/demo/band-idle.png" width="760" alt="Resting between turns, the prompt cache counting down">
+
+**Cache run out: time to Compact**<br>
+<img src="docs/demo/band-cache-expired.png" width="760" alt="Cache run out: time to Compact">
+
 ## Install
 
 **The easy way:** open Claude Code (desktop app or VS Code), paste this in and send it:

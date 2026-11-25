@@ -36,6 +36,25 @@ Compact.
 
 Hiện trên app desktop Claude Code và extension VS Code. Terminal giữ nguyên, không đổi.
 
+## Dải theo từng trạng thái
+
+Vẽ bằng chính code thanh đo của mod với số liệu mẫu, Clawd lấy từ bộ hình thật.
+
+**Đang nghĩ**<br>
+<img src="docs/demo/band-thinking.png" width="760" alt="Đang nghĩ">
+
+**Đang sửa file**<br>
+<img src="docs/demo/band-coding.png" width="760" alt="Đang sửa file">
+
+**Xong lượt**<br>
+<img src="docs/demo/band-done.png" width="760" alt="Xong lượt">
+
+**Nghỉ giữa các lượt, cache đang đếm ngược**<br>
+<img src="docs/demo/band-idle.png" width="760" alt="Nghỉ giữa các lượt, cache đang đếm ngược">
+
+**Hết cache: nên bấm Compact**<br>
+<img src="docs/demo/band-cache-expired.png" width="760" alt="Hết cache: nên bấm Compact">
+
 ## Cài đặt
 
 **Cách dễ nhất:** mở Claude Code (app desktop hoặc VS Code), dán đoạn này vào rồi gửi:
