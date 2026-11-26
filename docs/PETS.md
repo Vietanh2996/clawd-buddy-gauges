@@ -95,7 +95,7 @@ The first three looks of each mood are from [clawd-crew](https://github.com/hudc
 
 | Look 1 | Look 2 | Look 3 | Look 4 | Look 5 | Look 6 | Look 7 | Look 8 |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| <img src="pets/done.svg" width="140" alt="done"><br><sub>Classic</sub> | <img src="pets/done.trophy.svg" width="140" alt="done.trophy"><br><sub>Trophy</sub> | <img src="pets/done.dance.svg" width="140" alt="done.dance"><br><sub>Dance</sub> | <img src="pets/done.wink.svg" width="140" alt="done.wink"><br><sub>Wink</sub> | <img src="pets/done.roid.svg" width="140" alt="done.roid"><br><sub>Juiced</sub> | <img src="pets/done.clap.svg" width="140" alt="done.clap"><br><sub>Clap</sub> |  |  |
+| <img src="pets/done.svg" width="140" alt="done"><br><sub>Classic</sub> | <img src="pets/done.trophy.svg" width="140" alt="done.trophy"><br><sub>Trophy</sub> | <img src="pets/done.dance.svg" width="140" alt="done.dance"><br><sub>Dance</sub> | <img src="pets/done.wink.svg" width="140" alt="done.wink"><br><sub>Wink</sub> | <img src="pets/done.roid.svg" width="140" alt="done.roid"><br><sub>Juiced</sub> | <img src="pets/done.clap.svg" width="140" alt="done.clap"><br><sub>Clap</sub> | <img src="pets/done.pole.svg" width="140" alt="done.pole"><br><sub>Pole dance</sub> |  |
 
 ### **error** — A command failed; tests failed
 
@@ -107,7 +107,7 @@ The first three looks of each mood are from [clawd-crew](https://github.com/hudc
 
 | Look 1 | Look 2 | Look 3 | Look 4 | Look 5 | Look 6 | Look 7 | Look 8 |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| <img src="pets/compacting.svg" width="140" alt="compacting"><br><sub>Classic</sub> | <img src="pets/compacting.squeeze.svg" width="140" alt="compacting.squeeze"><br><sub>Squeeze</sub> | <img src="pets/compacting.vacuum.svg" width="140" alt="compacting.vacuum"><br><sub>Vacuum</sub> | <img src="pets/compacting.sweep.svg" width="140" alt="compacting.sweep"><br><sub>Sweep</sub> | <img src="pets/compacting.suitcase.svg" width="140" alt="compacting.suitcase"><br><sub>Suitcase</sub> |  |  |  |
+| <img src="pets/compacting.svg" width="140" alt="compacting"><br><sub>Classic</sub> | <img src="pets/compacting.squeeze.svg" width="140" alt="compacting.squeeze"><br><sub>Squeeze</sub> | <img src="pets/compacting.vacuum.svg" width="140" alt="compacting.vacuum"><br><sub>Vacuum</sub> | <img src="pets/compacting.sweep.svg" width="140" alt="compacting.sweep"><br><sub>Sweep</sub> | <img src="pets/compacting.suitcase.svg" width="140" alt="compacting.suitcase"><br><sub>Suitcase</sub> | <img src="pets/compacting.blender.svg" width="140" alt="compacting.blender"><br><sub>Blender</sub> |  |  |
 
 ## Reminders
 
