@@ -3584,7 +3584,8 @@ export const VARIANTS = {
   ['error', 'error.tongue', 'Raspberry'], ['typing', 'typing.nod', 'Nod off'],
   ['running', 'running.jog', 'Jog'], ['running', 'running.squat', 'Squat'],
   ['done', 'done.roid', 'Juiced'], ['idle', 'idle.stretch', 'Stretch'], ['idle', 'idle.drink', 'Water'], ['done', 'done.clap', 'Clap'], ['thinking', 'thinking.toilet', 'Toilet'], ['idle', 'idle.peach', 'Peach'], ['idle', 'idle.lixi', 'Lì xì'], ['thinking', 'thinking.power', 'Power up'],
-  ['idle', 'idle.keepie-ups', 'Keepie-ups'], ['idle', 'idle.hoops', 'Hoops'], ['idle', 'idle.fishing', 'Fishing'], ['idle', 'idle.kickflip', 'Kickflip'], ['idle', 'idle.real-crab', 'Real crab'], ['idle', 'idle.claw-machine', 'Claw machine'],
+  ['idle', 'idle.keepie-ups', 'Keepie-ups'], ['idle', 'idle.hoops', 'Hoops'], ['idle', 'idle.fishing', 'Fishing'], ['idle', 'idle.kickflip', 'Kickflip'], ['idle', 'idle.real-crab', 'Real crab'], ['idle', 'idle.claw-machine', 'Claw machine'], ['idle', 'idle.boxing', 'Boxing'],
+  ['browsing', 'browsing.dino', 'Dino'],
   ['sleeping', 'sleeping.snot-bubble', 'Snot bubble'], ['compacting', 'compacting.suitcase', 'Suitcase'],
 ].forEach(([mood, anim, label]) => VARIANTS[mood].push([anim, label]))
 
@@ -3993,6 +3994,284 @@ Object.assign(ANIMS, {
     ...loop(16, n => ({ eyes: 'fierce', breathe: n % 4 === 3 ? 1 : 0, armL: 'down', armR: 'down', props: [['hair', { dy: n % 4 === 3 ? 1 : 0 }], ['aura', { n }]] })),
     ...loop(3, n => ({ eyes: 'fierce', armL: 'down', armR: 'down', props: [['hair', {}], ['aura', { n, level: 1 }]] })),
   ] },
+})
+
+// Ceiling-hung dark leather punching bag swinging around a swivel mount
+// (`swing` tilts it right after a punch or back left to smash Clawd; `mono`
+// desaturates it for GTA WASTED slow-mo; `shakeX`/`shakeY` rattle on impact).
+PROPS.punchBag = (g, { swing = 0, mono = false, shakeX = 0, shakeY = 0 } = {}) => {
+  const px = 19 + shakeX
+  const edge = mono ? L : G
+  const band = mono ? L : Y
+  box(g, 16 + shakeX, Math.max(0, shakeY), 7, 1, G)
+  put(g, px, Math.max(0, shakeY), L)
+  const theta = swing * 0.1
+  const s = Math.sin(theta)
+  const c = Math.cos(theta)
+  for (let r = 1; r <= 3.5; r += 0.5) {
+    put(g, Math.round(px + s * r), Math.round(c * r) + shakeY, Math.round(r) % 2 === 1 ? L : G)
+  }
+  for (let r = 4; r <= 12.5; r += 0.35) {
+    const x = Math.round(px + s * r)
+    const y = Math.round(c * r) + shakeY
+    if (r < 5) {
+      box(g, x - 1, y, 3, 1, L)
+      put(g, x, y, band)
+    } else if (r <= 11.5) {
+      box(g, x - 2, y, 4, 1, D)
+      put(g, x - 2, y, edge)
+      if (r >= 6.5 && r <= 7.5) box(g, x - 2, y, 4, 1, band)
+    } else {
+      box(g, x - 1, y, 2, 1, D)
+    }
+  }
+}
+
+const WASTED_FONT = [
+  '#.# .#. .## ### ### ##.',
+  '#.# #.# #.. .#. #.. #.#',
+  '#.# ### .#. .#. ##. #.#',
+  '### #.# ..# .#. #.. #.#',
+  '#.# #.# ##. .#. ### ##.',
+]
+
+// Two-handed boxing gloves, punch sparks & GTA WASTED slow-mo overlay on
+// authentic Clawd (`clawd()` draws Clawd; this draws gloves + FX + banner).
+PROPS.boxingGloves = (g, { dx = -3, dy = 0, sq = 0, lie, breathe = 0, stance = 'guard', hit = false, sweat, mono = false, wasted = false, shakeY = 0 } = {}) => {
+  const effectiveSq = lie ?? sq
+  const bw = BODY_W + 2 * effectiveSq
+  const bh = BODY_H - effectiveSq
+  const bx = BX + dx - effectiveSq
+  const by = lie !== undefined ? GROUND - bh : BY + dy + effectiveSq + (breathe ? 1 : 0)
+
+  const gMain = mono ? G : R
+  const gDark = mono ? D : DR
+  const gShine = mono ? L : WT
+  const armC = mono ? G : B
+  const sleeveC = mono ? D : S
+
+  const glove = (gx, gy, w = 2, h = 2, shade = false) => {
+    box(g, gx, gy, w, h, shade ? gDark : gMain)
+    put(g, gx + w - 1, gy, gShine)
+  }
+
+  if (stance === 'guard') {
+    glove(bx + bw, by + 2, 2, 3, true)
+    box(g, bx + bw - 4, by + 5, 2, 2, sleeveC)
+    glove(bx + bw - 2, by + 4, 2, 2)
+  } else if (stance === 'jab') {
+    box(g, bx + bw - 4, by + 5, 2, 2, sleeveC)
+    glove(bx + bw - 2, by + 4, 2, 2)
+    box(g, bx + bw, by + 3, 2, 2, armC)
+    glove(bx + bw + 1, by + 2, 3, 3, true)
+  } else if (stance === 'cross') {
+    glove(bx + bw - 1, by + 2, 2, 2, true)
+    box(g, bx + bw - 5, by + 4, 5, 2, sleeveC)
+    box(g, bx + bw, by + 4, 2, 2, armC)
+    glove(bx + bw + 1, by + 3, 3, 3)
+  } else if (stance === 'cock') {
+    glove(bx + bw, by + 2, 2, 2, true)
+    const gx = Math.max(0, bx - 3)
+    box(g, gx + 2, by + 3, Math.max(1, bx - gx - 1), 2, armC)
+    glove(gx, by + 2, 3, 3)
+    if (sweat !== undefined) put(g, Math.max(0, bx - 1), by - 1 + sweat, BL)
+  } else if (stance === 'uppercut') {
+    glove(bx + bw - 1, by + 3, 2, 2, true)
+    box(g, bx + bw - 4, by + 3, 4, 2, sleeveC)
+    box(g, bx + bw, by + 2, 2, 2, armC)
+    glove(bx + bw + 1, by, 3, 3)
+  } else if (stance === 'knockback') {
+    glove(Math.max(0, bx - 1), Math.max(0, by - 2), 2, 2, true)
+    glove(bx + bw - 1, Math.max(0, by - 2), 2, 2)
+  } else if (stance === 'dazed') {
+    glove(Math.max(0, bx - 1), Math.min(GROUND - 2, by + bh - 2), 2, 2, true)
+    glove(bx + bw - 1, Math.min(GROUND - 2, by + bh - 2), 2, 2)
+  }
+
+  if (hit === true) {
+    put(g, bx + bw + 4, by + 1, Y)
+    put(g, bx + bw + 5, by + 5, WT)
+  } else if (hit === 'big') {
+    put(g, bx + bw + 2, Math.max(0, by - 2), WT)
+    put(g, bx + bw + 4, Math.max(0, by - 1), Y)
+    put(g, bx + bw + 6, by + 1, WT)
+    put(g, bx + bw + 5, by + 4, Y)
+    put(g, bx + bw + 2, by + 5, Y)
+  } else if (hit === 'recoil') {
+    put(g, bx + bw + 5, Math.max(0, by - 2), Y)
+    put(g, bx + bw + 7, by + 2, WT)
+  } else if (hit === 'bonk') {
+    box(g, bx + bw - 1, Math.max(0, by), 2, 2, WT)
+    put(g, bx + bw - 2, Math.max(0, by - 2), Y)
+    put(g, bx + bw + 2, Math.max(0, by - 1), Y)
+    put(g, bx + bw - 2, by + 3, Y)
+    put(g, bx + bw + 2, by + 3, Y)
+  } else if (hit === 'shock') {
+    put(g, Math.max(0, bx - 1), Math.max(0, by - 1), WT)
+    put(g, bx + bw + 1, Math.max(0, by - 1), Y)
+    put(g, bx + bw + 2, by + 2, WT)
+  }
+
+  if (wasted) {
+    const wy = 2 + shakeY
+    box(g, 0, wy, W, 7, K)
+    box(g, 0, wy, W, 1, D)
+    box(g, 0, wy + 6, W, 1, D)
+    art(g, 1, wy + 1, WASTED_FONT, { '#': R })
+  }
+}
+HELD.add('boxingGloves')
+
+Object.assign(ANIMS, {
+  // Boxing workout: authentic Clawd bobs eyeing the bag, throws a two-handed
+  // jab -> cross -> leaping haymaker with impact shake, then gets blasted back
+  // in desaturated slow-motion as GTA "WASTED" slams across the screen.
+  'idle.boxing': {
+    ms: 140,
+    frames: [
+      { dx: -3, eyes: 'right', armL: 'none', armR: 'none', props: [['punchBag', { swing: 0 }], ['boxingGloves', { dx: -3, stance: 'guard' }]] },
+      { dx: -3, breathe: 1, eyes: 'right', armL: 'none', armR: 'none', props: [['punchBag', { swing: 0 }], ['boxingGloves', { dx: -3, breathe: 1, stance: 'guard' }]] },
+      { dx: -3, eyes: 'closed', armL: 'none', armR: 'none', props: [['punchBag', { swing: 0 }], ['boxingGloves', { dx: -3, stance: 'guard' }]] },
+      // Two-handed jab -> cross combo.
+      { dx: -2, legs: 'walkA', eyes: 'right', armL: 'none', armR: 'none', props: [['punchBag', { swing: 1 }], ['boxingGloves', { dx: -2, stance: 'jab', hit: true }]] },
+      { dx: -3, eyes: 'right', armL: 'none', armR: 'none', props: [['punchBag', { swing: 1 }], ['boxingGloves', { dx: -3, stance: 'guard' }]] },
+      { dx: -2, legs: 'walkB', eyes: 'right', armL: 'none', armR: 'none', props: [['punchBag', { swing: 2 }], ['boxingGloves', { dx: -2, stance: 'cross', hit: true }]] },
+      { dx: -3, eyes: 'right', armL: 'none', armR: 'none', props: [['punchBag', { swing: 1 }], ['boxingGloves', { dx: -3, stance: 'guard' }]] },
+      // Wind-up crouch -> leaping haymaker uppercut + impact shake!
+      { dx: -3, squash: 1, eyes: 'wince', armL: 'none', armR: 'none', props: [['punchBag', { swing: 0 }], ['boxingGloves', { dx: -3, sq: 1, stance: 'cock', sweat: 0 }]] },
+      { dx: -3, squash: 1, eyes: 'wince', armL: 'none', armR: 'none', props: [['punchBag', { swing: 0 }], ['boxingGloves', { dx: -3, sq: 1, stance: 'cock', sweat: 1 }]] },
+      { dx: 0, dy: -2, legs: 'tuck', eyes: 'right', armL: 'none', armR: 'none', props: [['punchBag', { swing: 3, shakeX: 1, shakeY: -1 }], ['boxingGloves', { dx: 0, dy: -2, stance: 'uppercut', hit: 'big' }]] },
+      { dx: -2, dy: 0, legs: 'walkB', eyes: 'wide', armL: 'none', armR: 'none', props: [['punchBag', { swing: 4, shakeX: -1, shakeY: 1 }], ['boxingGloves', { dx: -2, dy: 0, stance: 'uppercut', hit: 'recoil' }]] },
+      { dx: -3, eyes: 'happy', armL: 'none', armR: 'none', props: [['punchBag', { swing: 3 }], ['boxingGloves', { dx: -3, stance: 'guard' }]] },
+      // Bag whips back left & SMACKS Clawd with hitstop + camera shake!
+      { dx: -3, eyes: 'right', armL: 'none', armR: 'none', props: [['punchBag', { swing: 0 }], ['boxingGloves', { dx: -3, stance: 'guard' }]] },
+      { dx: -3, eyes: 'wide', armL: 'none', armR: 'none', props: [['punchBag', { swing: -2 }], ['boxingGloves', { dx: -3, stance: 'guard' }]] },
+      { dx: -2, dy: 1, squash: 2, eyes: 'wince', armL: 'none', armR: 'none', props: [['punchBag', { swing: -3, shakeX: 1, shakeY: 1 }], ['boxingGloves', { dx: -2, dy: 1, sq: 2, stance: 'dazed', hit: 'bonk' }]] },
+      { dx: -5, dy: -1, squash: 1, eyes: 'wince', armL: 'none', armR: 'none', props: [['punchBag', { swing: -3, shakeX: -1, shakeY: -1 }], ['boxingGloves', { dx: -5, dy: -1, sq: 1, stance: 'knockback', hit: 'shock' }]] },
+      // Slow-motion knockback left + desaturation ("bay màu")!
+      { dx: -5, dy: -2, legs: 'tuck', armL: 'none', armR: 'none', color: L, eyes: 'wince', props: [['punchBag', { swing: -2, mono: true }], ['boxingGloves', { dx: -5, dy: -2, stance: 'knockback', mono: true }]] },
+      { dx: -6, dy: -2, legs: 'walkB', armL: 'none', armR: 'none', color: G, eyes: 'wince', props: [['punchBag', { swing: -1, mono: true }], ['boxingGloves', { dx: -6, dy: -2, stance: 'knockback', mono: true }]] },
+      { dx: -5, dy: -1, legs: 'tuck', armL: 'none', armR: 'none', color: G, eyes: 'wince', props: [['punchBag', { swing: 0, mono: true }], ['boxingGloves', { dx: -5, dy: -1, stance: 'knockback', mono: true }]] },
+      // Ground slam thud + GTA "WASTED" freeze!
+      { dx: -4, lie: 2, armL: 'none', armR: 'none', color: G, eyes: 'wince', props: [['punchBag', { swing: 0, mono: true, shakeY: 1 }], ['boxingGloves', { dx: -4, lie: 2, stance: 'dazed', mono: true, wasted: true, shakeY: 1 }]] },
+      { dx: -4, lie: 2, armL: 'none', armR: 'none', color: G, eyes: 'x', props: [['punchBag', { swing: 0, mono: true }], ['boxingGloves', { dx: -4, lie: 2, stance: 'dazed', mono: true, wasted: true }]] },
+      { dx: -4, lie: 2, armL: 'none', armR: 'none', color: G, eyes: 'x', props: [['punchBag', { swing: 0, mono: true }], ['boxingGloves', { dx: -4, lie: 2, stance: 'dazed', mono: true, wasted: true }]] },
+      { dx: -4, lie: 2, armL: 'none', armR: 'none', color: G, eyes: 'x', props: [['punchBag', { swing: 0, mono: true }], ['boxingGloves', { dx: -4, lie: 2, stance: 'dazed', mono: true, wasted: true }]] },
+      { dx: -4, lie: 2, armL: 'none', armR: 'none', color: G, eyes: 'x', props: [['punchBag', { swing: 0, mono: true }], ['boxingGloves', { dx: -4, lie: 2, stance: 'dazed', mono: true, wasted: true }]] },
+      // Snap back to life in full color for round 2!
+      { dx: -3, lie: 1, armL: 'none', armR: 'none', eyes: 'wink', props: [['punchBag', { swing: 0 }], ['boxingGloves', { dx: -3, lie: 1, stance: 'dazed' }]] },
+      { dx: -3, breathe: 1, armL: 'none', armR: 'none', eyes: 'closed', props: [['punchBag', { swing: 0 }], ['boxingGloves', { dx: -3, breathe: 1, stance: 'guard' }]] },
+      { dx: -3, armL: 'none', armR: 'none', eyes: 'right', props: [['punchBag', { swing: 0 }], ['boxingGloves', { dx: -3, stance: 'guard' }]] },
+    ],
+  },
+})
+
+// Chrome offline Dino runner backdrop: scrolling desert ground & clouds plus
+// saguaro cacti; drawn behind Clawd.
+PROPS.dinoTrack = (g, { scroll = 0, cactus, crash = false } = {}) => {
+  // Drifting pixel cloud high in the offline sky (continuous 23-step wrap).
+  const c1 = 18 - (scroll % 23)
+  art(g, c1, 2, ['.ggg.', 'ggggg'], { g: crash ? D : G })
+
+  // Scrolling desert sand track along the bottom edge.
+  box(g, 0, 17, W, 1, D)
+  for (let i = 0; i < 4; i++) {
+    const px = ((i * 6 - scroll * 2) % W + W) % W
+    put(g, px, 17, i % 2 === 0 ? L : G)
+  }
+
+  // Saguaro cactus obstacles (sm: 4x5, md: 5x5 twin, tall: 4x7).
+  if (cactus) {
+    const { x, size = 'sm' } = cactus
+    const skin = { g: GR }
+    if (size === 'sm') {
+      art(g, x, 12, [
+        '.g..',
+        'ggg.',
+        '.ggg',
+        '.g..',
+        '.g..',
+      ], skin)
+    } else if (size === 'md') {
+      art(g, x, 12, [
+        '.g.g.',
+        'ggggg',
+        '.g.g.',
+        '.g.g.',
+        '.g.g.',
+      ], skin)
+    } else if (size === 'tall') {
+      art(g, x, 10, [
+        '.g..',
+        'gg.g',
+        'gggg',
+        '.gg.',
+        '.g..',
+        '.g..',
+        '.g..',
+      ], skin)
+    }
+  }
+}
+
+// Chrome offline impact flash and circular Replay button (`↻`) overlay.
+PROPS.dinoFx = (g, { hit = false, replay = false } = {}) => {
+  if (hit) {
+    box(g, 11, 9, 2, 2, WT)
+    put(g, 10, 8, Y)
+    put(g, 13, 8, Y)
+    put(g, 13, 11, Y)
+  }
+  if (replay) {
+    const bg = replay === 'lit' ? Y : D
+    const fg = replay === 'lit' ? K : WT
+    box(g, 8, 1, 7, 7, bg)
+    box(g, 8, 1, 7, 1, L)
+    box(g, 8, 7, 7, 1, L)
+    art(g, 9, 2, [
+      '.###.',
+      '#...#',
+      '#..##',
+      '#....',
+      '.###.',
+    ], { '#': fg })
+  }
+}
+HELD.add('dinoFx')
+
+Object.assign(ANIMS, {
+  // Chrome Dino meme: Clawd sprints across the scrolling desert horizon, hops
+  // cleanly over small & twin cacti, then clips a tall saguaro and freezes under
+  // the offline Replay button before tapping retry to sprint again.
+  'browsing.dino': {
+    ms: 130,
+    frames: [
+      { dx: -5, legs: 'walkA', armL: 'mid', armR: 'rest', eyes: 'right', props: [['dinoTrack', { scroll: 0, cactus: { x: 22, size: 'sm' } }]] },
+      { dx: -5, legs: 'walkB', armL: 'rest', armR: 'mid', eyes: 'right', props: [['dinoTrack', { scroll: 1, cactus: { x: 18, size: 'sm' } }]] },
+      { dx: -5, dy: -2, legs: 'tuck', armL: 'up', armR: 'up', eyes: 'upright', props: [['dinoTrack', { scroll: 2, cactus: { x: 14, size: 'sm' } }]] },
+      { dx: -5, dy: -5, legs: 'tuck', armL: 'up', armR: 'up', eyes: 'happy', props: [['dinoTrack', { scroll: 3, cactus: { x: 8, size: 'sm' } }]] },
+      { dx: -5, dy: -5, legs: 'tuck', armL: 'mid', armR: 'mid', eyes: 'happy', props: [['dinoTrack', { scroll: 4, cactus: { x: 2, size: 'sm' } }]] },
+      { dx: -5, legs: 'walkB', armL: 'mid', armR: 'rest', eyes: 'right', props: [['dinoTrack', { scroll: 5, cactus: { x: -3, size: 'sm' } }]] },
+      // Second jump: twin cactus!
+      { dx: -5, legs: 'walkA', armL: 'rest', armR: 'mid', eyes: 'right', props: [['dinoTrack', { scroll: 6, cactus: { x: 21, size: 'md' } }]] },
+      { dx: -5, dy: -3, legs: 'tuck', armL: 'up', armR: 'up', eyes: 'wide', props: [['dinoTrack', { scroll: 7, cactus: { x: 15, size: 'md' } }]] },
+      { dx: -5, dy: -6, legs: 'tuck', armL: 'up', armR: 'up', eyes: 'happy', props: [['dinoTrack', { scroll: 8, cactus: { x: 9, size: 'md' } }]] },
+      { dx: -5, dy: -5, legs: 'tuck', armL: 'mid', armR: 'mid', eyes: 'happy', props: [['dinoTrack', { scroll: 9, cactus: { x: 3, size: 'md' } }]] },
+      { dx: -5, legs: 'walkA', armL: 'mid', armR: 'rest', eyes: 'right', props: [['dinoTrack', { scroll: 10, cactus: { x: -3, size: 'md' } }]] },
+      // Surprise tall cactus -> late jump & bonk!
+      { dx: -5, legs: 'walkB', armL: 'rest', armR: 'mid', eyes: 'right', props: [['dinoTrack', { scroll: 11, cactus: { x: 20, size: 'tall' } }]] },
+      { dx: -5, legs: 'walkA', armL: 'mid', armR: 'rest', eyes: 'wide', props: [['dinoTrack', { scroll: 12, cactus: { x: 15, size: 'tall' } }]] },
+      { dx: -5, dy: -2, legs: 'tuck', armL: 'up', armR: 'up', eyes: 'wide', props: [['dinoTrack', { scroll: 13, cactus: { x: 11, size: 'tall' } }]] },
+      { dx: -5, squash: 1, armL: 'up', armR: 'up', eyes: 'x', props: [['dinoTrack', { scroll: 13, cactus: { x: 11, size: 'tall' }, crash: true }], ['dinoFx', { hit: true }]] },
+      // Chrome offline Replay freeze!
+      ...loop(4, () => ({ dx: -5, squash: 1, eyes: 'x', props: [['dinoTrack', { scroll: 13, cactus: { x: 12, size: 'tall' }, crash: true }], ['dinoFx', { replay: true }]] })),
+      // Clicks retry -> hops cleanly back into sprint!
+      { dx: -5, dy: -1, legs: 'tuck', armL: 'mid', armR: 'mid', eyes: 'wide', props: [['dinoTrack', { scroll: 19 }], ['dinoFx', { replay: 'lit' }]] },
+      { dx: -5, dy: -2, legs: 'tuck', armL: 'up', armR: 'up', eyes: 'happy', props: [['dinoTrack', { scroll: 20 }]] },
+      { dx: -5, legs: 'walkA', armL: 'mid', armR: 'rest', eyes: 'right', props: [['dinoTrack', { scroll: 21 }]] },
+      { dx: -5, legs: 'walkB', armL: 'rest', armR: 'mid', eyes: 'right', props: [['dinoTrack', { scroll: 22 }]] },
+    ],
+  },
 })
 
 
