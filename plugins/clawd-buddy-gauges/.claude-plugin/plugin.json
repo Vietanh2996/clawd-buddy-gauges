@@ -1,6 +1,6 @@
 {
   "name": "clawd-buddy-gauges",
-  "version": "0.3.17",
+  "version": "0.3.27",
   "description": "An animated Clawd buddy on the left, context and usage gauges in the middle, a Compact button on the right",
   "author": {
     "name": "Vietanh2996",

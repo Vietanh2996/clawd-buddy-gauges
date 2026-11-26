@@ -184,3 +184,13 @@ test('settings: a change another session saved shows up here', async ($, on) => 
   const out: any = await $.command.run({ command: 'clawd', args: '' } as never)
   expect(out?.text).toBe('Clawd is back.')
 })
+
+test('compact: /compact plays the compacting look and hands the command on', async ($, on) => {
+  on('clock.now', () => ({ value: NOW }))
+  on('store.set', () => ({ value: undefined }) as never)
+  let ran = false
+  on('command.run', () => { ran = true; return { text: 'Compacted' } as never })
+  const out: any = await $.command.run({ command: 'compact', args: '' } as never)
+  expect(ran).toBe(true)
+  expect(out?.text).toBe('Compacted')
+})
