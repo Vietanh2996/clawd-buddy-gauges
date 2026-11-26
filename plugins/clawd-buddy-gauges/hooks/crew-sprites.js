@@ -131,6 +131,23 @@ const eyes = (g, bx, by, bw, bh, kind) => {
       case 'wide':
         box(g, x, by + 1, 1, 3, K)
         break
+      // Big shiny pleading eyes, a glint in each.
+      case 'plead':
+        box(g, x + inward, by + 1, 2, 3, K)
+        put(g, x + inward + 1, by + 1, WT)
+        break
+      // Screwed up tight, > <, pushing hard.
+      case 'squeeze':
+        put(g, side === 0 ? x - 1 : x + 1, by + 1, K)
+        put(g, x, by + 2, K)
+        put(g, side === 0 ? x - 1 : x + 1, by + 3, K)
+        break
+      // Glaring, a brow slanting down to his nose: powered up.
+      case 'fierce':
+        box(g, x, by + 2, 1, 2, K)
+        put(g, side === 0 ? x + 1 : x - 1, by + 1, K)
+        put(g, x, by + 1, K)
+        break
       case 'happy':
         put(g, x - 1, by + 3, K)
         put(g, x, by + 2, K)
@@ -2760,6 +2777,188 @@ PROPS.suitcase = (g, { level = 3, flash = false, poke = false } = {}) => {
   if (poke) box(g, 19, 15, 2, 1, R)
 }
 
+// Up on his hind legs (`dy` rows taller), a big toothy grin, clapping: his
+// claws `phase` 0 out wide, 1 halfway, 2 meeting in front of him with a clap.
+// Arms in front of his body are drawn in the shade, so they show against it.
+PROPS.clapper = (g, { phase = 0, dy = -2, grin = true } = {}) => {
+  const by = BY + dy
+  for (const x of [BX + 1, BX + 3, BX + BODY_W - 4, BX + BODY_W - 2]) box(g, x, GROUND + dy, 1, -dy, B)
+  if (grin) art(g, BX + 2, by + 4, ['wwwwwwww', '.wlwwlw.'], { w: WT, l: L })
+  if (phase === null) return
+  const cy = by + 6
+  const mid = BX + BODY_W / 2
+  const gap = [8, 4, 0][phase]
+  // a thin arm from the shoulder, then the claw taller than it, so the two
+  // claws read as two even pressed together (an ink seam between them)
+  for (const side of [-1, 1]) {
+    const shoulder = side < 0 ? BX - 1 : BX + BODY_W
+    const claw = side < 0 ? mid - gap - 2 : mid + gap + 1
+    const from = Math.min(shoulder, claw)
+    const to = Math.max(shoulder, claw + 1)
+    for (let x = from; x <= to; x++) put(g, x, cy + 1, inBody(x) ? S : B)
+    box(g, shoulder, cy, 1, 2, B)
+    for (const x of [claw, claw + 1]) box(g, x, cy - 1, 1, 3, inBody(x) ? S : B)
+  }
+  if (phase === 2) box(g, mid, cy - 1, 1, 3, K)
+  if (phase === 2) for (const [x, y] of [[mid - 4, cy - 1], [mid + 3, cy - 1], [mid - 4, cy + 2], [mid + 3, cy + 2]]) put(g, x, y, Y)
+}
+
+// After the clapping: a claw over his mouth, eyes darting side to side, a
+// sneaky snicker (`b` sinks him a row, with the frame's `breathe`). Kept as
+// plain as his other arms: a shaded arm across him, a block on the mouth.
+PROPS.hush = (g, { b = 0, dy = -2 } = {}) => {
+  const by = BY + dy + b
+  for (const x of [BX + 1, BX + 3, BX + BODY_W - 4, BX + BODY_W - 2]) box(g, x, GROUND + dy, 1, -dy - b, B)
+  box(g, BX + BODY_W, by + 5, 2, 2, B)
+  box(g, BX + 7, by + 6, BODY_W - 7, 1, S)
+  box(g, BX + 2, by + 4, 4, 3, S)
+  // the claw's edge, so the arm doesn't run into it
+  box(g, BX + 6, by + 4, 1, 3, K)
+}
+HELD.add('hush')
+
+// Then his right claw held out to you for a handshake: the arm straight out,
+// the claw at the end, and the grin.
+PROPS.offer = (g, { dy = -2 } = {}) => {
+  const by = BY + dy
+  for (const x of [BX + 1, BX + 3, BX + BODY_W - 4, BX + BODY_W - 2]) box(g, x, GROUND + dy, 1, -dy, B)
+  art(g, BX + 2, by + 4, ['wwwwwwww', '.wlwwlw.'], { w: WT, l: L })
+  box(g, BX + BODY_W, by + 4, 4, 2, B)
+  box(g, BX + BODY_W + 3, by + 3, 2, 1, B)
+  put(g, BX + BODY_W + 4, by + 6, B)
+}
+HELD.add('offer')
+const inBody = x => x >= BX && x < BX + BODY_W
+HELD.add('clapper')
+
+// Sat up on the toilet, seen from the front, the whole thing behind him:
+// the tank rising over his head, the seat's rim either side of his bottom,
+// the bowl showing between his dangling legs and its pedestal on the floor
+// under them, and a roll of paper on the wall to his right.
+PROPS.toilet = g => {
+  // the tank, wider than him so it shows either side of his head, under a
+  // lid that overhangs it with rounded corners
+  art(g, BX - 3, 0, [
+    '..llllllllllllll..',
+    '.lwwwwwwwwwwwwwwl.',
+    'lwwwwwwwwwwwwwwwwl',
+    '.llllllllllllllll.',
+    '.lwwwwwwwwwwwwwwl.',
+    '.lwwwwwwwwwwwwwwl.',
+    '.lwwwwwwwwwwwwwwl.',
+    '.lwwwwwwwwwwwwwwl.',
+    '.lwwwwwwwwwwwwwwl.',
+    '..llllllllllllll..',
+  ], { l: L, w: WT })
+  box(g, BX - 1, GROUND - 7, BODY_W + 2, 2, L)
+  box(g, BX, GROUND - 5, BODY_W, 2, WT)
+  box(g, BX + 3, GROUND - 3, BODY_W - 6, 2, WT)
+  box(g, BX + 2, GROUND - 1, BODY_W - 4, 1, L)
+  art(g, 20, 9, ['ww', 'wl', 'ww', 'w.', 'w.'], { w: WT, l: L })
+}
+const SEAT = -3
+const seat = () => ['toilet', 0]
+// A lit bulb by his head, no cloud: the idea. Odd steps add its rays.
+PROPS.bulb = (g, n) => {
+  art(g, 20, 4, ['.yy.', 'yyyy', '.gg.'], { y: Y, g: G })
+  if (n % 2 === 1) {
+    put(g, 20, 3, Y)
+    put(g, 23, 3, Y)
+  }
+}
+
+// Both claws clasped together in front of his chest, as if in prayer, his
+// arms in the shade across him. `strain` adds his effort: marks by his head,
+// a bead of sweat.
+PROPS.clasp = (g, { dy = 1, b = 0, strain = 0 } = {}) => {
+  const by = BY + dy + b
+  const mid = BX + BODY_W / 2
+  // arms in a V from his sides up to his chest, claws pressed together pointing up
+  box(g, BX - 1, by + 5, 1, 2, B)
+  box(g, BX + BODY_W, by + 5, 1, 2, B)
+  for (const [x, y] of [[0, 6], [1, 6], [2, 5], [3, 5]]) {
+    put(g, BX + x, by + y, S)
+    put(g, BX + BODY_W - 1 - x, by + y, S)
+  }
+  box(g, mid - 2, by + 4, 4, 1, S)
+  box(g, mid - 1, by + 2, 2, 2, S)
+  if (!strain) return
+  for (const [x, y] of [[BX - 1, by - 1], [BX + 1, by - 2], [BX + BODY_W, by - 1], [BX + BODY_W - 2, by - 2]]) put(g, x, y, L)
+  if (strain > 1) art(g, BX + BODY_W + 1, by + 1, ['b', 'b'], { b: BL })
+}
+HELD.add('clasp')
+
+// Off to the flower market for Tết: a green step-through motorbike parked
+// behind him on his left, an electric pole on his right papered with little
+// ads. `sway` tips the top of the peach branch he holds up in his left claw.
+PROPS.market = (g, { sway = 0 } = {}) => {
+  // the pole, its ads in red and ink
+  box(g, 21, 0, 3, H, L)
+  box(g, 23, 0, 1, H, G)
+  for (const [x, y, c] of [[21, 2, R], [22, 2, R], [21, 4, K], [22, 4, K], [22, 7, R], [21, 9, WT], [22, 9, WT], [21, 12, K], [22, 13, R], [21, 15, R], [22, 15, R], [21, 17, K]]) put(g, x, y, c)
+  // the motorbike: front wheel, leg shield, basket, lamp, handlebar, back wheel
+  art(g, 0, 8, [
+    'kkk.....',
+    '..kkkk..',
+    '.y.g....',
+    'lllgg...',
+    'l.lgg...',
+    'lllggg..',
+    '..ggggg.',
+    '.kkkgggg',
+    'k..kgggg',
+    'k.dk.gg.',
+    'k..k....',
+    '.kk.....',
+  ], { k: D, y: Y, g: GR, l: L, d: G })
+  art(g, 15, 15, ['..ddd', '.d..d', 'd...d', 'd...d', '.ddd.'], { d: D })
+  // the peach branch, held up, its top swaying, blossoms on the twigs
+  const t = sway
+  art(g, 0 + t, 0, [
+    'p.q..p.',
+    '.x.pxq.',
+    'p.x.x..',
+    'qp.xx.p',
+    '...x.xq',
+    '....x..',
+  ], { x: BR, p: PK, q: PD })
+  art(g, 4, 6, ['x', 'x'], { x: BR })
+}
+
+// In his áo dài with blossom spots, the peach branch's stem in his left claw
+// and his right arm straight out, claw flat on the pole. `fall` drops a petal.
+PROPS.marketFront = (g, { fall = -1 } = {}) => {
+  const by = BY
+  for (let y = by + 4; y < by + BODY_H; y++) for (let x = BX; x < BX + BODY_W; x++) {
+    const c = g[y * W + x]
+    if (c === B) g[y * W + x] = R
+    else if (c === S) g[y * W + x] = DR
+  }
+  for (const [x, y] of [[BX + 2, by + 5], [BX + 6, by + 4], [BX + 9, by + 6], [BX + 4, by + 7], [BX + 10, by + 4]]) if (g[y * W + x] === R) g[y * W + x] = PK
+  box(g, BX - 2, by - 1, 2, 5, R)
+  box(g, BX - 2, by - 2, 2, 1, B)
+  put(g, BX - 1, by - 3, BR)
+  box(g, BX + BODY_W, by + 2, 3, 2, R)
+  box(g, BX + BODY_W + 3, by + 1, 1, 4, B)
+  if (fall >= 0) put(g, 3 + (fall % 2), 7 + fall * 2, PK)
+}
+HELD.add('marketFront')
+
+// Out of usage, begging for lì xì: his right claw held out, open and
+// upturned for the envelope, and a red envelope in his thought cloud. `bow`
+// dips him a row, `rub` gives the open claw a little hopeful jiggle.
+PROPS.lixi = (g, { bow = 0, rub = 0, wish = true } = {}) => {
+  const by = BY + bow
+  const x = BX + BODY_W
+  box(g, x, by + 4 - rub, 4, 2, B)
+  art(g, x + 3, by + 2 - rub, ['B.B', 'BBB'], { B })
+  if (!wish) return
+  puffs(g)
+  cloud(g)
+  art(g, 17, 1, ['rrrr', 'ryyr', 'rrrr'], { r: R, y: Y })
+}
+HELD.add('lixi')
+
 // A glass of water in his hand, drunk down a row at each sip: `level` rows
 // of water left (3 full), `at` his hand, `near` on its way up, `lips` to drink.
 PROPS.glass = (g, { at = 'hand', level = 3 } = {}) => {
@@ -2929,6 +3128,44 @@ Object.assign(ANIMS, {
   // his eyes shut, then a shake and back to himself, bright eyed.
   // A drink of water: the glass up to his lips three times, a row gone each
   // time, then a happy, sparkly, watered Clawd.
+  // That clapping cat: up on his hind legs with a huge grin, clapping fast,
+  // a pause to stare, then more.
+  'done.clap': { ms: 110, frames: [
+    { armL: 'none', armR: 'none', eyes: 'wide', prop: ['clapper', { dy: -1, grin: false }] },
+    ...loop(3, () => ({ dy: -2, armL: 'none', armR: 'none', eyes: 'wide', prop: ['clapper', {}] })),
+    ...loop(3, () => [0, 1, 2, 1].map(phase => ({ dy: -2, armL: 'none', armR: 'none', eyes: 'wide', prop: ['clapper', { phase }] }))).flat(),
+    ...loop(5, () => ({ dy: -2, armL: 'none', armR: 'none', eyes: 'wide', prop: ['clapper', { phase: 0 }] })),
+    ...loop(4, () => [0, 1, 2, 1].map(phase => ({ dy: -2, armL: 'none', armR: 'none', eyes: 'wide', prop: ['clapper', { phase }] }))).flat(),
+    ...loop(3, () => ({ dy: -2, armL: 'none', armR: 'none', eyes: 'wide', prop: ['clapper', {}] })),
+    // then a claw over the mouth, a shifty look around, snickering
+    ...loop(14, n => ({ dy: -2, armL: 'rest', armR: 'none', eyes: ['left', 'left', 'left', 'right', 'right', 'right', 'left', 'right', 'closed', 'closed', 'closed', 'closed', 'right', 'wide'][n], breathe: n >= 8 && n < 12 ? n % 2 : 0, prop: ['hush', { b: n >= 8 && n < 12 ? n % 2 : 0 }] })),
+    // and the claw held straight out at you, still, waiting for you to shake it
+    ...loop(20, n => ({ dy: -2, armL: 'rest', armR: 'none', eyes: n % 10 < 8 ? 'wide' : 'happy', prop: ['offer', {}] })),
+  ] },
+  // Thinking it over on the toilet: claws clasped, eyes up as the thought
+  // cloud fills, then a long hard push, red in the face and sweating, a
+  // shiver, relief, and the idea comes.
+  'thinking.toilet': { ms: 260, frames: [
+    ...['up', 'up', 'upleft', 'upleft', 'upright', 'upright', 'up', 'closed'].map(eyes => ({ dy: SEAT, armL: 'none', armR: 'none', eyes, props: [seat(), ['clasp', { dy: SEAT }]] })),
+    ...loop(10, n => ({ dy: SEAT, armL: 'none', armR: 'none', eyes: 'squeeze', breathe: n % 2, color: n >= 6 ? R : undefined, props: [seat(), ['clasp', { dy: SEAT, b: n % 2, strain: n >= 4 ? 2 : 1 }]] })),
+    ...loop(3, () => ({ dy: SEAT, armL: 'none', armR: 'none', eyes: 'closed', breathe: 1, props: [seat(), ['clasp', { dy: SEAT, b: 1 }]] })),
+    ...loop(3, () => ({ dy: SEAT, armL: 'none', armR: 'none', eyes: 'happy', props: [seat(), ['clasp', { dy: SEAT }]] })),
+    ...loop(4, n => ({ dy: SEAT, armL: 'none', armR: 'none', eyes: 'wide', props: [seat(), ['clasp', { dy: SEAT }], ['bulb', n]] })),
+  ] },
+  // That Tết photo: in his áo dài by the motorbike, a peach branch held high,
+  // one claw on the electric pole, posing; the branch sways, a petal falls.
+  'idle.peach': { ms: 300, frames: loop(16, n => ({
+    armL: 'none', armR: 'none',
+    eyes: n === 9 ? 'closed' : n >= 12 ? 'right' : 'wide',
+    props: [['market', { sway: n % 8 < 4 ? 0 : 1 }], ['marketFront', { fall: n >= 4 && n < 9 ? n - 4 : -1 }]],
+  })) },
+  // Out of usage: a claw held out, pleading eyes, bowing and jiggling it
+  // for a lì xì to tide him over till the limit resets.
+  'idle.lixi': { ms: 260, frames: [
+    ...loop(8, n => ({ armR: 'none', eyes: 'plead', breathe: n % 4 >= 2 ? 1 : 0, prop: ['lixi', { bow: n % 4 >= 2 ? 1 : 0 }] })),
+    ...loop(6, n => ({ armR: 'none', eyes: n % 2 ? 'closed' : 'happy', prop: ['lixi', { rub: n % 2 }] })),
+    ...loop(4, () => ({ armR: 'none', eyes: 'plead', prop: ['lixi', {}] })),
+  ] },
   'idle.drink': { ms: 200, frames: [
     ...loop(3, n => ({ armR: 'mid', eyes: 'right', breathe: n % 2, prop: ['glass', {}] })),
     ...[2, 1, 0].flatMap(level => [
@@ -3057,7 +3294,7 @@ export const VARIANTS = {
   ['waiting', 'waiting.butt', 'Wiggle'], ['error', 'error.fart', 'Toot'], ['done', 'done.wink', 'Wink'],
   ['error', 'error.tongue', 'Raspberry'], ['typing', 'typing.nod', 'Nod off'],
   ['running', 'running.jog', 'Jog'], ['running', 'running.squat', 'Squat'],
-  ['done', 'done.roid', 'Juiced'], ['idle', 'idle.stretch', 'Stretch'], ['idle', 'idle.drink', 'Water'],
+  ['done', 'done.roid', 'Juiced'], ['idle', 'idle.stretch', 'Stretch'], ['idle', 'idle.drink', 'Water'], ['done', 'done.clap', 'Clap'], ['thinking', 'thinking.toilet', 'Toilet'], ['idle', 'idle.peach', 'Peach'], ['idle', 'idle.lixi', 'Lì xì'], ['thinking', 'thinking.power', 'Power up'],
   ['idle', 'idle.keepie-ups', 'Keepie-ups'], ['idle', 'idle.hoops', 'Hoops'], ['idle', 'idle.fishing', 'Fishing'],
   ['sleeping', 'sleeping.snot-bubble', 'Snot bubble'], ['compacting', 'compacting.suitcase', 'Suitcase'],
 ].forEach(([mood, anim, label]) => VARIANTS[mood].push([anim, label]))
@@ -3072,8 +3309,11 @@ const DR = PALETTE.push('#A8322C') - 1 // dark red
 const OR = PALETTE.push('#EE8B2E') - 1 // pumpkin
 const OD = PALETTE.push('#C0631A') - 1 // pumpkin's ridges
 const NV = PALETTE.push('#4F6FA8') - 1 // nightcap blue
+const PK = PALETTE.push('#F49AB8') - 1 // peach blossom
+const PD = PALETTE.push('#D9577F') - 1 // its heart
+const GD = PALETTE.push('#E8B33A') - 1 // gold thread
 
-const HAT_INK = { r: R, d: DR, w: WT, y: Y, b: BL, g: GR, o: OR, O: OD, n: NV, k: K, x: BR }
+const HAT_INK = { r: R, d: DR, j: GD, c: B, w: WT, y: Y, b: BL, g: GR, o: OR, O: OD, n: NV, k: K, x: BR }
 
 export const HATS = {
   // Father Christmas's, its tip and bobble flopping over to his left.
@@ -3102,12 +3342,8 @@ export const HATS = {
     'oOoOoOoO',
     '.oOoOoO.',
   ],
-  // For Tết: a red khăn đóng wrapped round, its folds in two reds, a gold band.
-  tet: [
-    '..rdrdrdrd..',
-    '.rdrdrdrdrd.',
-    'yyyyyyyyyyyy',
-  ],
+  // For Tết nothing on his head: the áo dài is the whole of it (see dressTet).
+  tet: [],
   // A striped nightcap, its bobble hanging by his ear.
   nightcap: [
     '...nwnw.....',
@@ -3121,19 +3357,105 @@ export const HATS = {
 // already wearing something on his head, or not quite himself
 const HATLESS = new Set(['thinking.wizard', 'running.jog', 'thinking.cube', 'rallying.horde', 'delegating.tower'])
 
-// where his head is in this frame, as clawd() works it out
-const wearHat = (g, o, rows) => {
+// where his body is in this frame, as clawd() works it out
+const bodyOf = o => {
   const sq = o.squash ?? o.lie ?? 0
   const bw = BODY_W + 2 * sq
   const bh = BODY_H - sq
   const bx = BX + (o.dx ?? 0) - sq
   const by = o.lie !== undefined ? GROUND - bh : BY + (o.dy ?? 0) + sq + (o.breathe ? 1 : 0)
+  return { bx, by, bw, bh }
+}
+
+const wearHat = (g, o, rows) => {
+  const { bx, by, bw } = bodyOf(o)
   const w = Math.max(...rows.map(r => r.length))
   const last = rows.length - 1
   // the last row (a brim) sits on his head, all but the nightcap's bobble, which hangs beside it
   const lift = rows === HATS.nightcap ? 1 : 0
   art(g, bx + Math.floor((bw - w) / 2), by - last - 1 + lift, rows, HAT_INK)
 }
+
+// Tết: below his eyes his body and sleeves turn to a red áo dài with gold
+// roundels, over whatever he is doing.
+const dressTet = (g, o) => {
+  const { bx, by, bw, bh } = bodyOf(o)
+  const top = by + Math.min(4, bh - 2)
+  for (let y = top; y < Math.min(H, by + bh + 1); y++) {
+    for (let x = Math.max(0, bx - 2); x < Math.min(W, bx + bw + 2); x++) {
+      const c = g[y * W + x]
+      if (c === B) g[y * W + x] = R
+      else if (c === S) g[y * W + x] = DR
+    }
+  }
+  // the stand-up collar and a few gold roundels on the red
+  for (const [x, y] of [[bx + bw / 2 - 1, top], [bx + bw / 2, top], [bx + 2, top + 2], [bx + bw - 3, top + 1], [bx + bw / 2 - 2, top + 3]]) {
+    if (g[y * W + x] === R) g[y * W + x] = GD
+  }
+}
+
+// Powering up: he crouches and strains, a glow flickering round him, then
+// bursts into spiky golden hair inside a blazing aura.
+const HG = PALETTE.push('#F6B91C') - 1 // golden hair
+const AU = PALETTE.push('#FFF1A8') - 1 // aura
+const AF = PALETTE.push('#FFF7D1') - 1 // aura's pale outer flicker
+
+// Spiky golden hair standing up off his head, a few locks over his brow.
+PROPS.hair = (g, { dy = 0 } = {}) => {
+  const by = BY + dy
+  art(g, BX - 1, by - 5, [
+    '...h.....h....',
+    '..hh....hh..h.',
+    '.hhho..hhho.hd',
+    '.hhhhdhhhhhdhh',
+    'hhhhhhhhhhhhhh',
+    '.hd.hh..hd.hd.',
+  ], { h: HG, d: OR, o: GD })
+}
+
+// The aura, drawn last so it can trace him: a ring hugging his outline, a
+// paler flickering ring outside it, and flames licking up off the top.
+// `level` 1 is the faint glow while he strains, 2 the full blaze.
+PROPS.aura = (g, { n = 0, level = 2 } = {}) => {
+  const filled = (x, y) => x >= 0 && x < W && y >= 0 && y < H && g[y * W + x] && g[y * W + x] !== AU && g[y * W + x] !== AF
+  const near = (x, y, r) => {
+    for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (Math.abs(dx) + Math.abs(dy) <= r && filled(x + dx, y + dy)) return true
+    return false
+  }
+  const ring1 = [], ring2 = []
+  for (let y = 0; y < GROUND; y++) for (let x = 0; x < W; x++) {
+    if (g[y * W + x]) continue
+    if (near(x, y, 1)) ring1.push([x, y])
+    else if (near(x, y, 2)) ring2.push([x, y])
+  }
+  const flick = (x, y) => (x * 7 + y * 3 + n * 5) % 4
+  for (const [x, y] of ring1) if (level > 1 || flick(x, y) < 2) put(g, x, y, AU)
+  if (level < 2) return
+  for (const [x, y] of ring2) if (flick(x, y) !== 0) put(g, x, y, AF)
+  // flames: from the top of each column, a tongue of 1-3 rising, shifting each step
+  for (let x = 0; x < W; x++) {
+    let top = -1
+    for (let y = 0; y < GROUND; y++) if (g[y * W + x] === AU || g[y * W + x] === AF) { top = y; break }
+    if (top < 1) continue
+    const len = (x * 5 + n * 3) % 4
+    for (let k = 1; k <= len; k++) put(g, x, top - k, k === 1 ? AU : AF)
+  }
+}
+HELD.add('hair')
+HELD.add('aura')
+HATLESS.add('thinking.power')
+
+Object.assign(ANIMS, {
+  'thinking.power': { ms: 150, frames: [
+    ...loop(3, () => ({ eyes: 'open' })),
+    ...loop(3, n => ({ eyes: 'closed', breathe: 1, armL: 'down', armR: 'down' })),
+    ...loop(8, n => ({ dx: n % 2 ? 1 : -1, eyes: 'squeeze', breathe: 1, armL: 'down', armR: 'down', color: n >= 4 ? R : undefined, props: [['aura', { n, level: 1 }]] })),
+    { eyes: 'wide', armL: 'up', armR: 'up', props: [['hair', {}], ['aura', { n: 0 }]] },
+    ...loop(16, n => ({ eyes: 'fierce', breathe: n % 4 === 3 ? 1 : 0, armL: 'down', armR: 'down', props: [['hair', { dy: n % 4 === 3 ? 1 : 0 }], ['aura', { n }]] })),
+    ...loop(3, n => ({ eyes: 'fierce', armL: 'down', armR: 'down', props: [['hair', {}], ['aura', { n, level: 1 }]] })),
+  ] },
+})
+
 
 export const ANIMATIONS = Object.keys(ANIMS)
 
@@ -3154,7 +3476,8 @@ export const framesOf = name => {
     for (const [prop, step] of props) if (!HELD.has(prop)) PROPS[prop](g, step)
     clawd(g, o)
     for (const [prop, step] of props) if (HELD.has(prop)) PROPS[prop](g, step)
-    if (hat) wearHat(g, o, hat)
+    if (hat?.length) wearHat(g, o, hat)
+    if (hat === HATS.tet) dressTet(g, o)
     return g
   })
   const out = { ms: anim.ms, frames }

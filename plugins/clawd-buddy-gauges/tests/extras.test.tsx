@@ -1,6 +1,8 @@
 import { expect, test } from 'claude-code/testing'
 import { hatFor, holidayHat } from '../hooks/calendar'
 import { VARIANTS, framesOf } from '../hooks/crew-sprites.js'
+import { CLAWD_SHORTCUTS, clawdSuggestions } from '../hooks/register'
+import { ARCHIVED, petAnim, setSeason, shufflePet } from '../hooks/crew-pet'
 
 const at = (y: number, m: number, d: number, hour = 12) => ({ year: y, month: m, day: d, hour })
 
@@ -105,4 +107,79 @@ test('sprites: the new physical activities are registered and render valid frame
     expect(frames[0]).not.toEqual(frames[Math.floor(count / 2)])
   }
   expect(framesOf('sleeping.snot-bubble+nightcap').frames[0]).not.toEqual(framesOf('sleeping.snot-bubble').frames[0])
+})
+
+// out of usage: the band says when the limit resets (keep this test last of the desktop ones: the limits it reads stay)
+test('desktop: a used-up limit turns the band red with when it resets', async ($, on) => {
+  on('clock.now', () => ({ value: NOW }))
+  on('session.usage', () => ({
+    value: {
+      context: { tokens: 10_000, percent: 5, window: 200_000 },
+      rateLimits: [{ kind: 'five_hour', percentUsed: 100, resetsAt: new Date(NOW + 80 * 60_000).toISOString() }],
+    },
+  }) as never)
+  on('config.set', (_$, e: any) => ({ value: e.value }) as never)
+  await $.config.set({ key: 'autoCompact', value: true } as never) // re-reads the usage
+  const ui = await mount($)
+  expect(await ui.find({ type: 'Text', text: 'Out of usage' })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /5-hour limit resets in 1h 20m/ })).toBeDefined()
+  await ui.unmount()
+})
+
+test('pet: a click never cycles to the stretch or the drink, kept for their moments, nor to an archived look', () => {
+  const seen = new Set<string>()
+  let t = 0
+  for (const mood of ['idle', 'thinking', 'running'] as const) {
+    t += 10_000 // past the 2 s a shown look holds
+    petAnim(mood, t)
+    for (let i = 0; i < 30; i++) seen.add(shufflePet(t + i))
+  }
+  for (const anim of ['idle.stretch', 'idle.drink', ...ARCHIVED]) expect([anim, seen.has(anim)]).toEqual([anim, false])
+  expect(seen.has('thinking.power')).toBe(true)
+  expect(seen.has('idle.peach')).toBe(false)
+})
+
+test('pet: the peach-branch photo only comes up over Tết', () => {
+  setSeason('tet')
+  const t = 1_000_000 // well past what the test before left showing
+  petAnim('idle', t)
+  const seen = new Set<string>()
+  for (let i = 0; i < 30; i++) seen.add(shufflePet(t + i))
+  setSeason(null)
+  expect(seen.has('idle.peach')).toBe(true)
+})
+
+test('typeahead: /clawd offers its full forms, then the words that can come next', () => {
+  const full = clawdSuggestions('/cla', '/cla', 0)
+  expect(full.map(r => r.text)).toContain('/clawd hat tet')
+  expect(clawdSuggestions('/clawd h', 'h', 7).map(r => r.text)).toEqual(['hat'])
+  expect(clawdSuggestions('/clawd hat p', 'p', 11).map(r => r.text)).toEqual(['party', 'pumpkin'])
+  expect(clawdSuggestions('/clawd water o', 'o', 13)).toEqual([{ text: 'off', description: 'no water reminder' }])
+  expect(clawdSuggestions('hello', 'hello', 0)).toEqual([])
+})
+
+test('shortcuts: every /clawd form is a command of its own', () => {
+  const names = CLAWD_SHORTCUTS.map(c => c.name)
+  expect(names).toContain('clawd-hat-tet')
+  expect(names).toContain('clawd-remind')
+  expect(names).toContain('clawd-water-off')
+  expect(names).not.toContain('clawd-remind-60')
+})
+
+test('shortcuts: /clawd-hat-santa does what /clawd hat santa does', async ($, on) => {
+  on('clock.now', () => ({ value: NOW }))
+  on('store.set', () => ({ value: undefined }) as never)
+  const out: any = await $.command.run({ command: 'clawd-hat-santa', args: '' } as never)
+  expect(out?.text).toBe('Clawd wears the santa hat.')
+  const back: any = await $.command.run({ command: 'clawd-hat-auto', args: '' } as never)
+  expect(back?.text).toBe('Hats follow the calendar again.')
+})
+
+test('settings: a change another session saved shows up here', async ($, on) => {
+  on('clock.now', () => ({ value: NOW }))
+  on('store.set', () => ({ value: undefined }) as never)
+  on('store.get', () => ({ value: { isHidden: true } }) as never)
+  // plain /clawd toggles, so having picked up "hidden" it brings Clawd back
+  const out: any = await $.command.run({ command: 'clawd', args: '' } as never)
+  expect(out?.text).toBe('Clawd is back.')
 })
