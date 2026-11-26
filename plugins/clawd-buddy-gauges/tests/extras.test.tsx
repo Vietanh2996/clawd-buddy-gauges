@@ -1,6 +1,6 @@
 import { expect, test } from 'claude-code/testing'
 import { hatFor, holidayHat } from '../hooks/calendar'
-import { framesOf } from '../hooks/crew-sprites.js'
+import { VARIANTS, framesOf } from '../hooks/crew-sprites.js'
 
 const at = (y: number, m: number, d: number, hour = 12) => ({ year: y, month: m, day: d, hour })
 
@@ -89,4 +89,20 @@ test('sprites: the water look drinks the glass down', () => {
   const { frames } = framesOf('idle.drink')
   expect(frames.length).toBeGreaterThan(20)
   expect(frames[0]).not.toEqual(frames[frames.length - 5])
+})
+
+test('sprites: the new physical activities are registered and render valid frames', () => {
+  const specs: Array<[keyof typeof VARIANTS, string, number]> = [
+    ['idle', 'idle.hoops', 26],
+    ['idle', 'idle.fishing', 20],
+    ['sleeping', 'sleeping.snot-bubble', 20],
+    ['compacting', 'compacting.suitcase', 18],
+  ]
+  for (const [mood, anim, count] of specs) {
+    expect(VARIANTS[mood].some(([id]) => id === anim)).toBe(true)
+    const { frames } = framesOf(anim)
+    expect(frames.length).toBe(count)
+    expect(frames[0]).not.toEqual(frames[Math.floor(count / 2)])
+  }
+  expect(framesOf('sleeping.snot-bubble+nightcap').frames[0]).not.toEqual(framesOf('sleeping.snot-bubble').frames[0])
 })
