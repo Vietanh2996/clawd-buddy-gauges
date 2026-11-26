@@ -174,6 +174,17 @@ const eyes = (g, bx, by, bw, bh, kind) => {
   })
 }
 
+// Red polka-dot briefs (`briefs` on a frame): a band round his hips and a
+// V below it, white dots scattered over them.
+const briefs = (g, bx, by, bw, bh) => {
+  if (bh < 7) return
+  const mid = bx + Math.floor(bw / 2)
+  box(g, bx, by + bh - 2, bw, 1, R)
+  box(g, mid - 3, by + bh - 1, 6, 1, R)
+  for (let x = bx + 2; x < bx + bw - 1; x += 4) put(g, x, by + bh - 2, WT)
+  put(g, mid, by + bh - 1, WT)
+}
+
 // Clawd himself. `dy` moves him and his legs (a hop), `breathe` sinks the
 // body a row onto shortened legs, `squash` trades height for width, `lie`
 // rests the squashed body on the ground with the legs tucked under.
@@ -200,6 +211,7 @@ const clawd = (g, o) => {
     })
   }
   box(g, bx, by, bw, bh, c)
+  if (o.briefs) briefs(g, bx, by, bw, bh)
   arm(g, bx - 2, by, o.armL ?? 'rest', c)
   arm(g, bx + bw, by, o.armR ?? 'rest', c)
   eyes(g, bx, by, bw, bh, o.eyes ?? 'open')
@@ -3439,6 +3451,167 @@ export const VARIANTS = {
 ].forEach(([mood, anim, label]) => VARIANTS[mood].push([anim, label]))
 
 
+// ---------------------------------------- blender, drawn for clawd-buddy-gauges --
+//
+// /compact as a smoothie: a blender on the floor beside him, its jar heaped
+// with odd lumps of every colour. He thumbs the button, the jar shakes and
+// churns, the lumps sink into one smooth green layer a third as tall, and he
+// pops a straw in it, pleased.
+
+const LUMPS = [R, Y, BL, WT, GR, BR]
+PROPS.blender = (g, { level = 7, mix = -1, smooth = 0, shake = 0, lit = false, straw = false } = {}) => {
+  const x0 = 16 + shake
+  // the base and its button
+  box(g, x0, 15, 6, 3, D)
+  box(g, x0 + 1, 14, 4, 1, G)
+  put(g, x0 + 1, 16, lit ? GR : R)
+  // the glass: two walls, a lid
+  const top = 6
+  box(g, x0, top + 1, 1, 7, L)
+  box(g, x0 + 5, top + 1, 1, 7, L)
+  box(g, x0, top, 6, 1, D)
+  box(g, x0 + 2, top - 1, 2, 1, D)
+  // what's in it, filled from the bottom (row 13) up `level` rows
+  for (let r = 0; r < level; r++) {
+    const y = 13 - r
+    for (let c = 0; c < 4; c++) {
+      let col
+      if (r < smooth) col = GR
+      else if (mix < 0) col = LUMPS[((c >> 1) * 4 + (r >> 1) * 5 + ((r + c) >> 2)) % LUMPS.length]
+      else col = LUMPS[(c * 7 + r * 5 + mix * 3 + ((c + mix) >> 1)) % LUMPS.length]
+      put(g, x0 + 1 + c, y, col)
+    }
+  }
+  if (straw) {
+    box(g, x0 + 3, 3, 1, 11 - level, R)
+    put(g, x0 + 2, 3, R)
+  }
+  // a whirr when it runs
+  if (mix >= 0) {
+    put(g, x0 + 7, 8 + (mix % 2) * 2, L)
+    put(g, x0 + 7, 11 - (mix % 2) * 2, L)
+  }
+}
+
+Object.assign(ANIMS, {
+  'compacting.blender': {
+    ms: 150,
+    frames: [
+      // a look at the heaped jar
+      ...loop(4, n => ({ dx: -4, eyes: n < 2 ? 'right' : 'upright', prop: ['blender', {}] })),
+      // a claw to the button: on
+      { dx: -4, eyes: 'downright', armR: 'mid', prop: ['blender', {}] },
+      { dx: -4, eyes: 'downright', armR: 'mid', prop: ['blender', { lit: true }] },
+      // whirr: the jar rattles, he shakes with it, the heap sinks and smooths
+      ...loop(16, n => ({
+        dx: -4 + (n % 2 ? 0 : -1),
+        eyes: n < 12 ? 'squeeze' : 'wide',
+        armR: 'mid',
+        prop: ['blender', { lit: true, mix: n, shake: n % 2, level: 7 - Math.floor(n / 4), smooth: Math.floor(n / 4) }],
+      })),
+      // off: one smooth layer, three rows deep
+      ...loop(3, () => ({ dx: -4, eyes: 'wide', prop: ['blender', { level: 3, smooth: 3 }] })),
+      // the straw in, and a happy wriggle
+      ...loop(6, n => ({ dx: -4, eyes: 'happy', armL: n % 2 ? 'up' : 'mid', breathe: n % 2, prop: ['blender', { level: 3, smooth: 3, straw: true }] })),
+    ],
+  },
+})
+VARIANTS.compacting.push(['compacting.blender', 'Blender'])
+
+
+// ------------------------------------------- pole, drawn for clawd-buddy-gauges --
+//
+// Done, and a victory spin round a pole: he takes hold, swings up off the
+// floor and round it twice (behind it, out the other side, past the front),
+// hooks his legs over and hangs upside down swaying, strikes a pose up top with a wink, and slides down to a sparkly landing.
+
+const POLE_X = 12
+const drawPole = g => {
+  box(g, POLE_X - 1, 0, 3, 1, D)
+  box(g, POLE_X, 1, 1, 16, L)
+  box(g, POLE_X - 1, 17, 3, 1, D)
+}
+PROPS.pole = drawPole
+PROPS.poleFront = drawPole
+HELD.add('poleFront')
+
+// The tips, as he slides down: hearts floating up past the pole, and bills
+// tossed in from above that flutter down and land flat on the floor.
+// where each lands: two side by side on the floor, the later ones on top of them
+const TOSSES = [
+  { x: 16, at: 0, floor: 17 },
+  { x: 20, at: 2, floor: 17 },
+  { x: 18, at: 4, floor: 16 },
+  { x: 19, at: 6, floor: 15 },
+]
+PROPS.tips = (g, n) => {
+  // three hearts on their way up, one starting every few frames
+  for (const [k, x] of [[0, 15], [1, 20], [2, 17]]) {
+    const t = n - k * 3
+    if (t < 0) continue
+    const y = 12 - t
+    if (y < 0) continue
+    art(g, x, y, HEART_S, { '#': k === 1 ? MB : R })
+  }
+  // the bills, a 3x2 note fluttering left and right as it falls, flat once down
+  for (const { x, at, floor } of TOSSES) {
+    const t = n - at
+    if (t < 0) continue
+    const y = t * 3
+    if (y >= floor - 1) {
+      box(g, x - 1, floor, 3, 1, GR)
+      put(g, x, floor, Y)
+    } else {
+      const sx = x + (t % 2 ? 1 : -1)
+      box(g, sx - 1, y, 3, 2, GR)
+      put(g, sx, y, Y)
+    }
+  }
+}
+
+// one turn round the pole, eight steps: left of it, behind, right, in front
+const SPIN = [
+  { dx: -6, armR: 'up', armL: 'mid', front: false },
+  { dx: -3, armR: 'up', armL: 'up', front: true },
+  { dx: 0, armR: 'up', armL: 'up', front: true },
+  { dx: 3, armR: 'up', armL: 'up', front: true },
+  { dx: 6, armL: 'up', armR: 'mid', front: true },
+  { dx: 3, armL: 'up', armR: 'rest', front: false },
+  { dx: 0, armL: 'mid', armR: 'mid', front: false },
+  { dx: -3, armR: 'up', armL: 'rest', front: false },
+]
+const spinStep = (st, n) => ({
+  dx: st.dx, dy: -3, legs: 'tuck', armL: st.armL, armR: st.armR,
+  eyes: st.front ? 'closed' : n % 4 < 2 ? 'happy' : 'wide',
+  prop: [st.front ? 'poleFront' : 'pole'],
+})
+
+Object.assign(ANIMS, {
+  'done.pole': {
+    ms: 140,
+    // all of it in red polka-dot briefs
+    frames: [
+      // walks up, eyes it, takes hold
+      ...loop(3, n => ({ dx: -6, eyes: 'right', legs: n % 2 ? 'walkA' : 'stand', prop: ['pole'] })),
+      { dx: -6, eyes: 'upright', armR: 'up', prop: ['pole'] },
+      { dx: -6, eyes: 'wink', armR: 'up', squash: 1, prop: ['pole'] },
+      // up and round, twice
+      ...loop(2, () => SPIN).flat().map(spinStep),
+      // and over: hooked on by his legs, hanging upside down behind the pole, swaying
+      { dx: -6, dy: -6, legs: 'tuck', armR: 'up', armL: 'up', eyes: 'wide', prop: ['pole'] },
+      ...loop(10, n => ({ flip: true, dx: -6 + [0, 0, -1, -1][n % 4], dy: -2, legs: 'tuck', armL: n % 2 ? 'mid' : 'up', armR: 'up', eyes: n % 5 === 4 ? 'closed' : 'wide', prop: ['poleFront'] })),
+      // up top, a pose and a wink
+      ...loop(5, n => ({ dx: -6, dy: -6, legs: 'tuck', armR: 'up', armL: n % 2 ? 'up' : 'mid', eyes: n < 3 ? 'wink' : 'happy', props: [['pole'], ['sparkles', n % 3]] })),
+      // slide down, to hearts and a rain of bills
+      ...[-5, -4, -3, -2, -1].map((dy, n) => ({ dx: -6, dy, legs: 'tuck', armR: 'up', eyes: 'happy', props: [['pole'], ['tips', n]] })),
+      { dx: -6, squash: 2, armR: 'up', eyes: 'closed', props: [['pole'], ['tips', 5]] },
+      ...loop(8, n => ({ dx: -6, armR: 'up', armL: n % 2 ? 'up' : 'mid', eyes: n % 4 === 3 ? 'wink' : 'happy', props: [['pole'], ['tips', 6 + n]] })),
+    ].map(f => ({ ...f, briefs: true })),
+  },
+})
+VARIANTS.done.push(['done.pole', 'Pole dance'])
+
+
 // ------------------------------------------- hats, drawn for clawd-buddy-gauges --
 //
 // Worn over any animation: framesOf('idle.coffee+santa'). Each hat is rows of
@@ -3596,6 +3769,20 @@ Object.assign(ANIMS, {
 })
 
 
+// Clawd upside down (`flip`): drawn as usual on a spare grid, then turned
+// over top to bottom within the rows he fills, legs up, and laid on `g`.
+const clawdFlipped = (g, o) => {
+  const t = new Uint8Array(W * H)
+  clawd(t, o)
+  let top = H
+  let bottom = -1
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (t[y * W + x]) { top = Math.min(top, y); bottom = Math.max(bottom, y) }
+  for (let y = top; y <= bottom; y++) for (let x = 0; x < W; x++) {
+    const c = t[y * W + x]
+    if (c) g[(top + bottom - y) * W + x] = c
+  }
+}
+
 export const ANIMATIONS = Object.keys(ANIMS)
 
 const cache = new Map()
@@ -3613,10 +3800,11 @@ export const framesOf = name => {
     const g = new Uint8Array(W * H)
     const props = o.props ?? (o.prop ? [o.prop] : [])
     for (const [prop, step] of props) if (!HELD.has(prop)) PROPS[prop](g, step)
-    clawd(g, o)
+    if (o.flip) clawdFlipped(g, o)
+    else clawd(g, o)
     for (const [prop, step] of props) if (HELD.has(prop)) PROPS[prop](g, step)
-    if (hat?.length) wearHat(g, o, hat)
-    if (hat === HATS.tet) dressTet(g, o)
+    if (hat?.length && !o.flip) wearHat(g, o, hat)
+    if (hat === HATS.tet && !o.flip) dressTet(g, o)
     return g
   })
   const out = { ms: anim.ms, frames }
