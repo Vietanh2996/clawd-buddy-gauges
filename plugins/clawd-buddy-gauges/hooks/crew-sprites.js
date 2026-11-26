@@ -153,6 +153,14 @@ const eyes = (g, bx, by, bw, bh, kind) => {
         put(g, x, by + 2, K)
         put(g, x + 1, by + 3, K)
         break
+      case 'wince': {
+        // Pinched >.< eyes: inward-pointing chevrons.
+        const outer = side === 0 ? x - 1 : x + 1
+        put(g, outer, by + 1, K)
+        put(g, x, by + 2, K)
+        put(g, outer, by + 3, K)
+        break
+      }
       case 'x':
         put(g, x - 1, by + 1, K)
         put(g, x + 1, by + 1, K)
@@ -181,6 +189,10 @@ const clawd = (g, o) => {
     const ground = GROUND + (o.dy ?? 0)
     const top = by + bh
     ;[bx + 1, bx + 3, bx + bw - 4, bx + bw - 2].forEach((x, i) => {
+      if ((legs === 'kickL' && i === 0) || (legs === 'kickR' && i === 3)) {
+        box(g, legs === 'kickL' ? x - 2 : x, top, 3, 1, c)
+        return
+      }
       let bottom = legs === 'tuck' ? top + 1 : ground
       if (legs === 'walkA' && i % 2 === 0) bottom -= 1
       if (legs === 'walkB' && i % 2 === 1) bottom -= 1
@@ -2637,6 +2649,222 @@ Object.assign(ANIMS, {
   },
 })
 
+// A football drawn in front of Clawd while it crosses his body.
+PROPS.football = (g, { x, y }) => art(g, x - 2, y - 1, ['.ww.', 'wDww', '.ll.'], { w: WT, D, l: L })
+HELD.add('football')
+
+const keepUp = (x, y, pose = {}) => ({
+  armL: 'mid', armR: 'mid', ...pose, prop: ['football', { x, y }],
+})
+
+// A basketball hoop on the right edge of the stage (6 px rim, 4-row net);
+// `net` flares wide when the ball swishes through.
+PROPS.hoop = (g, { net = 'still', spark = false } = {}) => {
+  box(g, 22, 0, 2, 8, WT)
+  box(g, 22, 2, 1, 4, R)
+  box(g, 23, 8, 1, 10, D)
+  box(g, 16, 6, 6, 1, R)
+  const mesh = net === 'swish'
+    ? ['w....w', '.w..w.', 'w.ww.w', '.w..w.']
+    : ['w.w.w.', '.w.w.w', 'w.w.w.', '.w..w.']
+  art(g, 16, 7, mesh, { w: L })
+  if (spark) {
+    put(g, 15, 5, Y)
+    put(g, 16, 4, Y)
+  }
+}
+
+PROPS.bball = (g, { x, y }) => art(g, x, y, ['.yy.', 'yDry', '.rr.'], { y: Y, r: R, D })
+HELD.add('bball')
+
+// Chill boat fishing that turns dramatic: Clawd sits far right on the
+// wooden bow (slightly cropped at edge) so a long 10-px rod can bow deeply.
+PROPS.rod = (g, { wave = 0, bob = 0, pose = 'rest', bobY = 14, fish, splash = 0, sweat = -1, pop = false } = {}) => {
+  box(g, 0, 17, 24, 1, BL)
+  for (let x = 0; x < 24; x++) {
+    if ((x + wave) % 4 === 0) put(g, x, 16, BL)
+    if ((x + wave) % 7 === 1) put(g, x, 17, WT)
+  }
+  const by = 12 + bob
+  art(g, 8, by, [
+    '.bbbbbbbbbbbbbbb',
+    'dddddddddddddddd',
+    '..bbbbbbbbbbbbbb',
+    '...ddddddddddddd',
+  ], { b: BR, d: D })
+  if (pose === 'strain1' || pose === 'strain2') {
+    // Long rod starts cleanly at his left claw (9 or 10, 8) and bows deeply.
+    const dip = pose === 'strain2' ? 1 : 0
+    const sx = pose === 'strain2' ? 10 : 9
+    const pts = [
+      [sx, 8 + bob], [sx - 1, 7 + bob], [sx - 3, 6 + bob + dip], [sx - 5, 6 + bob + dip],
+      [4, 7 + bob + dip], [3, 8 + bob + dip], [2, 10 + bob + dip], [1, 11 + bob + dip],
+    ]
+    for (const [rx, ry] of pts) put(g, rx, ry, BR)
+    for (let y = 12 + bob + dip; y <= 16; y++) put(g, 1, y, L)
+    put(g, 0, 10 + bob + dip, WT)
+    if (pose === 'strain2') {
+      put(g, 5, 5 + bob, Y)
+      put(g, 2, 15, WT)
+    }
+  } else if (pose === 'snap') {
+    for (let i = 0; i < 5; i++) put(g, 10 - i, 4 - i, BR)
+    put(g, 5, 1, L)
+    put(g, 4, 2, L)
+    put(g, 3, 3, L)
+  } else if (pose === 'yank') {
+    for (let i = 0; i < 6; i++) put(g, 10 - i, 5 + bob - Math.floor(i * 0.8), BR)
+    put(g, 4, 2 + bob, L)
+    put(g, 3, 3 + bob, L)
+  } else {
+    for (let i = 0; i < 10; i++) put(g, 10 - i, 7 + bob - Math.floor(i * 0.55), BR)
+    const tipY = 2 + bob
+    for (let y = tipY; y <= bobY; y++) put(g, 1, y, L)
+    if (bobY >= 13) {
+      put(g, 1, bobY, R)
+      put(g, 1, bobY + 1, WT)
+    }
+  }
+  if (fish) art(g, fish.x, fish.y, ['..rr..', '.yyy.r', 'ywkyy.', '.yyy.r'], { y: Y, r: R, w: WT, k: K })
+  if (pop) {
+    put(g, 0, 12, Y)
+    put(g, 5, 11, Y)
+    put(g, 3, 9, WT)
+  }
+  if (splash >= 1) {
+    put(g, 0, 14, WT)
+    put(g, 2, 13, WT)
+    put(g, 4, 14, WT)
+    put(g, 5, 15, BL)
+  }
+  if (splash >= 2) {
+    put(g, 1, 11, WT)
+    put(g, 3, 10, BL)
+    put(g, 4, 12, WT)
+    put(g, 0, 12, BL)
+  }
+  // A clean sweat bead right above his brow while straining.
+  if (sweat >= 0) {
+    put(g, 20, 4 + sweat, BL)
+    put(g, 20, 5 + sweat, BL)
+    put(g, 19, 4 + sweat, WT)
+  }
+}
+HELD.add('rod')
+
+// A translucent snot bubble growing from Clawd's face as he breathes out in his sleep.
+PROPS.snot = (g, stage) => {
+  if (stage === 1) art(g, 12, 13, ['wb', 'bb'], { b: BL, w: WT })
+  else if (stage === 2) art(g, 12, 12, ['.b.', 'w.b', '.b.'], { b: BL, w: WT })
+  else if (stage === 3) art(g, 12, 11, ['.bb.', 'w..b', 'b..b', '.bb.'], { b: BL, w: WT })
+  else if (stage === 4) art(g, 12, 10, ['.bbb.', 'w...b', 'b...b', 'b...b', '.bbb.'], { b: BL, w: WT })
+  else if (stage === 'pop') art(g, 11, 9, ['.b...b.', 'w.....b', '.......', 'b.....b', '.b...b.'], { b: BL, w: WT })
+}
+HELD.add('snot')
+
+// An overstuffed leather suitcase sitting on the floor; `level` goes 3 (bursting) -> 0 (latched).
+PROPS.suitcase = (g, { level = 3, flash = false, poke = false } = {}) => {
+  const top = [13, 13, 12, 11][level]
+  if (level >= 2) {
+    art(g, 4, top, [
+      '.rr..yy..bb..w.',
+      'rrwyyyybbbbwwrr',
+    ], { r: R, y: Y, b: BL, w: WT })
+  } else if (level === 1) {
+    box(g, 5, top, 2, 1, Y)
+    box(g, 16, top, 2, 1, R)
+  }
+  const lidY = top + (level >= 2 ? 2 : 1)
+  box(g, 5, lidY, 14, 18 - lidY, BR)
+  box(g, 5, lidY, 14, 1, D)
+  box(g, 8, lidY, 1, 18 - lidY, D)
+  box(g, 15, lidY, 1, 18 - lidY, D)
+  const clasp = flash ? WT : Y
+  put(g, 8, lidY + 1, clasp)
+  put(g, 15, lidY + 1, clasp)
+  if (poke) box(g, 19, 15, 2, 1, R)
+}
+
+// Parallax skate scene drawn behind Clawd: dashed road, scrolling dark-green
+// trees (car-window camera effect), and a red-and-white traffic cone obstacle.
+PROPS.skateRoad = (g, { scroll = 0, obsX = null, knocked = false } = {}) => {
+  // Ground / sidewalk with scrolling dashes.
+  box(g, 0, 17, 24, 1, D)
+  for (let x = 0; x < 24; x++) {
+    if ((x + scroll) % 7 === 0) put(g, x, 17, G)
+  }
+  // Passing trees every 14 px, dim so orange Clawd pops in the foreground.
+  for (let base = -((scroll % 14 + 14) % 14); base < 24; base += 14) {
+    const tx = base + 8
+    art(g, tx, 8, [
+      '.gGg.',
+      'dDDDd',
+      'DDDDD',
+      'dDDDd',
+      '..D..',
+      '..D..',
+      '..D..',
+      '..D..',
+      '..D..',
+    ], { D, d: G, g: D, G: GR })
+  }
+  // Traffic cone obstacle (upright or knocked over after a crash).
+  if (obsX !== null) {
+    if (knocked) {
+      art(g, obsX, 15, [
+        'drr.',
+        'dwwr',
+      ], { r: R, w: WT, d: D })
+    } else {
+      art(g, obsX, 13, [
+        '.rr.',
+        '.ww.',
+        'rrrr',
+        'dddd',
+      ], { r: R, w: WT, d: D })
+    }
+  }
+}
+
+// A 9-px skateboard drawn in front when needed: `flip` 0..3 performs a true
+// nose-to-tail barrel roll (grip top -> maple bottom rolling toward camera ->
+// wheels up -> grip rolling back over -> upright).
+PROPS.skateboard = (g, { x, y = 16, flip = 0, tilt = null, sparks = false } = {}) => {
+  if (tilt === 'pop') {
+    for (let i = 0; i < 9; i++) {
+      const py = i < 3 ? y + 1 : i < 6 ? y : y - 1
+      put(g, x + i, py, i === 0 || i === 8 ? R : D)
+    }
+    put(g, x + 2, y + 1, WT)
+    put(g, x + 6, y, WT)
+  } else if (tilt === 'crash') {
+    for (let i = 0; i < 9; i++) {
+      const py = i < 4 ? y - 1 : i < 7 ? y : y + 1
+      put(g, x + i, py, i === 0 || i === 8 ? R : Y)
+    }
+    put(g, x + 1, y - 2, WT)
+    put(g, x + 6, y - 1, WT)
+  } else if (flip === 1) {
+    // 90° barrel roll: bright maple underside facing the camera, wheels mid-rail.
+    art(g, x, y, ['ryyyyyyyr', '.w.rrr.w.'], { r: R, y: Y, w: WT })
+  } else if (flip === 2) {
+    // 180° upside down: wheels pointing straight up over maple deck.
+    art(g, x, y, ['.w.....w.', 'ryyyyyyyr'], { w: WT, r: R, y: Y })
+  } else if (flip === 3) {
+    // 270° barrel roll: dark grip rolling back up.
+    art(g, x, y, ['rdddddddr', '.l.ddd.l.'], { r: R, d: D, l: L })
+  } else {
+    art(g, x, y, ['rdddddddr', '.w.....w.'], { r: R, d: D, w: WT })
+  }
+  if (sparks) {
+    put(g, x + 1, y + 1, Y)
+    put(g, x + 7, y + 1, Y)
+    put(g, x, y, WT)
+    put(g, x + 8, y, WT)
+  }
+}
+HELD.add('skateboard')
+
 // Up on his hind legs (`dy` rows taller), a big toothy grin, clapping: his
 // claws `phase` 0 out wide, 1 halfway, 2 meeting in front of him with a clap.
 // Arms in front of his body are drawn in the shade, so they show against it.
@@ -2829,6 +3057,196 @@ PROPS.glass = (g, { at = 'hand', level = 3 } = {}) => {
 HELD.add('glass')
 
 Object.assign(ANIMS, {
+  'idle.keepie-ups': {
+    ms: 110,
+    frames: [
+      // Two alternating taps, low enough to stay in easy reach.
+      keepUp(4, 16, { eyes: 'downleft', armL: 'rest', armR: 'rest' }),
+      keepUp(4, 16, { eyes: 'downleft' }),
+      keepUp(4, 14, { eyes: 'downleft', legs: 'kickL' }),
+      keepUp(6, 11, { eyes: 'left' }),
+      keepUp(9, 9, { eyes: 'upleft' }),
+      keepUp(12, 8, { eyes: 'up' }),
+      keepUp(15, 9, { eyes: 'upright' }),
+      keepUp(17, 11, { eyes: 'right' }),
+      keepUp(19, 14, { eyes: 'downright', legs: 'kickR' }),
+      keepUp(17, 11, { eyes: 'right' }),
+      keepUp(14, 9, { eyes: 'upright' }),
+      keepUp(11, 8, { eyes: 'up' }),
+      keepUp(8, 9, { eyes: 'upleft' }),
+      keepUp(6, 11, { eyes: 'left' }),
+      // The third tap sails wide. He scuttles after it and saves it.
+      keepUp(4, 14, { eyes: 'downleft', legs: 'kickL' }),
+      keepUp(6, 9, { eyes: 'wide' }),
+      keepUp(9, 5, { eyes: 'upleft' }),
+      keepUp(12, 3, { eyes: 'up' }),
+      keepUp(15, 2, { eyes: 'upright' }),
+      keepUp(18, 3, { dx: 1, legs: 'walkA', eyes: 'upright' }),
+      keepUp(20, 5, { dx: 2, legs: 'walkB', eyes: 'upright' }),
+      keepUp(22, 9, { dx: 3, eyes: 'right' }),
+      keepUp(22, 14, { dx: 3, eyes: 'downright', legs: 'kickR' }),
+      // A softer touch sends the ball back to where he started.
+      keepUp(20, 12, { dx: 3, eyes: 'right' }),
+      keepUp(17, 11, { dx: 2, legs: 'walkA', eyes: 'right' }),
+      keepUp(14, 12, { dx: 1, legs: 'walkB', eyes: 'down' }),
+      keepUp(11, 14, { eyes: 'down' }),
+      keepUp(8, 16, { eyes: 'downleft', armL: 'rest', armR: 'rest' }),
+      keepUp(6, 16, { eyes: 'downleft', armL: 'rest', armR: 'rest' }),
+      keepUp(5, 16, { eyes: 'downleft', armL: 'rest', armR: 'rest' }),
+      ...loop(4, () => keepUp(4, 16, { eyes: 'happy', armL: 'rest', armR: 'rest' })),
+    ],
+  },
+  // Shooting hoops: two dribbles, a swish through the bigger 6 px net, then
+  // a second shot that clanks off the rim right back onto his head.
+  'idle.hoops': {
+    ms: 130,
+    frames: [
+      { dx: -4, armR: 'mid', eyes: 'downright', props: [['hoop', {}], ['bball', { x: 12, y: 11 }]] },
+      { dx: -4, armR: 'down', eyes: 'downright', props: [['hoop', {}], ['bball', { x: 12, y: 15 }]] },
+      { dx: -4, armR: 'mid', eyes: 'downright', props: [['hoop', {}], ['bball', { x: 12, y: 11 }]] },
+      { dx: -4, armR: 'down', eyes: 'downright', props: [['hoop', {}], ['bball', { x: 12, y: 15 }]] },
+      { dx: -4, squash: 1, armR: 'mid', eyes: 'upright', props: [['hoop', {}], ['bball', { x: 12, y: 10 }]] },
+      { dx: -4, dy: -1, legs: 'tuck', armR: 'up', eyes: 'upright', props: [['hoop', {}], ['bball', { x: 13, y: 5 }]] },
+      { dx: -4, armR: 'up', eyes: 'upright', props: [['hoop', {}], ['bball', { x: 15, y: 2 }]] },
+      { dx: -4, armR: 'mid', eyes: 'right', props: [['hoop', {}], ['bball', { x: 17, y: 1 }]] },
+      { dx: -4, eyes: 'right', props: [['hoop', {}], ['bball', { x: 17, y: 3 }]] },
+      { dx: -4, eyes: 'right', props: [['hoop', {}], ['bball', { x: 17, y: 5 }]] },
+      { dx: -4, eyes: 'happy', armL: 'mid', armR: 'mid', props: [['hoop', { net: 'swish' }], ['bball', { x: 17, y: 8 }]] },
+      { dx: -4, eyes: 'happy', armL: 'mid', armR: 'mid', props: [['hoop', { net: 'swish' }], ['bball', { x: 17, y: 12 }]] },
+      { dx: -4, eyes: 'happy', props: [['hoop', {}], ['bball', { x: 17, y: 15 }]] },
+      { dx: -4, eyes: 'downright', props: [['hoop', {}], ['bball', { x: 14, y: 15 }]] },
+      { dx: -4, squash: 1, armR: 'mid', eyes: 'upright', props: [['hoop', {}], ['bball', { x: 12, y: 10 }]] },
+      { dx: -4, dy: -1, legs: 'tuck', armR: 'up', eyes: 'upright', props: [['hoop', {}], ['bball', { x: 13, y: 5 }]] },
+      { dx: -4, armR: 'up', eyes: 'upright', props: [['hoop', {}], ['bball', { x: 15, y: 2 }]] },
+      { dx: -4, eyes: 'right', props: [['hoop', { spark: true }], ['bball', { x: 15, y: 4 }]] },
+      { dx: -4, eyes: 'wide', props: [['hoop', {}], ['bball', { x: 12, y: 2 }]] },
+      { dx: -4, eyes: 'up', props: [['hoop', {}], ['bball', { x: 8, y: 4 }]] },
+      { dx: -4, squash: 2, eyes: 'wince', props: [['hoop', {}], ['bball', { x: 6, y: 7 }]] },
+      { dx: -4, squash: 2, eyes: 'wince', props: [['hoop', {}], ['bball', { x: 2, y: 12 }]] },
+      { dx: -4, eyes: 'downleft', props: [['hoop', {}], ['bball', { x: 1, y: 15 }]] },
+      { dx: -4, eyes: 'down', props: [['hoop', {}], ['bball', { x: 5, y: 15 }]] },
+      { dx: -4, eyes: 'downright', props: [['hoop', {}], ['bball', { x: 9, y: 15 }]] },
+      { dx: -4, armR: 'mid', eyes: 'downright', props: [['hoop', {}], ['bball', { x: 12, y: 13 }]] },
+    ],
+  },
+  // Tracking-camera skateboarding: trees & dashes scroll past behind Clawd as he
+  // cruises at dx -4, spots a cone, pops a true barrel-roll kickflip over it,
+  // lands with sparks — then clips a second cone, freezing the world while
+  // momentum throws him forward into a faceplant!
+  'idle.kickflip': {
+    ms: 115,
+    frames: [
+      { dx: -4, dy: -2, eyes: 'right', props: [['skateRoad', { scroll: 0 }], ['skateboard', { x: 3 }]] },
+      { dx: -4, dy: -2, eyes: 'right', props: [['skateRoad', { scroll: 2, obsX: 21 }], ['skateboard', { x: 3 }]] },
+      { dx: -4, dy: -2, eyes: 'right', props: [['skateRoad', { scroll: 4, obsX: 18 }], ['skateboard', { x: 3 }]] },
+      { dx: -4, dy: -2, squash: 1, armL: 'down', armR: 'down', eyes: 'downright', props: [['skateRoad', { scroll: 6, obsX: 15 }], ['skateboard', { x: 3, tilt: 'pop' }]] },
+      // Kickflip over Cone 1 as it passes cleanly underneath.
+      { dx: -4, dy: -5, legs: 'tuck', armL: 'up', armR: 'up', eyes: 'wide', props: [['skateRoad', { scroll: 8, obsX: 12 }], ['skateboard', { x: 3, y: 12, flip: 1 }]] },
+      { dx: -4, dy: -6, legs: 'tuck', armL: 'mid', armR: 'up', eyes: 'down', props: [['skateRoad', { scroll: 10, obsX: 9 }], ['skateboard', { x: 3, y: 11, flip: 2 }]] },
+      { dx: -4, dy: -6, legs: 'tuck', armL: 'up', armR: 'mid', eyes: 'down', props: [['skateRoad', { scroll: 12, obsX: 6 }], ['skateboard', { x: 3, y: 11, flip: 3 }]] },
+      { dx: -4, dy: -4, armL: 'mid', armR: 'mid', eyes: 'down', props: [['skateRoad', { scroll: 14, obsX: 3 }], ['skateboard', { x: 3, y: 13, flip: 0 }]] },
+      { dx: -4, dy: -2, squash: 1, armL: 'mid', armR: 'mid', eyes: 'happy', props: [['skateRoad', { scroll: 16, obsX: 0 }], ['skateboard', { x: 3, sparks: true }]] },
+      { dx: -4, dy: -2, eyes: 'happy', props: [['skateRoad', { scroll: 18 }], ['skateboard', { x: 3 }], ['sparkles', 0]] },
+      { dx: -4, dy: -2, eyes: 'happy', props: [['skateRoad', { scroll: 20, obsX: 21 }], ['skateboard', { x: 3 }], ['sparkles', 1]] },
+      { dx: -4, dy: -2, eyes: 'right', props: [['skateRoad', { scroll: 22, obsX: 17 }], ['skateboard', { x: 3 }]] },
+      { dx: -4, dy: -2, eyes: 'right', props: [['skateRoad', { scroll: 24, obsX: 13 }], ['skateboard', { x: 3 }]] },
+      // WHAM! Front wheel clips Cone 2 at x=10 -> scrolling freezes, Clawd flies forward!
+      { dx: -2, dy: -3, armL: 'up', armR: 'up', eyes: 'wide', props: [['skateRoad', { scroll: 26, obsX: 10 }], ['skateboard', { x: 2, tilt: 'crash' }]] },
+      { dx: 1, dy: -3, legs: 'tuck', armL: 'up', armR: 'up', eyes: 'wide', props: [['skateRoad', { scroll: 26, obsX: 6, knocked: true }], ['skateboard', { x: 0, y: 15, flip: 2 }]] },
+      { dx: 4, dy: -1, legs: 'tuck', armL: 'mid', armR: 'mid', eyes: 'wide', props: [['skateRoad', { scroll: 26, obsX: 5, knocked: true }], ['skateboard', { x: 0, y: 16, flip: 2 }]] },
+      { dx: 4, lie: 2, eyes: 'wince', props: [['skateRoad', { scroll: 26, obsX: 5, knocked: true }], ['skateboard', { x: 0, y: 16, flip: 2 }]] },
+      { dx: 4, lie: 2, eyes: 'wince', props: [['skateRoad', { scroll: 26, obsX: 5, knocked: true }], ['skateboard', { x: 0, y: 16, flip: 2 }]] },
+      { dx: 4, lie: 2, eyes: 'wink', props: [['skateRoad', { scroll: 26, obsX: 5, knocked: true }], ['skateboard', { x: 0, y: 16, flip: 2 }]] },
+      // Gets up, walks back, flips the board upright and pushes off again.
+      { dx: 1, dy: -1, legs: 'walkA', armL: 'mid', eyes: 'downleft', props: [['skateRoad', { scroll: 26 }], ['skateboard', { x: 0, y: 16, flip: 2 }]] },
+      { dx: -2, dy: -1, legs: 'walkB', armL: 'mid', eyes: 'downleft', props: [['skateRoad', { scroll: 26 }], ['skateboard', { x: 1, y: 16, flip: 1 }]] },
+      { dx: -4, dy: -2, legs: 'tuck', armL: 'mid', armR: 'mid', eyes: 'down', props: [['skateRoad', { scroll: 27 }], ['skateboard', { x: 3, y: 16, flip: 0 }]] },
+      { dx: -4, dy: -2, eyes: 'right', props: [['skateRoad', { scroll: 28 }], ['skateboard', { x: 3 }]] },
+    ],
+  },
+  // Chill boat fishing that turns explosive: Clawd sits far right on the bow
+  // with a long rod, strains with a deeply bowed arc until "BỤP!" launches
+  // the golden fish sky-high in a huge arc before it splashes back into the sea.
+  'idle.fishing': {
+    ms: 190,
+    frames: [
+      { dx: 6, dy: -3, legs: 'none', armL: 'mid', armR: 'none', eyes: 'left', prop: ['rod', { wave: 0, bob: 0, bobY: 14 }] },
+      { dx: 6, dy: -3, legs: 'none', armL: 'mid', armR: 'none', eyes: 'left', prop: ['rod', { wave: 1, bob: 0, bobY: 14 }] },
+      { dx: 6, dy: -2, legs: 'none', armL: 'mid', armR: 'none', eyes: 'downleft', prop: ['rod', { wave: 2, bob: 1, bobY: 15 }] },
+      { dx: 6, dy: -2, legs: 'none', armL: 'mid', armR: 'none', eyes: 'closed', prop: ['rod', { wave: 3, bob: 1, bobY: 15 }] },
+      { dx: 6, dy: -3, legs: 'none', armL: 'mid', armR: 'none', eyes: 'left', prop: ['rod', { wave: 4, bob: 0, bobY: 14 }] },
+      { dx: 6, dy: -2, legs: 'none', armL: 'mid', armR: 'none', eyes: 'wide', prop: ['rod', { wave: 5, bob: 1, bobY: 16, splash: 1 }] },
+      // Straining hard: shakes back and forth (dx 5 <-> 6), >.< wince eyes, sweating, long rod bowed down.
+      { dx: 5, dy: -2, legs: 'none', squash: 1, armL: 'mid', armR: 'none', eyes: 'wince', prop: ['rod', { wave: 6, bob: 1, pose: 'strain1', splash: 1, sweat: 0 }] },
+      { dx: 6, dy: -2, legs: 'none', squash: 1, armL: 'mid', armR: 'none', eyes: 'wince', prop: ['rod', { wave: 7, bob: 1, pose: 'strain2', splash: 1, sweat: 1 }] },
+      { dx: 5, dy: -2, legs: 'none', squash: 1, armL: 'mid', armR: 'none', eyes: 'wince', prop: ['rod', { wave: 8, bob: 1, pose: 'strain1', splash: 2, sweat: 0 }] },
+      { dx: 6, dy: -3, legs: 'none', squash: 1, armL: 'mid', armR: 'none', eyes: 'wince', prop: ['rod', { wave: 9, bob: 0, pose: 'strain2', splash: 1, sweat: 1 }] },
+      // "BỤP!" Tension snaps: Clawd recoils, long rod whips up, fish rockets out of the sea.
+      { dx: 7, dy: -3, legs: 'none', armL: 'up', armR: 'none', eyes: 'wide', prop: ['rod', { wave: 10, bob: 0, pose: 'snap', fish: { x: 0, y: 8 }, splash: 2, pop: true }] },
+      { dx: 6, dy: -3, legs: 'none', armL: 'up', armR: 'none', eyes: 'upleft', prop: ['rod', { wave: 11, bob: 0, pose: 'snap', fish: { x: 3, y: 2 }, splash: 2 }] },
+      { dx: 6, dy: -3, legs: 'none', armL: 'up', armR: 'none', eyes: 'up', prop: ['rod', { wave: 12, bob: 0, pose: 'yank', fish: { x: 9, y: 0 }, splash: 1 }] },
+      { dx: 6, dy: -2, legs: 'none', armL: 'mid', armR: 'none', eyes: 'upright', prop: ['rod', { wave: 13, bob: 1, pose: 'yank', fish: { x: 14, y: 2 } }] },
+      // Bonk right on top of his crown, then dives back into the waves.
+      { dx: 5, dy: -2, legs: 'none', squash: 2, armR: 'none', eyes: 'wince', prop: ['rod', { wave: 14, bob: 1, pose: 'yank', fish: { x: 12, y: 4 } }] },
+      { dx: 6, dy: -3, legs: 'none', armL: 'mid', armR: 'none', eyes: 'wide', prop: ['rod', { wave: 15, bob: 0, bobY: 11, fish: { x: 5, y: 8 } }] },
+      { dx: 6, dy: -3, legs: 'none', armL: 'mid', armR: 'none', eyes: 'downleft', prop: ['rod', { wave: 16, bob: 0, bobY: 14, fish: { x: 0, y: 12 } }] },
+      { dx: 6, dy: -2, legs: 'none', armL: 'mid', armR: 'none', eyes: 'wide', prop: ['rod', { wave: 17, bob: 1, bobY: 15, splash: 2 }] },
+      { dx: 6, dy: -2, legs: 'none', armL: 'mid', armR: 'none', eyes: 'closed', prop: ['rod', { wave: 18, bob: 1, bobY: 15, splash: 1 }] },
+      { dx: 6, dy: -3, legs: 'none', armL: 'mid', armR: 'none', eyes: 'left', prop: ['rod', { wave: 19, bob: 0, bobY: 14 }] },
+    ],
+  },
+  // Fast asleep with a translucent snot bubble that swells as he exhales,
+  // wobbles huge, and pops with a tiny startle before he drifts back to Z's.
+  'sleeping.snot-bubble': {
+    ms: 340,
+    frames: [
+      { lie: 2, eyes: 'closed', prop: ['zz', 0] },
+      { lie: 2, eyes: 'closed', prop: ['zz', 1] },
+      { lie: 1, eyes: 'closed', prop: ['zz', 2] },
+      { lie: 1, eyes: 'closed', prop: ['zz', 3] },
+      { lie: 1, eyes: 'closed', prop: ['snot', 1] },
+      { lie: 2, eyes: 'closed', prop: ['snot', 2] },
+      { lie: 2, eyes: 'closed', prop: ['snot', 3] },
+      { lie: 1, eyes: 'closed', prop: ['snot', 2] },
+      { lie: 2, eyes: 'closed', prop: ['snot', 3] },
+      { lie: 2, eyes: 'closed', prop: ['snot', 4] },
+      { lie: 3, eyes: 'closed', prop: ['snot', 4] },
+      { lie: 3, eyes: 'closed', prop: ['snot', 4] },
+      { lie: 1, armL: 'mid', eyes: 'squished', prop: ['snot', 'pop'] },
+      { lie: 2, eyes: 'wink' },
+      { lie: 2, eyes: 'wink' },
+      { lie: 2, eyes: 'closed' },
+      { lie: 2, eyes: 'closed', prop: ['zz', 0] },
+      { lie: 2, eyes: 'closed', prop: ['zz', 1] },
+      { lie: 1, eyes: 'closed', prop: ['zz', 2] },
+      { lie: 1, eyes: 'closed', prop: ['zz', 3] },
+    ],
+  },
+  // Cramming an overflowing suitcase: three big jumps onto the lid squash it
+  // flat until the gold clasps snap shut — then one red sock peeks back out.
+  'compacting.suitcase': {
+    ms: 170,
+    frames: [
+      { dy: -5, legs: 'tuck', armL: 'mid', armR: 'mid', eyes: 'down', prop: ['suitcase', { level: 3 }] },
+      { dy: -6, legs: 'tuck', armL: 'up', armR: 'up', eyes: 'down', prop: ['suitcase', { level: 3 }] },
+      { dy: -3, squash: 2, eyes: 'closed', prop: ['suitcase', { level: 2 }] },
+      { dy: -3, squash: 2, eyes: 'closed', prop: ['suitcase', { level: 2 }] },
+      { dy: -5, legs: 'tuck', armL: 'mid', armR: 'mid', eyes: 'down', prop: ['suitcase', { level: 2 }] },
+      { dy: -6, legs: 'tuck', armL: 'up', armR: 'up', eyes: 'down', prop: ['suitcase', { level: 2 }] },
+      { dy: -2, squash: 2, eyes: 'closed', prop: ['suitcase', { level: 1 }] },
+      { dy: -2, squash: 2, eyes: 'closed', prop: ['suitcase', { level: 1 }] },
+      { dy: -5, legs: 'tuck', armL: 'mid', armR: 'mid', eyes: 'down', prop: ['suitcase', { level: 1 }] },
+      { dy: -6, legs: 'tuck', armL: 'up', armR: 'up', eyes: 'down', prop: ['suitcase', { level: 1 }] },
+      { dy: -1, squash: 2, eyes: 'squished', prop: ['suitcase', { level: 0, flash: true }] },
+      { dy: -2, squash: 1, eyes: 'happy', armL: 'mid', armR: 'mid', props: [['suitcase', { level: 0 }], ['sparkles', 0]] },
+      { dy: -2, squash: 1, eyes: 'happy', armL: 'mid', armR: 'mid', props: [['suitcase', { level: 0 }], ['sparkles', 1]] },
+      { dy: -2, squash: 1, eyes: 'happy', props: [['suitcase', { level: 0 }], ['sparkles', 2]] },
+      { dy: -2, eyes: 'downright', prop: ['suitcase', { level: 0, poke: true }] },
+      { dy: -2, eyes: 'downright', prop: ['suitcase', { level: 0, poke: true }] },
+      { dy: -2, eyes: 'wide', prop: ['suitcase', { level: 0, poke: true }] },
+      { dy: -3, squash: 1, eyes: 'closed', prop: ['suitcase', { level: 2 }] },
+    ],
+  },
   // A morning stretch: arms up, taller on his toes, a lean to each side with
   // his eyes shut, then a shake and back to himself, bright eyed.
   // A drink of water: the glass up to his lips three times, a row gone each
@@ -2989,7 +3407,7 @@ export const VARIANTS = {
 }
 
 
-// The eighteen drawn for clawd-buddy-gauges, after each mood's own three.
+// The variants drawn for clawd-buddy-gauges, after each mood's own three.
 ;[
   ['idle', 'idle.yawn', 'Yawn'], ['idle', 'idle.crab', 'Crab'],
   ['thinking', 'thinking.wizard', 'Wizard'], ['thinking', 'thinking.ultrathink', 'Ultrathink'],
@@ -3000,6 +3418,8 @@ export const VARIANTS = {
   ['error', 'error.tongue', 'Raspberry'], ['typing', 'typing.nod', 'Nod off'],
   ['running', 'running.jog', 'Jog'], ['running', 'running.squat', 'Squat'],
   ['done', 'done.roid', 'Juiced'], ['idle', 'idle.stretch', 'Stretch'], ['idle', 'idle.drink', 'Water'], ['done', 'done.clap', 'Clap'], ['thinking', 'thinking.toilet', 'Toilet'], ['idle', 'idle.peach', 'Peach'], ['idle', 'idle.lixi', 'Lì xì'], ['thinking', 'thinking.power', 'Power up'],
+  ['idle', 'idle.keepie-ups', 'Keepie-ups'], ['idle', 'idle.hoops', 'Hoops'], ['idle', 'idle.fishing', 'Fishing'], ['idle', 'idle.kickflip', 'Kickflip'],
+  ['sleeping', 'sleeping.snot-bubble', 'Snot bubble'], ['compacting', 'compacting.suitcase', 'Suitcase'],
 ].forEach(([mood, anim, label]) => VARIANTS[mood].push([anim, label]))
 
 
