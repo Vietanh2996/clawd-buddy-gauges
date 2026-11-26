@@ -97,6 +97,7 @@ test('sprites: the new physical activities are registered and render valid frame
   const specs: Array<[keyof typeof VARIANTS, string, number]> = [
     ['idle', 'idle.hoops', 26],
     ['idle', 'idle.fishing', 20],
+    ['idle', 'idle.kickflip', 23],
     ['sleeping', 'sleeping.snot-bubble', 20],
     ['compacting', 'compacting.suitcase', 18],
   ]
