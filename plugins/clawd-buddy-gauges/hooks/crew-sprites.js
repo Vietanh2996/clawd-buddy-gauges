@@ -2865,6 +2865,78 @@ PROPS.skateboard = (g, { x, y = 16, flip = 0, tilt = null, sparks = false } = {}
 }
 HELD.add('skateboard')
 
+// A glowing swirling dimensional portal that transforms Clawd on exit.
+PROPS.portal = (g, { x = 16, size = 2, spin = 0, flash = false } = {}) => {
+  const ink = { g: GR, b: BL, w: WT }
+  if (size === 0) {
+    art(g, x, 10, ['.g.', 'gwg', 'gbg', 'gwg', '.g.'], ink)
+    return
+  }
+  if (size === 1) {
+    art(g, x, 6, [
+      '.gg.', 'gbbg', 'gbwg', 'gwbg', 'gbwg',
+      'gwbg', 'gbwg', 'gbbg', 'gbbg', '.gg.',
+    ], ink)
+    return
+  }
+  const rows = spin % 2 === 0
+    ? [
+        '.ggg.', 'gbbbg', 'gbwbg', 'gbbwg', 'gwbbg', 'gbwbg', 'gbbwg',
+        'gwbbg', 'gbwbg', 'gbbwg', 'gwbbg', 'gbbbg', 'gbbbg', '.ggg.',
+      ]
+    : [
+        '.ggg.', 'gbbbg', 'gbbwg', 'gwbbg', 'gbwbg', 'gbbwg', 'gwbbg',
+        'gbwbg', 'gbbwg', 'gwbbg', 'gbwbg', 'gbbbg', 'gbbbg', '.ggg.',
+      ]
+  art(g, x, 3, rows, ink)
+  if (flash) {
+    box(g, x + 1, 2, 3, 15, WT)
+    put(g, x - 1, 8, Y)
+    put(g, x + 5, 9, Y)
+    put(g, x, 4, WT)
+    put(g, x + 4, 14, WT)
+  }
+}
+HELD.add('portal')
+
+// RTX-ON anatomical realistic crab: domed shaded carapace, eyestalks on top,
+// snapping curved pincers (open/shut), and six jointed scuttling legs.
+PROPS.realCrab = (g, { x = 6, claw = 'open', eyes = 'lookL', step = 0 } = {}) => {
+  const ink = { r: R, B, s: S, d: DR, w: WT, k: K }
+  if (claw === 'shut') {
+    art(g, x, 7, ['..rr..........rr..', '.rrr..s....s..rrr.'], ink)
+  } else {
+    art(g, x, 7, ['.r.r..........r.r.', 'rr.r..s....s..r.rr'], ink)
+  }
+
+  // Eyestalks drawn after claw row so lookDown pupils stay visible.
+  if (eyes === 'wide') art(g, x + 6, 6, ['ww..ww', 'wk..kw'], ink)
+  else if (eyes === 'lookDown') art(g, x + 6, 7, ['ww..ww', 'kk..kk'], ink)
+  else art(g, x + 6, 7, ['kw..kw'], ink)
+
+  // Shaded rounded dome carapace + lower body.
+  art(g, x, 9, [
+    '.rrrRRRRRRRRRRrrr.',
+    '..rRRwwBBBBBBBRRr.',
+    '...rBBBBBBBBBBBs..',
+    '..s.sddddddddds.s.',
+  ], ink)
+
+  // Six articulated crab legs (3 per side) with alternating step height.
+  const legs = [
+    [[2, 12], [1, 13], [0, 14], [0, 15], [0, step === 1 ? 15 : 16]],
+    [[3, 13], [2, 14], [2, 15], [2, 16], [2, step === 0 ? 16 : 17]],
+    [[5, 13], [5, 14], [4, 15], [4, 16], [4, step === 1 ? 16 : 17]],
+  ]
+  for (const pts of legs) {
+    for (const [lx, ly] of pts) {
+      put(g, x + lx, ly, S)
+      put(g, x + 17 - lx, ly, S)
+    }
+  }
+}
+HELD.add('realCrab')
+
 // Up on his hind legs (`dy` rows taller), a big toothy grin, clapping: his
 // claws `phase` 0 out wide, 1 halfway, 2 meeting in front of him with a clap.
 // Arms in front of his body are drawn in the shade, so they show against it.
@@ -3180,6 +3252,72 @@ Object.assign(ANIMS, {
       { dx: -4, dy: -2, eyes: 'right', props: [['skateRoad', { scroll: 28 }], ['skateboard', { x: 3 }]] },
     ],
   },
+  // Realistic Crab Portal: a sci-fi gate opens, boxy Clawd steps in and
+  // emerges RTX-ON as an anatomical shaded crab with eyestalks, 6 jointed
+  // legs and snapping pincers — realizes what happened and dives back through!
+  'idle.real-crab': {
+    ms: 145,
+    frames: [
+      { dx: -4, eyes: 'right', prop: ['portal', { x: 17, size: 0 }] },
+      { dx: -4, eyes: 'right', prop: ['portal', { x: 16, size: 1 }] },
+      { dx: -4, armR: 'mid', eyes: 'right', prop: ['portal', { x: 16, size: 2, spin: 0 }] },
+      { dx: -4, armR: 'mid', eyes: 'right', prop: ['portal', { x: 16, size: 2, spin: 1 }] },
+      { dx: -1, legs: 'walkA', armR: 'mid', eyes: 'right', prop: ['portal', { x: 16, size: 2, spin: 0 }] },
+      { dx: 2, legs: 'walkB', eyes: 'right', prop: ['portal', { x: 16, size: 2, spin: 1 }] },
+      { hide: true, prop: ['portal', { x: 9, size: 2, flash: true }] },
+      // Camera pans left with portal at x=0: out steps the realistic crab!
+      { hide: true, props: [['realCrab', { x: 4, claw: 'open', eyes: 'lookL', step: 0 }], ['portal', { x: 0, size: 2, spin: 0 }]] },
+      { hide: true, props: [['realCrab', { x: 6, claw: 'open', eyes: 'lookL', step: 1 }], ['portal', { x: 0, size: 2, spin: 1 }]] },
+      { hide: true, props: [['realCrab', { x: 6, claw: 'shut', eyes: 'lookL', step: 0 }], ['portal', { x: 0, size: 2, spin: 0 }]] },
+      { hide: true, props: [['realCrab', { x: 6, claw: 'open', eyes: 'lookL', step: 0 }], ['portal', { x: 0, size: 2, spin: 1 }]] },
+      { hide: true, props: [['realCrab', { x: 6, claw: 'shut', eyes: 'lookDown', step: 0 }], ['portal', { x: 0, size: 2, spin: 0 }]] },
+      { hide: true, props: [['realCrab', { x: 6, claw: 'open', eyes: 'wide', step: 0 }], ['portal', { x: 0, size: 2, spin: 1 }]] },
+      { hide: true, props: [['realCrab', { x: 6, claw: 'open', eyes: 'wide', step: 0 }], ['portal', { x: 0, size: 2, spin: 0 }]] },
+      { hide: true, props: [['realCrab', { x: 4, claw: 'open', eyes: 'wide', step: 1 }], ['portal', { x: 0, size: 2, spin: 1 }]] },
+      { hide: true, props: [['realCrab', { x: 1, claw: 'shut', eyes: 'wide', step: 0 }], ['portal', { x: 0, size: 2, spin: 0 }]] },
+      { hide: true, prop: ['portal', { x: 9, size: 2, flash: true }] },
+      // Pops back out as good old boxy Clawd and checks his stubby 2x2 claws.
+      { dx: -1, dy: -1, legs: 'tuck', armL: 'up', armR: 'up', eyes: 'wide', prop: ['portal', { x: 16, size: 2, spin: 1 }] },
+      { dx: -3, armL: 'mid', armR: 'mid', eyes: 'down', prop: ['portal', { x: 16, size: 1 }] },
+      { dx: -4, armL: 'mid', armR: 'mid', eyes: 'happy', prop: ['portal', { x: 17, size: 0 }] },
+      { dx: -4, eyes: 'happy' },
+      { dx: -4, eyes: 'open' },
+    ],
+  },
+  // Claw machine: Clawd sits inside an arcade plushie cabinet while the claw
+  // aims, hoists him toward the chute, slips, and drops him into the pile.
+  'idle.claw-machine': {
+    ms: 145,
+    frames: [
+      { dy: -3, eyes: 'open', props: [['clawCabinet', { n: 0, joy: -1 }], ['clawGantry', { cx: 5, top: 2, pose: 'park' }]] },
+      { dy: -3, eyes: 'upleft', props: [['clawCabinet', { n: 1, joy: 1 }], ['clawGantry', { cx: 7, top: 2, pose: 'park' }]] },
+      { dy: -3, eyes: 'upleft', props: [['clawCabinet', { n: 2, joy: 0, btn: true }], ['clawGantry', { cx: 10, top: 2, pose: 'open' }]] },
+      { dy: -3, eyes: 'up', props: [['clawCabinet', { n: 3, joy: 0, btn: true }], ['clawGantry', { cx: 12, top: 2, pose: 'open' }]] },
+      { dy: -3, eyes: 'wide', props: [['clawCabinet', { n: 4 }], ['clawGantry', { cx: 12, top: 3, pose: 'open' }]] },
+      { dy: -3, squash: 1, eyes: 'wide', props: [['clawCabinet', { n: 5 }], ['clawGantry', { cx: 12, top: 4, pose: 'open', extra: 1 }]] },
+      { dy: -3, squash: 1, eyes: 'wince', props: [['clawCabinet', { n: 6 }], ['clawGantry', { cx: 12, top: 4, pose: 'grip', extra: 1 }]] },
+      // Hoisted above the plushies, legs kicking!
+      { dy: -4, legs: 'walkA', armL: 'down', armR: 'down', eyes: 'wide', props: [['clawCabinet', { n: 7 }], ['clawGantry', { cx: 12, top: 3, pose: 'grip' }]] },
+      { dy: -5, legs: 'walkB', armL: 'mid', armR: 'mid', eyes: 'wide', props: [['clawCabinet', { n: 8 }], ['clawGantry', { cx: 12, top: 2, pose: 'grip' }]] },
+      { dy: -5, legs: 'tuck', armL: 'down', armR: 'down', eyes: 'down', props: [['clawCabinet', { n: 9 }], ['clawGantry', { cx: 12, top: 2, pose: 'grip' }]] },
+      // Carried left toward the prize chute...
+      { dx: -1, dy: -5, legs: 'walkA', armL: 'mid', armR: 'down', eyes: 'wince', props: [['clawCabinet', { n: 10 }], ['clawGantry', { cx: 11, top: 2, pose: 'grip' }]] },
+      { dx: -2, dy: -5, legs: 'walkB', armL: 'down', armR: 'mid', eyes: 'wince', props: [['clawCabinet', { n: 11 }], ['clawGantry', { cx: 10, top: 2, pose: 'grip' }]] },
+      { dx: -2, dy: -5, legs: 'walkA', armL: 'mid', armR: 'down', eyes: 'down', props: [['clawCabinet', { n: 12 }], ['clawGantry', { cx: 10, top: 2, pose: 'grip' }]] },
+      // SLIP! Hangs a beat in shock, then drops back into the plushie pile.
+      { dx: -2, dy: -5, legs: 'tuck', armL: 'mid', armR: 'mid', eyes: 'wide', props: [['clawCabinet', { n: 13 }], ['clawGantry', { cx: 10, top: 2, pose: 'slip' }]] },
+      { dx: -2, dy: -2, legs: 'tuck', armL: 'mid', armR: 'mid', eyes: 'wide', props: [['clawCabinet', { n: 14 }], ['clawGantry', { cx: 9, top: 2, pose: 'park' }]] },
+      { dx: -1, dy: -1, legs: 'tuck', armL: 'up', armR: 'up', eyes: 'wince', props: [['clawCabinet', { n: 15 }], ['clawGantry', { cx: 7, top: 2, pose: 'park' }]] },
+      { dy: -1, squash: 2, legs: 'none', armL: 'rest', armR: 'rest', eyes: 'wince', props: [['clawCabinet', { n: 16, bounce: 1 }], ['clawGantry', { cx: 5, top: 2, pose: 'park', dust: true }]] },
+      { dy: -1, squash: 2, legs: 'none', armL: 'rest', armR: 'rest', eyes: 'wince', props: [['clawCabinet', { n: 17, bounce: 1 }], ['clawGantry', { cx: 5, top: 2, pose: 'park' }]] },
+      { dy: -2, squash: 1, legs: 'none', armL: 'mid', armR: 'mid', eyes: 'wink', props: [['clawCabinet', { n: 18 }], ['clawGantry', { cx: 5, top: 2, pose: 'park' }]] },
+      { dy: -3, eyes: 'upleft', props: [['clawCabinet', { n: 19 }], ['clawGantry', { cx: 5, top: 2, pose: 'park' }]] },
+      { dy: -3, eyes: 'upleft', props: [['clawCabinet', { n: 20 }], ['clawGantry', { cx: 5, top: 2, pose: 'park' }]] },
+      { dy: -3, breathe: 1, eyes: 'closed', props: [['clawCabinet', { n: 21 }], ['clawGantry', { cx: 5, top: 2, pose: 'park' }]] },
+      { dy: -3, eyes: 'open', props: [['clawCabinet', { n: 22 }], ['clawGantry', { cx: 5, top: 2, pose: 'park' }]] },
+      { dy: -3, eyes: 'open', props: [['clawCabinet', { n: 23 }], ['clawGantry', { cx: 5, top: 2, pose: 'park' }]] },
+    ],
+  },
   // Chill boat fishing that turns explosive: Clawd sits far right on the bow
   // with a long rod, strains with a deeply bowed arc until "BỤP!" launches
   // the golden fish sky-high in a huge arc before it splashes back into the sea.
@@ -3434,7 +3572,7 @@ export const VARIANTS = {
   ['error', 'error.tongue', 'Raspberry'], ['typing', 'typing.nod', 'Nod off'],
   ['running', 'running.jog', 'Jog'], ['running', 'running.squat', 'Squat'],
   ['done', 'done.roid', 'Juiced'], ['idle', 'idle.stretch', 'Stretch'], ['idle', 'idle.drink', 'Water'], ['done', 'done.clap', 'Clap'], ['thinking', 'thinking.toilet', 'Toilet'], ['idle', 'idle.peach', 'Peach'], ['idle', 'idle.lixi', 'Lì xì'], ['thinking', 'thinking.power', 'Power up'],
-  ['idle', 'idle.keepie-ups', 'Keepie-ups'], ['idle', 'idle.hoops', 'Hoops'], ['idle', 'idle.fishing', 'Fishing'], ['idle', 'idle.kickflip', 'Kickflip'],
+  ['idle', 'idle.keepie-ups', 'Keepie-ups'], ['idle', 'idle.hoops', 'Hoops'], ['idle', 'idle.fishing', 'Fishing'], ['idle', 'idle.kickflip', 'Kickflip'], ['idle', 'idle.real-crab', 'Real crab'], ['idle', 'idle.claw-machine', 'Claw machine'],
   ['sleeping', 'sleeping.snot-bubble', 'Snot bubble'], ['compacting', 'compacting.suitcase', 'Suitcase'],
 ].forEach(([mood, anim, label]) => VARIANTS[mood].push([anim, label]))
 
@@ -3584,6 +3722,95 @@ HELD.add('hair')
 HELD.add('aura')
 HATLESS.add('thinking.power')
 
+// Full arcade plushie claw machine cabinet (background shell + plushies +
+// console deck + prize chute), drawn behind Clawd.
+PROPS.clawCabinet = (g, { n = 0, joy = 0, btn = false, bounce = 0 } = {}) => {
+  // Chasing marquee crown & overhead steel gantry rail track.
+  box(g, 2, 0, 20, 1, R)
+  for (let x = 3; x <= 19; x += 2) put(g, x, 0, (x + n) % 4 === 1 ? WT : Y)
+  put(g, 1, 1, R)
+  put(g, 22, 1, R)
+  box(g, 2, 1, 20, 1, D)
+  put(g, 2, 1, G)
+  put(g, 21, 1, G)
+
+  // Cabinet red glass pillars & inner dark corner brackets.
+  box(g, 1, 2, 1, 13, R)
+  box(g, 22, 2, 1, 13, R)
+  put(g, 2, 2, D)
+  put(g, 21, 2, D)
+
+  // Plushie pile along the cabinet floor (jostles up 1px when Clawd crashes).
+  const py = bounce ? -1 : 0
+  art(g, 2, 11 + py, ['p..p', 'pppp', 'pkpk', 'pwwp'], { p: PK, k: K, w: WT })
+  art(g, 6, 13 + py, ['yyoy', 'yyyy'], { y: Y, o: OR })
+  art(g, 10, 13 + py, ['gkgk', 'gwwg'], { g: GR, k: K, w: WT })
+  art(g, 14, 13 + py, ['rxrr', 'rrrr'], { r: BR, x: WT })
+  art(g, 18, 11 + py, ['b..b', 'bbbb', 'kbkb', 'bwwb'], { b: BL, k: K, w: WT })
+
+  // Arcade control deck, red front housing, prize chute, joystick & coin slot.
+  put(g, 1, 15, R)
+  put(g, 22, 15, R)
+  box(g, 2, 15, 20, 1, D)
+  box(g, 3, 15, 4, 1, G)
+  put(g, 11 + joy, 15, R)
+  put(g, 14, 15, btn ? Y : GR)
+
+  box(g, 1, 16, 22, 2, R)
+  put(g, 1, 17, DR)
+  put(g, 22, 17, DR)
+  box(g, 3, 16, 4, 1, G)
+  box(g, 3, 17, 4, 1, K)
+  put(g, 11, 16, L)
+  box(g, 18, 16, 2, 2, L)
+  put(g, 18, 16, D)
+  put(g, 19, 17, Y)
+}
+
+// Overhead claw trolley, steel cable, articulated prongs and impact puffs
+// operating inside the glass chamber, drawn in front of Clawd.
+PROPS.clawGantry = (g, { cx = 12, top = 2, pose = 'open', extra = 0, dust = false } = {}) => {
+  box(g, cx - 2, 1, 4, 1, L)
+  put(g, cx - 1, 1, Y)
+  put(g, cx, 1, Y)
+  if (top > 2) box(g, cx - 1, 2, 2, top - 2, G)
+  art(g, cx - 2, top, ['LLLL'], { L })
+
+  // Subtle glass chamber glints in the top inner corners.
+  put(g, 2, 4, BL)
+  put(g, 2, 5, G)
+  put(g, 21, 4, BL)
+
+  const reach = (pose === 'park' ? 3 : pose === 'grip' ? 7 : 8) + extra
+  const shoulderOffset = pose === 'park' ? 2 : pose === 'grip' ? 4 : 5
+  const left = pose === 'park'
+    ? [[cx - 2, top + 1], [cx - 3, top + 2], [cx - 2, top + 3]]
+    : [
+        [cx - shoulderOffset, top + 1],
+        [cx - reach, top + 2],
+        [cx - reach, top + 3],
+        [cx - reach + 1, top + 4],
+      ]
+  const right = pose === 'park'
+    ? [[cx + 1, top + 1], [cx + 2, top + 2], [cx + 1, top + 3]]
+    : [
+        [cx + shoulderOffset - 1, top + 1],
+        [cx + reach - 1, top + 2],
+        [cx + reach - 1, top + 3],
+        [cx + reach - 2, top + 4],
+      ]
+  for (const [px, py] of [...left, ...right]) put(g, px, py, L)
+  if (pose === 'slip') {
+    put(g, cx - 9, top + 1, Y)
+    put(g, cx + 8, top + 1, Y)
+  }
+  if (dust) {
+    put(g, 3, 10, WT)
+    put(g, 20, 10, WT)
+  }
+}
+HELD.add('clawGantry')
+
 Object.assign(ANIMS, {
   'thinking.power': { ms: 150, frames: [
     ...loop(3, () => ({ eyes: 'open' })),
@@ -3613,10 +3840,10 @@ export const framesOf = name => {
     const g = new Uint8Array(W * H)
     const props = o.props ?? (o.prop ? [o.prop] : [])
     for (const [prop, step] of props) if (!HELD.has(prop)) PROPS[prop](g, step)
-    clawd(g, o)
+    if (!o.hide) clawd(g, o)
     for (const [prop, step] of props) if (HELD.has(prop)) PROPS[prop](g, step)
-    if (hat?.length) wearHat(g, o, hat)
-    if (hat === HATS.tet) dressTet(g, o)
+    if (!o.hide && hat?.length) wearHat(g, o, hat)
+    if (!o.hide && hat === HATS.tet) dressTet(g, o)
     return g
   })
   const out = { ms: anim.ms, frames }
