@@ -901,6 +901,21 @@ export const register: Register = on => {
     return next(e)
   })
 
+  // the session.compact hook above is skipped in practice (the builtin cc-plugin-sec-default sends that event past
+  // user-tier plugins), so /compact typed or pressed plays the animation from here; auto-compact goes unshown
+  on('command.run', { command: 'compact' }, async ($, e, next) => {
+    await setBase($, 'compacting')
+    const result = await next(e) // a next in flight does not count against the hook's time
+    afterCompact = true
+    cacheAt = null // the compacted prompt starts a new cache
+    await saveCache($)
+    await refresh($, true)
+    noteCtx(await $.clock.now())
+    if (isTurnRunning) await setBase($, 'thinking', pick(VERBS))
+    else await setBase($, 'idle')
+    return result
+  })
+
   // Compact: runs the /compact command, not awaited, so the hook returns at once (a compaction runs longer
   // than the 30 s a hook may hold $ for, which is how $.session.compact() from a press failed)
   on('ui.press', { plugin: 'clawd-buddy-gauges', element: 'compact' }, async ($, e) => {

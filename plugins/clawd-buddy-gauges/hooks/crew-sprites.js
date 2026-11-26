@@ -2940,27 +2940,27 @@ HELD.add('realCrab')
 // Up on his hind legs (`dy` rows taller), a big toothy grin, clapping: his
 // claws `phase` 0 out wide, 1 halfway, 2 meeting in front of him with a clap.
 // Arms in front of his body are drawn in the shade, so they show against it.
-PROPS.clapper = (g, { phase = 0, dy = -2, grin = true } = {}) => {
-  const by = BY + dy
+PROPS.clapper = (g, { phase = 0, dy = -2, b = 0, grin = true } = {}) => {
+  const by = BY + dy + b
   for (const x of [BX + 1, BX + 3, BX + BODY_W - 4, BX + BODY_W - 2]) box(g, x, GROUND + dy, 1, -dy, B)
   if (grin) art(g, BX + 2, by + 4, ['wwwwwwww', '.wlwwlw.'], { w: WT, l: L })
   if (phase === null) return
   const cy = by + 6
   const mid = BX + BODY_W / 2
-  const gap = [8, 4, 0][phase]
+  const gap = [6, 3, 0][phase]
   // a thin arm from the shoulder, then the claw taller than it, so the two
   // claws read as two even pressed together (an ink seam between them)
   for (const side of [-1, 1]) {
     const shoulder = side < 0 ? BX - 1 : BX + BODY_W
-    const claw = side < 0 ? mid - gap - 2 : mid + gap + 1
+    // spread wide, each claw stands a pixel clear of his side (the body sits
+    // a pixel left of `mid`, so the left one goes a pixel further out)
+    const claw = side < 0 ? mid - gap - 2 - (phase === 0 ? 1 : 0) : mid + gap + 1
     const from = Math.min(shoulder, claw)
     const to = Math.max(shoulder, claw + 1)
     for (let x = from; x <= to; x++) put(g, x, cy + 1, inBody(x) ? S : B)
-    box(g, shoulder, cy, 1, 2, B)
     for (const x of [claw, claw + 1]) box(g, x, cy - 1, 1, 3, inBody(x) ? S : B)
   }
   if (phase === 2) box(g, mid, cy - 1, 1, 3, K)
-  if (phase === 2) for (const [x, y] of [[mid - 4, cy - 1], [mid + 3, cy - 1], [mid - 4, cy + 2], [mid + 3, cy + 2]]) put(g, x, y, Y)
 }
 
 // After the clapping: a claw over his mouth, eyes darting side to side, a
@@ -2969,23 +2969,31 @@ PROPS.clapper = (g, { phase = 0, dy = -2, grin = true } = {}) => {
 PROPS.hush = (g, { b = 0, dy = -2 } = {}) => {
   const by = BY + dy + b
   for (const x of [BX + 1, BX + 3, BX + BODY_W - 4, BX + BODY_W - 2]) box(g, x, GROUND + dy, 1, -dy - b, B)
-  box(g, BX + BODY_W, by + 5, 2, 2, B)
+  box(g, BX + BODY_W, by + 5, 1, 2, B)
   box(g, BX + 7, by + 6, BODY_W - 7, 1, S)
-  box(g, BX + 2, by + 4, 4, 3, S)
-  // the claw's edge, so the arm doesn't run into it
-  box(g, BX + 6, by + 4, 1, 3, K)
+  box(g, BX + 3, by + 4, 4, 3, S)
+  // the claw's seam runs along its top, the pincer laid flat over his mouth
+  box(g, BX + 3, by + 4, 3, 1, K)
 }
 HELD.add('hush')
 
-// Then his right claw held out to you for a handshake: the arm straight out,
-// the claw at the end, and the grin.
-PROPS.offer = (g, { dy = -2 } = {}) => {
-  const by = BY + dy
-  for (const x of [BX + 1, BX + 3, BX + BODY_W - 4, BX + BODY_W - 2]) box(g, x, GROUND + dy, 1, -dy, B)
+// Then his right claw held out in front of him to you for a handshake, and
+// the grin.
+PROPS.offer = (g, { dy = -2, b = 0 } = {}) => {
+  const by = BY + dy + b
+  for (const x of [BX + 1, BX + 3, BX + BODY_W - 4, BX + BODY_W - 2]) box(g, x, GROUND + dy, 1, -dy - b, B)
   art(g, BX + 2, by + 4, ['wwwwwwww', '.wlwwlw.'], { w: WT, l: L })
-  box(g, BX + BODY_W, by + 4, 4, 2, B)
-  box(g, BX + BODY_W + 3, by + 3, 2, 1, B)
-  put(g, BX + BODY_W + 4, by + 6, B)
+  // the right arm comes across in front of him, in the shade, and the claw
+  // pokes out toward you below his chin, hanging over his legs
+  // drawn like a clapping claw: a thin shaded arm, the claw taller than it,
+  // an ink edge where it meets him
+  // the arm starts at one fixed point on his right side, at mouth height,
+  // and climbs in a pixel every two toward the claw, raised at a slant
+  const mid = BX + BODY_W / 2
+  for (let x = mid + 1; x < BX + BODY_W; x++) put(g, x, by + 5 - ((BX + BODY_W - 1 - x) >> 1), S)
+  const cy = by + 3
+  box(g, mid - 1, cy - 1, 2, 3, S)
+  box(g, mid - 2, cy - 1, 1, 3, K)
 }
 HELD.add('offer')
 const inBody = x => x >= BX && x < BX + BODY_W
@@ -3127,6 +3135,14 @@ PROPS.glass = (g, { at = 'hand', level = 3 } = {}) => {
   art(g, x, y, rows, { l: L, b: BL })
 }
 HELD.add('glass')
+
+// The clapping cat stands on his own short legs, and bobs down a row onto
+// them on every clap.
+const UP = 0
+const clapBeat = phase => {
+  const b = phase === 2 ? 1 : 0
+  return { dy: UP, breathe: b, armL: 'none', armR: 'none', eyes: 'wide', prop: ['clapper', { phase, dy: UP, b }] }
+}
 
 Object.assign(ANIMS, {
   'idle.keepie-ups': {
@@ -3389,19 +3405,19 @@ Object.assign(ANIMS, {
   // his eyes shut, then a shake and back to himself, bright eyed.
   // A drink of water: the glass up to his lips three times, a row gone each
   // time, then a happy, sparkly, watered Clawd.
-  // That clapping cat: up on his hind legs with a huge grin, clapping fast,
+  // That clapping cat: up on his short hind legs with a huge grin, clapping fast and bobbing,
   // a pause to stare, then more.
   'done.clap': { ms: 110, frames: [
-    { armL: 'none', armR: 'none', eyes: 'wide', prop: ['clapper', { dy: -1, grin: false }] },
-    ...loop(3, () => ({ dy: -2, armL: 'none', armR: 'none', eyes: 'wide', prop: ['clapper', {}] })),
-    ...loop(3, () => [0, 1, 2, 1].map(phase => ({ dy: -2, armL: 'none', armR: 'none', eyes: 'wide', prop: ['clapper', { phase }] }))).flat(),
-    ...loop(5, () => ({ dy: -2, armL: 'none', armR: 'none', eyes: 'wide', prop: ['clapper', { phase: 0 }] })),
-    ...loop(4, () => [0, 1, 2, 1].map(phase => ({ dy: -2, armL: 'none', armR: 'none', eyes: 'wide', prop: ['clapper', { phase }] }))).flat(),
-    ...loop(3, () => ({ dy: -2, armL: 'none', armR: 'none', eyes: 'wide', prop: ['clapper', {}] })),
+    { armL: 'none', armR: 'none', eyes: 'wide', prop: ['clapper', { dy: 0, b: 1, grin: false }], breathe: 1 },
+    ...loop(3, () => ({ dy: UP, armL: 'none', armR: 'none', eyes: 'wide', prop: ['clapper', { dy: UP }] })),
+    ...loop(3, () => [0, 1, 2, 1].map(clapBeat)).flat(),
+    ...loop(5, () => ({ dy: UP, armL: 'none', armR: 'none', eyes: 'wide', prop: ['clapper', { phase: 0, dy: UP }] })),
+    ...loop(4, () => [0, 1, 2, 1].map(clapBeat)).flat(),
+    ...loop(3, () => ({ dy: UP, armL: 'none', armR: 'none', eyes: 'wide', prop: ['clapper', { dy: UP }] })),
     // then a claw over the mouth, a shifty look around, snickering
-    ...loop(14, n => ({ dy: -2, armL: 'rest', armR: 'none', eyes: ['left', 'left', 'left', 'right', 'right', 'right', 'left', 'right', 'closed', 'closed', 'closed', 'closed', 'right', 'wide'][n], breathe: n >= 8 && n < 12 ? n % 2 : 0, prop: ['hush', { b: n >= 8 && n < 12 ? n % 2 : 0 }] })),
-    // and the claw held straight out at you, still, waiting for you to shake it
-    ...loop(20, n => ({ dy: -2, armL: 'rest', armR: 'none', eyes: n % 10 < 8 ? 'wide' : 'happy', prop: ['offer', {}] })),
+    ...loop(14, n => ({ dy: UP, armL: 'rest', armR: 'none', eyes: ['left', 'left', 'left', 'right', 'right', 'right', 'left', 'right', 'closed', 'closed', 'closed', 'closed', 'right', 'wide'][n], breathe: n >= 8 && n < 12 ? n % 2 : 0, prop: ['hush', { dy: UP, b: n >= 8 && n < 12 ? n % 2 : 0 }] })),
+    // and the claw held straight out at you, still, waiting for you to shake it, a little bounce now and then
+    ...loop(20, n => { const b = n % 5 === 4 ? 1 : 0; return { dy: UP, breathe: b, armL: 'rest', armR: 'none', eyes: n % 10 < 8 ? 'wide' : 'happy', prop: ['offer', { dy: UP, b }] } }),
   ] },
   // Thinking it over on the toilet: claws clasped, eyes up as the thought
   // cloud fills, then a long hard push, red in the face and sweating, a
