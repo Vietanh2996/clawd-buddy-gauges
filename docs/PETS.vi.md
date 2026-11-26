@@ -53,7 +53,7 @@ Ba kiểu đầu của mỗi trạng thái lấy từ [clawd-crew](https://githu
 
 | Kiểu 1 | Kiểu 2 | Kiểu 3 | Kiểu 4 | Kiểu 5 | Kiểu 6 | Kiểu 7 | Kiểu 8 |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| <img src="pets/running.svg" width="140" alt="running"><br><sub>Classic</sub> | <img src="pets/running.treadmill.svg" width="140" alt="running.treadmill"><br><sub>Treadmill</sub> | <img src="pets/running.carry.svg" width="140" alt="running.carry"><br><sub>Carry</sub> | <img src="pets/running.jog.svg" width="140" alt="running.jog"><br><sub>Jog</sub> | <img src="pets/running.squat.svg" width="140" alt="running.squat"><br><sub>Squat</sub> |  |  |  |
+| <img src="pets/running.svg" width="140" alt="running"><br><sub>Classic</sub> | <img src="pets/running.treadmill.svg" width="140" alt="running.treadmill"><br><sub>Treadmill</sub> | <img src="pets/running.carry.svg" width="140" alt="running.carry"><br><sub>Carry</sub> | <img src="pets/running.jog.svg" width="140" alt="running.jog"><br><sub>Jog</sub> | <img src="pets/running.squat.svg" width="140" alt="running.squat"><br><sub>Squat</sub> | <img src="pets/running.gatling.svg" width="140" alt="running.gatling"><br><sub>Gatling</sub> |  |  |
 
 ### **browsing** — Lên web (WebFetch, WebSearch, browser)
 

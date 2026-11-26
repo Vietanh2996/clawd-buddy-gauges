@@ -53,7 +53,7 @@ The first three looks of each mood are from [clawd-crew](https://github.com/hudc
 
 | Look 1 | Look 2 | Look 3 | Look 4 | Look 5 | Look 6 | Look 7 | Look 8 |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| <img src="pets/running.svg" width="140" alt="running"><br><sub>Classic</sub> | <img src="pets/running.treadmill.svg" width="140" alt="running.treadmill"><br><sub>Treadmill</sub> | <img src="pets/running.carry.svg" width="140" alt="running.carry"><br><sub>Carry</sub> | <img src="pets/running.jog.svg" width="140" alt="running.jog"><br><sub>Jog</sub> | <img src="pets/running.squat.svg" width="140" alt="running.squat"><br><sub>Squat</sub> |  |  |  |
+| <img src="pets/running.svg" width="140" alt="running"><br><sub>Classic</sub> | <img src="pets/running.treadmill.svg" width="140" alt="running.treadmill"><br><sub>Treadmill</sub> | <img src="pets/running.carry.svg" width="140" alt="running.carry"><br><sub>Carry</sub> | <img src="pets/running.jog.svg" width="140" alt="running.jog"><br><sub>Jog</sub> | <img src="pets/running.squat.svg" width="140" alt="running.squat"><br><sub>Squat</sub> | <img src="pets/running.gatling.svg" width="140" alt="running.gatling"><br><sub>Gatling</sub> |  |  |
 
 ### **browsing** — On the web (WebFetch, WebSearch, browser)
 

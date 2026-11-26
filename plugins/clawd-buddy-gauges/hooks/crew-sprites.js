@@ -2575,10 +2575,10 @@ Object.assign(PROPS, {
     put(g, 5 - (n % 3), 17, G)
     put(g, 3 - (n % 2), 16, L)
   },
-  // A syringe of green stuff jabbed into his left arm, `gap` cells short of
-  // it, `left` how much is still in it (0-3).
+  // A syringe of green stuff jabbed into his left arm (`dx = 2` keeps the
+  // entire plunger visible on screen), `left` how much juice remains (0-3).
   syringe: (g, { gap = 0, left = 3 } = {}) => {
-    const x = -gap
+    const x = 1 - gap
     put(g, x, 10, BR)
     put(g, x + 1, 10, D)
     box(g, x + 2, 9, 4, 3, L)
@@ -2586,20 +2586,73 @@ Object.assign(PROPS, {
     put(g, x + 6, 10, WT)
     put(g, x + 7, 10, WT)
   },
-  // Pumped up: `level` 1 a column of extra bulk down each side, 2 also bulging
-  // biceps on his raised arms, abs and a vein.
-  buff: (g, { level = 1, dx = 0 } = {}) => {
+  // Body-builder flex (`level` 1 swells traps/lats; `level` 2 adds full V-taper
+  // chest, 4-pack abs, bulging inward-curled double-biceps, thick quads, vein &
+  // pop sparks). Tracks `breathe` / `pump` so shoulders never detach from head.
+  buff: (g, { level = 1, dx = 0, breathe = 0, pump = 0, vein = false, pop = false } = {}) => {
     const bx = BX + dx
-    for (let y = BY; y < BY + BODY_H; y++) {
-      put(g, bx - 1, y, B)
-      put(g, bx + BODY_W, y, B)
+    const by = BY + (breathe ? 1 : 0) - pump
+    if (level === 1) {
+      for (let y = by; y < by + BODY_H; y++) {
+        put(g, bx - 1, y, B)
+        put(g, bx + BODY_W, y, B)
+      }
+      put(g, bx + 1, by - 1, B)
+      put(g, bx + BODY_W - 2, by - 1, B)
+      art(g, bx + 2, by + 4, ['sss..sss', 'sBBssBBs'], { s: S, B })
+      return
     }
-    if (level < 2) return
-    box(g, bx - 5, BY - 3, 3, 3, B)
-    box(g, bx + BODY_W + 2, BY - 3, 3, 3, B)
-    put(g, bx - 4, BY - 2, S)
-    put(g, bx + BODY_W + 3, BY - 2, S)
-    ;[[4, 5], [7, 5], [4, 7], [7, 7]].forEach(([x, y]) => box(g, bx + x, BY + y - 1, 1, 1, S))
+
+    // Thick muscular quads (`2px` outer thighs) synced to torso height.
+    for (const lx of [bx + 1, bx + 2, bx + BODY_W - 3, bx + BODY_W - 2]) {
+      for (let y = by + BODY_H; y < GROUND; y++) put(g, lx, y, B)
+    }
+
+    // Traps rising cleanly above shoulders & V-taper lats widening sides
+    // without overwriting Clawd's eyes (`by + 1..3`, `bx + 1..10`).
+    box(g, bx, by - 1, 3, 1, B)
+    box(g, bx + BODY_W - 3, by - 1, 3, 1, B)
+    box(g, bx - 2, by, 2, 5, B)
+    box(g, bx + BODY_W, by, 2, 5, B)
+    box(g, bx - 1, by + 5, 1, 1, B)
+    box(g, bx + BODY_W, by + 5, 1, 1, B)
+    // Shaded deltoid edges & side lats.
+    box(g, bx - 2, by + 1, 1, 3, S)
+    box(g, bx + BODY_W + 1, by + 1, 1, 3, S)
+
+    // Chiseled pectoral crease + 4-pack abs (`S` grooves separating `B` muscle blocks).
+    art(g, bx + 2, by + 4, [
+      'sss..sss',
+      'sBBssBBs',
+      'ssssssss',
+      'sBBssBBs',
+    ], { s: S, B })
+
+    // Curved Arnold double-biceps: deltoid cap -> bicep peak -> forearm/fist hooked INWARD!
+    const lArm = [
+      '.sBB....',
+      '.BBBs...',
+      'BMBs....',
+      'BBBB....',
+      'BBBB....',
+      '.sBB....',
+    ]
+    const rArm = lArm.map(row => [...row].reverse().join(''))
+    const armInk = { B, s: S, M: MB }
+    art(g, bx - 6, by - 4, lArm, armInk)
+    art(g, bx + BODY_W - 2, by - 4, rArm, armInk)
+
+    // Throbbing red strain vein on brow & bicep flex pop sparks.
+    if (vein) {
+      put(g, bx + 5, by, R)
+      put(g, bx + 6, by + 1, R)
+    }
+    if (pop) {
+      put(g, 0, by - 5, Y)
+      put(g, 23, by - 5, Y)
+      put(g, 1, by - 5, WT)
+      put(g, 22, by - 5, WT)
+    }
   },
 })
 
@@ -2645,18 +2698,28 @@ Object.assign(ANIMS, {
       ...loop(5, n => ({ eyes: 'happy', breathe: n % 2, props: [['barbell', { y: 15 }]] })),
     ],
   },
-  // A jab of something green in the arm: he winces, it goes in, he shakes,
-  // swells up huge and flexes both biceps, then deflates back to himself.
+  // A jab of glowing green juice in the arm: he winces, shakes as it surges,
+  // explodes into a shredded V-taper double-biceps flex, then deflates flat.
   'done.roid': {
-    ms: 170,
+    ms: 160,
     frames: [
-      ...loop(3, n => ({ eyes: 'left', armL: 'mid', prop: ['syringe', { gap: 3 - n }] })),
-      ...loop(4, n => ({ eyes: 'closed', armL: 'mid', props: [['syringe', { left: 3 - n }], ['sweat', n % 2]] })),
-      ...loop(4, n => ({ dx: n % 2 ? 1 : -1, eyes: 'wide' })),
+      ...loop(3, n => ({ dx: 2, eyes: 'left', armL: 'mid', prop: ['syringe', { gap: 2 - n }] })),
+      ...loop(4, n => ({ dx: 2, eyes: 'wince', armL: 'mid', props: [['syringe', { left: 3 - n }], ['sweat', n % 2]] })),
+      ...loop(4, n => ({ dx: n % 2 ? 1 : -1, color: n % 2 ? GR : undefined, eyes: n < 2 ? 'wince' : 'wide' })),
       ...loop(2, () => ({ eyes: 'wide', armL: 'mid', armR: 'mid', prop: ['buff', { level: 1 }] })),
-      ...loop(10, n => ({ eyes: n % 4 < 2 ? 'closed' : 'happy', armL: 'up', armR: 'up', breathe: n % 2, props: [['buff', { level: 2 }], ['sparkles', n]] })),
+      ...loop(10, n => {
+        const pump = n % 2
+        return {
+          dy: -pump,
+          eyes: n % 4 < 2 ? 'wince' : 'squeeze',
+          armL: 'none',
+          armR: 'none',
+          prop: ['buff', { level: 2, pump, vein: n % 2 === 0, pop: n === 0 || n === 4 || n === 8 }],
+        }
+      }),
       ...loop(2, () => ({ eyes: 'wide', armL: 'mid', armR: 'mid', prop: ['buff', { level: 1 }] })),
-      ...loop(3, n => ({ eyes: n === 0 ? 'dot' : 'down', breathe: 1 })),
+      { squash: 1, eyes: 'dot' },
+      { breathe: 1, eyes: 'down' },
     ],
   },
 })
@@ -3582,7 +3645,7 @@ export const VARIANTS = {
   ['error', 'error.debug', 'Debug'], ['compacting', 'compacting.sweep', 'Sweep'],
   ['waiting', 'waiting.butt', 'Wiggle'], ['error', 'error.fart', 'Toot'], ['done', 'done.wink', 'Wink'],
   ['error', 'error.tongue', 'Raspberry'], ['typing', 'typing.nod', 'Nod off'],
-  ['running', 'running.jog', 'Jog'], ['running', 'running.squat', 'Squat'],
+  ['running', 'running.jog', 'Jog'], ['running', 'running.squat', 'Squat'], ['running', 'running.gatling', 'Gatling'],
   ['done', 'done.roid', 'Juiced'], ['idle', 'idle.stretch', 'Stretch'], ['idle', 'idle.drink', 'Water'], ['done', 'done.clap', 'Clap'], ['thinking', 'thinking.toilet', 'Toilet'], ['idle', 'idle.peach', 'Peach'], ['idle', 'idle.lixi', 'Lì xì'], ['thinking', 'thinking.power', 'Power up'],
   ['idle', 'idle.keepie-ups', 'Keepie-ups'], ['idle', 'idle.hoops', 'Hoops'], ['idle', 'idle.fishing', 'Fishing'], ['idle', 'idle.kickflip', 'Kickflip'], ['idle', 'idle.real-crab', 'Real crab'], ['idle', 'idle.claw-machine', 'Claw machine'], ['idle', 'idle.boxing', 'Boxing'],
   ['thinking', 'thinking.cooking', 'Cooking'],
@@ -4518,6 +4581,100 @@ Object.assign(ANIMS, {
       { dx: -4, armL: 'none', armR: 'none', eyes: 'happy', props: [['jazzStage', { beat: 22 }], ['sax', { dx: -4, shades: false, key: 0, notePhase: 21 }]] },
       { dx: -4, armL: 'none', armR: 'none', eyes: 'happy', props: [['jazzStage', { beat: 23 }], ['sax', { dx: -4, shades: false, key: 0 }]] },
     ],
+  },
+})
+
+// Heavy 6-barrel rotating Gatling gun with ammo belt, Rambo bandana, muzzle
+// blast, streaming tracers and a continuous arc of ejecting brass shells.
+PROPS.gatling = (g, { n = 0, dx = -5, breathe = 0 } = {}) => {
+  const bx = BX + dx
+  const by = BY + (breathe ? 1 : 0)
+
+  // Red Rambo headband with fluttering tails at the back of his head.
+  box(g, bx, by, BODY_W, 1, R)
+  put(g, bx - 1, by, R)
+  put(g, Math.max(0, bx - 2), by + (n % 2), R)
+
+  // Left hand gripping top carry rail & right hand on rear trigger housing.
+  box(g, bx + BODY_W - 1, by + 3, 2, 2, B)
+  box(g, bx + BODY_W - 4, by + 5, 3, 2, S)
+
+  // Steel receiver housing + hanging brass ammo belt (below eye line `by + 1..3`).
+  const gx = bx + 9 // x = 11 at dx = -4, 10 at dx = -5
+  const gy = by + 4
+  box(g, gx, gy, 4, 4, D)
+  box(g, gx + 1, gy + 1, 2, 2, G)
+  put(g, gx + 1, Math.min(H - 1, gy + 4), n % 2 ? Y : OR)
+  put(g, gx + 2, Math.min(H - 1, gy + 4), n % 2 ? OR : Y)
+
+  // Rotating 6-barrel cluster (`x = gx + 4 .. gx + 7`) + front barrel clamp.
+  const spin = n % 3
+  for (let row = 0; row < 3; row++) {
+    const c = row === spin ? L : row === (spin + 1) % 3 ? G : D
+    box(g, gx + 4, gy + row, 4, 1, c)
+  }
+  box(g, gx + 6, gy, 1, 3, D)
+  put(g, gx + 7, gy + spin, WT)
+
+  // High-RPM muzzle blast (`x = gx + 8 .. gx + 10`).
+  const mx = gx + 8
+  if (n % 2 === 0) {
+    box(g, mx, gy, 2, 3, Y)
+    put(g, mx, gy + 1, WT)
+    put(g, mx + 2, gy - 1, OR)
+    put(g, mx + 2, gy + 1, WT)
+    put(g, mx + 2, gy + 3, OR)
+  } else {
+    box(g, mx, gy + 1, 2, 1, WT)
+    put(g, mx + 1, gy, Y)
+    put(g, mx + 1, gy + 2, Y)
+    put(g, mx + 3, gy + 1, Y)
+  }
+
+  // Continuous flying tracer rounds across the right side (`x = mx + 2 .. 23`).
+  for (let k = 0; k < 2; k++) {
+    const tx = mx + 2 + ((n * 2 + k * 3) % 5)
+    const ty = gy + (k === 0 ? 0 : 2)
+    if (tx < W) {
+      put(g, tx, ty, Y)
+      if (tx + 1 < W) put(g, tx + 1, ty, WT)
+    }
+  }
+
+  // Continuous fountain of spent brass shells arcing high over his head.
+  const arc = [
+    [gx + 1, by + 2],
+    [gx - 1, by - 2],
+    [gx - 4, by - 3],
+    [gx - 7, by - 2],
+    [Math.max(0, gx - 9), by + 3],
+    [Math.max(0, gx - 10), 17],
+  ]
+  for (let i = 0; i < arc.length; i += 2) {
+    const [sx, sy] = arc[(i + n) % arc.length]
+    put(g, sx, sy, (i + n) % 4 === 0 ? OR : Y)
+  }
+}
+HELD.add('gatling')
+
+Object.assign(ANIMS, {
+  // Continuous full-auto Gatling spray: braced Rambo Clawd rocks back with
+  // heavy recoil as spinning barrels belt out tracers and rain brass shells.
+  'running.gatling': {
+    ms: 100,
+    frames: loop(12, n => {
+      const recoil = n % 2
+      const dx = recoil ? -5 : -4
+      return {
+        dx,
+        breathe: recoil,
+        legs: recoil ? 'walkB' : 'walkA',
+        armL: 'none',
+        armR: 'none',
+        eyes: n >= 4 && n <= 8 ? 'wince' : 'right',
+        props: [['gatling', { n, dx, breathe: recoil }]],
+      }
+    }),
   },
 })
 
