@@ -3585,6 +3585,8 @@ export const VARIANTS = {
   ['running', 'running.jog', 'Jog'], ['running', 'running.squat', 'Squat'],
   ['done', 'done.roid', 'Juiced'], ['idle', 'idle.stretch', 'Stretch'], ['idle', 'idle.drink', 'Water'], ['done', 'done.clap', 'Clap'], ['thinking', 'thinking.toilet', 'Toilet'], ['idle', 'idle.peach', 'Peach'], ['idle', 'idle.lixi', 'Lì xì'], ['thinking', 'thinking.power', 'Power up'],
   ['idle', 'idle.keepie-ups', 'Keepie-ups'], ['idle', 'idle.hoops', 'Hoops'], ['idle', 'idle.fishing', 'Fishing'], ['idle', 'idle.kickflip', 'Kickflip'], ['idle', 'idle.real-crab', 'Real crab'], ['idle', 'idle.claw-machine', 'Claw machine'], ['idle', 'idle.boxing', 'Boxing'],
+  ['thinking', 'thinking.cooking', 'Cooking'],
+  ['responding', 'responding.sax', 'Saxophone'],
   ['browsing', 'browsing.dino', 'Dino'],
   ['sleeping', 'sleeping.snot-bubble', 'Snot bubble'], ['compacting', 'compacting.suitcase', 'Suitcase'],
 ].forEach(([mood, anim, label]) => VARIANTS[mood].push([anim, label]))
@@ -4270,6 +4272,251 @@ Object.assign(ANIMS, {
       { dx: -5, dy: -2, legs: 'tuck', armL: 'up', armR: 'up', eyes: 'happy', props: [['dinoTrack', { scroll: 20 }]] },
       { dx: -5, legs: 'walkA', armL: 'mid', armR: 'rest', eyes: 'right', props: [['dinoTrack', { scroll: 21 }]] },
       { dx: -5, legs: 'walkB', armL: 'rest', armR: 'mid', eyes: 'right', props: [['dinoTrack', { scroll: 22 }]] },
+    ],
+  },
+})
+
+// Gas burner stove counter on the right, drawn behind Chef Clawd & flames.
+PROPS.cookStove = (g, { n = 0 } = {}) => {
+  box(g, 17, 15, 7, 3, D)
+  box(g, 17, 14, 7, 1, G)
+  put(g, 22, 16, R)
+  put(g, 19, 16, L)
+  // Blue gas burner pilot jets flickering under the skillet.
+  for (let x = 18; x <= 21; x++) {
+    put(g, x, 13, (x + n) % 2 === 0 ? BL : WT)
+  }
+}
+
+// Chef toque hat, frying skillet, flipping sunny-side-up egg, sizzling drops
+// and roaring flambé wok flames.
+PROPS.chefGear = (g, { dx = -3, dy = 0, sq = 0, breathe = 0, panX = 0, panY = 11, tilt = 0, eggY = 10, spin = 0, flame = 'low', sizzle = 0, steam = 0 } = {}) => {
+  const bw = BODY_W + 2 * sq
+  const bx = BX + dx - sq
+  const by = BY + dy + sq + (breathe ? 1 : 0)
+
+  // Puffy pleated white chef hat centered on Clawd's head.
+  art(g, bx + Math.floor((bw - 8) / 2), by - 5, [
+    '..wwww..',
+    '.wwwwww.',
+    'wllwwllw',
+    'wwwwwwww',
+    '.llllll.',
+  ], { w: WT, l: L })
+
+  // Roaring wok flambé flames rising around the pan.
+  if (flame === 'roar' || flame === 'peak') {
+    const fRows = flame === 'peak'
+      ? ['.yy..', 'roor.', 'rooyr', 'rroor', '.rrr.']
+      : ['..y..', '.oor.', 'rooy.', '.rrr.']
+    art(g, 18 + panX, flame === 'peak' ? 7 : 8, fRows, { r: R, o: OR, y: Y })
+  }
+
+  // Frying pan / skillet held from Clawd's right hand (`x = 15..22`).
+  const sx = 17 + panX
+  if (tilt) {
+    put(g, 15, panY, L)
+    put(g, 16, panY - 1, L)
+    box(g, sx, panY - 1, 5, 1, D)
+    put(g, sx + 5, panY - 2, D)
+  } else {
+    box(g, 15, panY, 2, 1, L)
+    box(g, sx, panY + 1, 6, 1, D)
+    put(g, sx, panY, D)
+    put(g, sx + 5, panY, D)
+  }
+
+  // Sunny-side-up egg flipping upright -> edge -> upside-down -> catch.
+  const ex = 18 + panX
+  const eggInk = { y: Y, w: WT }
+  if (spin === 1) art(g, ex, eggY, ['wyyw'], eggInk)
+  else if (spin === 2) art(g, ex, eggY, ['wwww', '.yy.'], eggInk)
+  else art(g, ex, eggY, ['.yy.', 'wwww'], eggInk)
+
+  // Sizzling oil sparks & curling aroma steam puffs.
+  if (sizzle) {
+    put(g, 18 + ((sizzle + 1) % 3), panY - 2 - (sizzle % 2), Y)
+    put(g, 21 - (sizzle % 2), panY - 2, WT)
+  }
+  if (steam) {
+    put(g, 19 + (steam % 2), 8 - (steam % 2), WT)
+    put(g, 20 - (steam % 2), 6 - (steam % 3), L)
+  }
+}
+HELD.add('chefGear')
+HATLESS.add('thinking.cooking')
+
+Object.assign(ANIMS, {
+  // Let him cook! Chef Clawd shakes the sizzling skillet, whips a big flambé
+  // egg flip sky-high over roaring flames, and catches it cleanly on the pan.
+  'thinking.cooking': {
+    ms: 145,
+    frames: [
+      { dx: -3, armL: 'rest', armR: 'mid', eyes: 'right', props: [['cookStove', { n: 0 }], ['chefGear', { dx: -3, panY: 11, eggY: 10, sizzle: 1, steam: 1 }]] },
+      { dx: -3, breathe: 1, armL: 'rest', armR: 'mid', eyes: 'right', props: [['cookStove', { n: 1 }], ['chefGear', { dx: -3, breathe: 1, panX: 1, panY: 11, eggY: 10, sizzle: 2, steam: 2 }]] },
+      { dx: -3, armL: 'rest', armR: 'mid', eyes: 'right', props: [['cookStove', { n: 2 }], ['chefGear', { dx: -3, panY: 11, eggY: 9, sizzle: 3, steam: 3 }]] },
+      { dx: -3, breathe: 1, armL: 'mid', armR: 'mid', eyes: 'happy', props: [['cookStove', { n: 3 }], ['chefGear', { dx: -3, breathe: 1, panX: 1, panY: 11, eggY: 10, sizzle: 1, steam: 1 }]] },
+      { dx: -3, armL: 'mid', armR: 'mid', eyes: 'happy', props: [['cookStove', { n: 4 }], ['chefGear', { dx: -3, panY: 11, eggY: 9, sizzle: 2, steam: 2 }]] },
+      // Dip to load the pan flip...
+      { dx: -3, squash: 1, armL: 'down', armR: 'mid', eyes: 'right', props: [['cookStove', { n: 5 }], ['chefGear', { dx: -3, sq: 1, panY: 12, eggY: 11, sizzle: 3 }]] },
+      // WHIP TOSS + FLAMBÉ!!
+      { dx: -3, dy: -1, armL: 'up', armR: 'up', eyes: 'wide', props: [['cookStove', { n: 6 }], ['chefGear', { dx: -3, dy: -1, panY: 10, tilt: 1, eggY: 7, spin: 1, flame: 'roar' }]] },
+      { dx: -3, dy: -1, armL: 'mid', armR: 'up', eyes: 'upright', props: [['cookStove', { n: 7 }], ['chefGear', { dx: -3, dy: -1, panY: 10, tilt: 1, eggY: 4, spin: 2, flame: 'peak' }]] },
+      { dx: -3, armL: 'mid', armR: 'up', eyes: 'up', props: [['cookStove', { n: 8 }], ['chefGear', { dx: -3, panY: 10, tilt: 1, eggY: 1, spin: 1, flame: 'peak' }]] },
+      { dx: -3, armL: 'mid', armR: 'up', eyes: 'up', props: [['cookStove', { n: 9 }], ['chefGear', { dx: -3, panY: 10, eggY: 2, spin: 2, flame: 'roar' }]] },
+      { dx: -3, armL: 'rest', armR: 'mid', eyes: 'upright', props: [['cookStove', { n: 10 }], ['chefGear', { dx: -3, panY: 11, eggY: 5, spin: 1, flame: 'roar' }]] },
+      { dx: -3, armL: 'rest', armR: 'mid', eyes: 'right', props: [['cookStove', { n: 11 }], ['chefGear', { dx: -3, panY: 11, eggY: 8, spin: 0 }]] },
+      // Nailed the catch! TSSSH!
+      { dx: -3, squash: 1, armL: 'mid', armR: 'mid', eyes: 'happy', props: [['cookStove', { n: 12 }], ['chefGear', { dx: -3, sq: 1, panY: 12, eggY: 11, sizzle: 2, steam: 1 }]] },
+      { dx: -3, armL: 'mid', armR: 'mid', eyes: 'happy', props: [['cookStove', { n: 13 }], ['chefGear', { dx: -3, panY: 11, eggY: 10, sizzle: 1, steam: 2 }]] },
+      { dx: -3, armL: 'rest', armR: 'mid', eyes: 'wink', props: [['cookStove', { n: 14 }], ['chefGear', { dx: -3, panX: 1, panY: 11, eggY: 10, sizzle: 3, steam: 3 }]] },
+      // Second snappy sizzle shake & chef savoring the aroma!
+      { dx: -3, armL: 'rest', armR: 'mid', eyes: 'right', props: [['cookStove', { n: 15 }], ['chefGear', { dx: -3, panY: 11, eggY: 9, sizzle: 1, steam: 1 }]] },
+      { dx: -3, breathe: 1, armL: 'rest', armR: 'mid', eyes: 'right', props: [['cookStove', { n: 16 }], ['chefGear', { dx: -3, breathe: 1, panX: 1, panY: 11, eggY: 10, sizzle: 2, steam: 2 }]] },
+      { dx: -3, armL: 'mid', armR: 'mid', eyes: 'happy', props: [['cookStove', { n: 17 }], ['chefGear', { dx: -3, panY: 11, eggY: 9, sizzle: 3, steam: 3 }]] },
+      { dx: -3, breathe: 1, armL: 'mid', armR: 'mid', eyes: 'closed', props: [['cookStove', { n: 18 }], ['chefGear', { dx: -3, breathe: 1, panY: 11, eggY: 10, sizzle: 1, steam: 1 }]] },
+      { dx: -3, armL: 'rest', armR: 'mid', eyes: 'happy', props: [['cookStove', { n: 19 }], ['chefGear', { dx: -3, panX: 1, panY: 11, eggY: 10, sizzle: 2, steam: 2 }]] },
+      { dx: -3, armL: 'rest', armR: 'mid', eyes: 'right', props: [['cookStove', { n: 20 }], ['chefGear', { dx: -3, panY: 11, eggY: 10, sizzle: 3, steam: 3 }]] },
+      { dx: -3, breathe: 1, armL: 'rest', armR: 'mid', eyes: 'closed', props: [['cookStove', { n: 21 }], ['chefGear', { dx: -3, breathe: 1, panY: 11, eggY: 10, sizzle: 1, steam: 1 }]] },
+      { dx: -3, armL: 'rest', armR: 'mid', eyes: 'right', props: [['cookStove', { n: 22 }], ['chefGear', { dx: -3, panY: 11, eggY: 10, sizzle: 2, steam: 2 }]] },
+      { dx: -3, armL: 'rest', armR: 'mid', eyes: 'right', props: [['cookStove', { n: 23 }], ['chefGear', { dx: -3, panY: 11, eggY: 10, sizzle: 1, steam: 1 }]] },
+    ],
+  },
+})
+
+// Jazz club stage backdrop: dual overhead spotlights, diagonal beam cone,
+// stage edge trim and pulsing club bulbs; drawn behind Clawd.
+PROPS.jazzStage = (g, { beat = 0, solo = false } = {}) => {
+  // Overhead stage truss lamps in left & right corners.
+  box(g, 0, 0, 3, 1, D)
+  put(g, 1, 1, solo ? (beat % 2 ? PK : BL) : Y)
+  box(g, 21, 0, 3, 1, D)
+  put(g, 22, 1, solo ? (beat % 2 ? Y : PK) : BL)
+
+  // Soft diagonal spotlight cone pouring over Clawd (`x = 2..13`).
+  for (let y = 2; y <= 15; y++) {
+    const x0 = Math.max(0, 2 - Math.floor(y / 6))
+    const x1 = Math.min(14, 4 + Math.floor(y * 0.7))
+    for (let x = x0; x <= x1; x++) {
+      if ((x + y + beat) % 3 === 0 || y >= 14) put(g, x, y, D)
+    }
+  }
+
+  // Stage rim along floor edge with warm footlights.
+  box(g, 0, 17, W, 1, D)
+  put(g, 0, 17, solo && beat % 2 === 0 ? Y : DR)
+  put(g, 23, 17, solo && beat % 2 === 1 ? BL : DR)
+}
+
+// Crisp J-shaped golden saxophone with hollow bow gap, reflective jazz shades,
+// and bursting colorful eighth/beamed notes.
+PROPS.sax = (g, { dx = -4, dy = 0, breathe = 0, tilt = 0, shades = 0, key = 0, notePhase, burst = false } = {}) => {
+  const bx = BX + dx
+  const by = BY + dy + (breathe ? 1 : 0)
+
+  // Wayfarer jazz shades with distinct nose bridge & sliding lens shine.
+  if (shades !== false) {
+    box(g, bx + 1, by + 2, 4, 2, K)
+    box(g, bx + 5, by + 2, 2, 1, K)
+    box(g, bx + 7, by + 2, 4, 2, K)
+    const shineC = tilt ? BL : WT
+    if (shades === 1) {
+      put(g, bx + 2, by + 2, shineC)
+      put(g, bx + 8, by + 2, shineC)
+    } else if (shades === 2) {
+      put(g, bx + 3, by + 2, shineC)
+      put(g, bx + 9, by + 2, shineC)
+    }
+  }
+
+  // Both coral hands reaching forward to hold & finger the brass tube.
+  box(g, bx + BODY_W - 3, by + 5, 4, 2, S)
+  box(g, bx + BODY_W, by + 3, 2, 2, B)
+
+  // Crisp J-shaped brass horn (`tilt` swings the bell skyward for the solo).
+  const sx = bx + BODY_W - 2 // x = 12 at dx = -4
+  const sy = by + 2 - (tilt ? 3 : 0)
+  const brass = { k: K, y: Y, g: GD, o: OR, w: WT }
+  if (tilt) {
+    art(g, sx, sy, [
+      '.......yyy',
+      '......ywoy',
+      '.....yyyo.',
+      '..yy..yyo.',
+      'kk.ywyo...',
+      '...yyy....',
+      '...oyo....',
+    ], brass)
+  } else {
+    art(g, sx, sy, [
+      '.......yoy',
+      '..yy..y.yy',
+      'kk..y..yo.',
+      '....w..y..',
+      '....y.yo..',
+      '....yyy...',
+      '.....o....',
+    ], brass)
+  }
+
+  // Animated pearl finger-key twinkle along the vertical brass tube.
+  put(g, sx + 4, sy + (tilt ? 4 : 2) + (key % 2), WT)
+
+  // Bell sparkle burst on solo hits.
+  const bellX = sx + 9
+  const bellY = sy
+  if (burst) {
+    put(g, bellX, Math.max(0, bellY - 2), Y)
+    put(g, Math.min(W - 1, bellX + 2), bellY, WT)
+    put(g, Math.min(W - 1, bellX + 1), bellY + 2, Y)
+  }
+
+  // Colorful big jazz notes floating cleanly in the upper-right sky.
+  if (notePhase !== undefined) {
+    const t1 = notePhase % 5
+    const t2 = (notePhase + 2) % 5
+    const c1 = notePhase % 2 === 0 ? BL : Y
+    const c2 = notePhase % 3 === 0 ? PK : GR
+    art(g, Math.min(W - 3, 18 + (t1 % 2)), Math.max(0, 6 - t1), ['.cc', '.c.', 'cc.'], { c: c1 })
+    if (tilt || t2 < 4) {
+      art(g, Math.min(W - 4, 14 + t2), Math.max(0, 5 - t2), ['cccc', 'c..c', 'cc.c'], { c: c2 })
+    }
+  }
+}
+HELD.add('sax')
+
+Object.assign(ANIMS, {
+  // Epic Sax Clawd: steps into a spotlight-lit jazz club, drops shades, rides
+  // a smooth riff, then erupts into the lean-back skyward Epic Sax solo.
+  'responding.sax': {
+    ms: 145,
+    frames: [
+      { dx: -4, armL: 'none', armR: 'none', eyes: 'wink', props: [['jazzStage', { beat: 0 }], ['sax', { dx: -4, shades: false, key: 0 }]] },
+      { dx: -4, breathe: 1, armL: 'none', armR: 'none', props: [['jazzStage', { beat: 1 }], ['sax', { dx: -4, breathe: 1, shades: 1, key: 0, notePhase: 0 }]] },
+      { dx: -4, legs: 'walkA', armL: 'none', armR: 'none', props: [['jazzStage', { beat: 2 }], ['sax', { dx: -4, shades: 2, key: 1, notePhase: 1 }]] },
+      { dx: -4, breathe: 1, armL: 'none', armR: 'none', props: [['jazzStage', { beat: 3 }], ['sax', { dx: -4, breathe: 1, shades: 0, key: 2, notePhase: 2 }]] },
+      { dx: -3, legs: 'walkB', armL: 'none', armR: 'none', props: [['jazzStage', { beat: 4 }], ['sax', { dx: -3, shades: 0, key: 0, notePhase: 3 }]] },
+      { dx: -3, breathe: 1, armL: 'none', armR: 'none', props: [['jazzStage', { beat: 5 }], ['sax', { dx: -3, breathe: 1, shades: 1, key: 1, notePhase: 4 }]] },
+      { dx: -4, legs: 'walkA', armL: 'none', armR: 'none', props: [['jazzStage', { beat: 6 }], ['sax', { dx: -4, shades: 2, key: 2, notePhase: 5 }]] },
+      { dx: -4, squash: 1, armL: 'none', armR: 'none', props: [['jazzStage', { beat: 7 }], ['sax', { dx: -4, shades: 0, key: 0, notePhase: 6 }]] },
+      // THE EPIC SAX SOLO DROP — spotlight strobe + kick-out showman thrust!
+      { dx: -5, dy: -1, legs: 'kickR', armL: 'none', armR: 'none', props: [['jazzStage', { beat: 8, solo: true }], ['sax', { dx: -5, dy: -1, tilt: 1, shades: 1, key: 1, notePhase: 7, burst: true }]] },
+      { dx: -4, breathe: 1, legs: 'walkB', armL: 'none', armR: 'none', props: [['jazzStage', { beat: 9, solo: true }], ['sax', { dx: -4, breathe: 1, tilt: 1, shades: 2, key: 2, notePhase: 8 }]] },
+      { dx: -5, dy: -1, legs: 'kickR', armL: 'none', armR: 'none', props: [['jazzStage', { beat: 10, solo: true }], ['sax', { dx: -5, dy: -1, tilt: 1, shades: 1, key: 0, notePhase: 9, burst: true }]] },
+      { dx: -4, breathe: 1, legs: 'walkA', armL: 'none', armR: 'none', props: [['jazzStage', { beat: 11, solo: true }], ['sax', { dx: -4, breathe: 1, tilt: 1, shades: 2, key: 1, notePhase: 10 }]] },
+      { dx: -5, dy: -1, legs: 'kickR', armL: 'none', armR: 'none', props: [['jazzStage', { beat: 12, solo: true }], ['sax', { dx: -5, dy: -1, tilt: 1, shades: 1, key: 2, notePhase: 11, burst: true }]] },
+      { dx: -4, breathe: 1, legs: 'walkB', armL: 'none', armR: 'none', props: [['jazzStage', { beat: 13, solo: true }], ['sax', { dx: -4, breathe: 1, tilt: 1, shades: 2, key: 0, notePhase: 12 }]] },
+      { dx: -5, dy: -1, legs: 'tuck', armL: 'none', armR: 'none', props: [['jazzStage', { beat: 14, solo: true }], ['sax', { dx: -5, dy: -1, tilt: 1, shades: 1, key: 1, notePhase: 13, burst: true }]] },
+      { dx: -4, dy: -1, legs: 'tuck', armL: 'none', armR: 'none', props: [['jazzStage', { beat: 15, solo: true }], ['sax', { dx: -4, dy: -1, tilt: 1, shades: 2, key: 2, notePhase: 14 }]] },
+      // Smooth cool outro & happy bow!
+      { dx: -4, breathe: 1, legs: 'walkA', armL: 'none', armR: 'none', props: [['jazzStage', { beat: 16 }], ['sax', { dx: -4, breathe: 1, shades: 0, key: 0, notePhase: 15 }]] },
+      { dx: -4, armL: 'none', armR: 'none', props: [['jazzStage', { beat: 17 }], ['sax', { dx: -4, shades: 0, key: 1, notePhase: 16 }]] },
+      { dx: -3, breathe: 1, legs: 'walkB', armL: 'none', armR: 'none', props: [['jazzStage', { beat: 18 }], ['sax', { dx: -3, breathe: 1, shades: 1, key: 2, notePhase: 17 }]] },
+      { dx: -4, armL: 'none', armR: 'none', props: [['jazzStage', { beat: 19 }], ['sax', { dx: -4, shades: 2, key: 0, notePhase: 18 }]] },
+      { dx: -4, breathe: 1, legs: 'walkA', armL: 'none', armR: 'none', props: [['jazzStage', { beat: 20 }], ['sax', { dx: -4, breathe: 1, shades: 0, key: 1, notePhase: 19 }]] },
+      { dx: -4, armL: 'none', armR: 'none', props: [['jazzStage', { beat: 21 }], ['sax', { dx: -4, shades: 0, key: 2, notePhase: 20 }]] },
+      { dx: -4, armL: 'none', armR: 'none', eyes: 'happy', props: [['jazzStage', { beat: 22 }], ['sax', { dx: -4, shades: false, key: 0, notePhase: 21 }]] },
+      { dx: -4, armL: 'none', armR: 'none', eyes: 'happy', props: [['jazzStage', { beat: 23 }], ['sax', { dx: -4, shades: false, key: 0 }]] },
     ],
   },
 })

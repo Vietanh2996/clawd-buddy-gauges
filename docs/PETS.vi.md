@@ -23,13 +23,13 @@ Ba kiểu đầu của mỗi trạng thái lấy từ [clawd-crew](https://githu
 
 | Kiểu 1 | Kiểu 2 | Kiểu 3 | Kiểu 4 | Kiểu 5 | Kiểu 6 | Kiểu 7 | Kiểu 8 |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| <img src="pets/thinking.svg" width="140" alt="thinking"><br><sub>Classic</sub> | <img src="pets/thinking.pace.svg" width="140" alt="thinking.pace"><br><sub>Pacing</sub> | <img src="pets/thinking.wizard.svg" width="140" alt="thinking.wizard"><br><sub>Wizard</sub> | <img src="pets/thinking.toilet.svg" width="140" alt="thinking.toilet"><br><sub>Toilet</sub> | <img src="pets/thinking.power.svg" width="140" alt="thinking.power"><br><sub>Power up</sub> |  |  |  |
+| <img src="pets/thinking.svg" width="140" alt="thinking"><br><sub>Classic</sub> | <img src="pets/thinking.pace.svg" width="140" alt="thinking.pace"><br><sub>Pacing</sub> | <img src="pets/thinking.wizard.svg" width="140" alt="thinking.wizard"><br><sub>Wizard</sub> | <img src="pets/thinking.toilet.svg" width="140" alt="thinking.toilet"><br><sub>Toilet</sub> | <img src="pets/thinking.power.svg" width="140" alt="thinking.power"><br><sub>Power up</sub> | <img src="pets/thinking.cooking.svg" width="140" alt="thinking.cooking"><br><sub>Cooking</sub> |  |  |
 
 ### **responding** — Claude đang viết câu trả lời
 
 | Kiểu 1 | Kiểu 2 | Kiểu 3 | Kiểu 4 | Kiểu 5 | Kiểu 6 | Kiểu 7 | Kiểu 8 |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| <img src="pets/responding.svg" width="140" alt="responding"><br><sub>Classic</sub> | <img src="pets/responding.letter.svg" width="140" alt="responding.letter"><br><sub>Letter</sub> | <img src="pets/responding.board.svg" width="140" alt="responding.board"><br><sub>Board</sub> |  |  |  |  |  |
+| <img src="pets/responding.svg" width="140" alt="responding"><br><sub>Classic</sub> | <img src="pets/responding.letter.svg" width="140" alt="responding.letter"><br><sub>Letter</sub> | <img src="pets/responding.board.svg" width="140" alt="responding.board"><br><sub>Board</sub> | <img src="pets/responding.sax.svg" width="140" alt="responding.sax"><br><sub>Saxophone</sub> |  |  |  |  |
 
 ### **typing** — Sửa / ghi file (Edit, Write)
 

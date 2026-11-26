@@ -23,13 +23,13 @@ The first three looks of each mood are from [clawd-crew](https://github.com/hudc
 
 | Look 1 | Look 2 | Look 3 | Look 4 | Look 5 | Look 6 | Look 7 | Look 8 |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| <img src="pets/thinking.svg" width="140" alt="thinking"><br><sub>Classic</sub> | <img src="pets/thinking.pace.svg" width="140" alt="thinking.pace"><br><sub>Pacing</sub> | <img src="pets/thinking.wizard.svg" width="140" alt="thinking.wizard"><br><sub>Wizard</sub> | <img src="pets/thinking.toilet.svg" width="140" alt="thinking.toilet"><br><sub>Toilet</sub> | <img src="pets/thinking.power.svg" width="140" alt="thinking.power"><br><sub>Power up</sub> |  |  |  |
+| <img src="pets/thinking.svg" width="140" alt="thinking"><br><sub>Classic</sub> | <img src="pets/thinking.pace.svg" width="140" alt="thinking.pace"><br><sub>Pacing</sub> | <img src="pets/thinking.wizard.svg" width="140" alt="thinking.wizard"><br><sub>Wizard</sub> | <img src="pets/thinking.toilet.svg" width="140" alt="thinking.toilet"><br><sub>Toilet</sub> | <img src="pets/thinking.power.svg" width="140" alt="thinking.power"><br><sub>Power up</sub> | <img src="pets/thinking.cooking.svg" width="140" alt="thinking.cooking"><br><sub>Cooking</sub> |  |  |
 
 ### **responding** — Claude is writing its reply
 
 | Look 1 | Look 2 | Look 3 | Look 4 | Look 5 | Look 6 | Look 7 | Look 8 |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| <img src="pets/responding.svg" width="140" alt="responding"><br><sub>Classic</sub> | <img src="pets/responding.letter.svg" width="140" alt="responding.letter"><br><sub>Letter</sub> | <img src="pets/responding.board.svg" width="140" alt="responding.board"><br><sub>Board</sub> |  |  |  |  |  |
+| <img src="pets/responding.svg" width="140" alt="responding"><br><sub>Classic</sub> | <img src="pets/responding.letter.svg" width="140" alt="responding.letter"><br><sub>Letter</sub> | <img src="pets/responding.board.svg" width="140" alt="responding.board"><br><sub>Board</sub> | <img src="pets/responding.sax.svg" width="140" alt="responding.sax"><br><sub>Saxophone</sub> |  |  |  |  |
 
 ### **typing** — Editing or writing files (Edit, Write)
 
