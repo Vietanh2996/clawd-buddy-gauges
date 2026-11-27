@@ -2,7 +2,7 @@
 
 [Tiếng Việt](PETS.vi.md)
 
-Each mood has three to twelve looks; the buddy picks one at random when the mood changes (in the morning it leans to coffee, late at night to yawns). Click it in the desktop app to step to the next look of the mood it is in, wrapping round after the last.
+Each mood has three to thirteen looks; the buddy picks one at random when the mood changes (in the morning it leans to coffee, late at night to yawns). Click it in the desktop app to step to the next look of the mood it is in, wrapping round after the last.
 
 The first three looks of each mood are from [clawd-crew](https://github.com/hudcolighting/clawd-crew) (GPL-3.0-or-later), except Wizard (thinking) and Carry (running), our own, which moved up when Cube and Progress were archived. The rest were drawn for clawd-buddy-gauges from the same body, eyes, arms and legs.
 
@@ -11,7 +11,7 @@ The first three looks of each mood are from [clawd-crew](https://github.com/hudc
 | Look 1 | Look 2 | Look 3 | Look 4 | Look 5 | Look 6 | Look 7 | Look 8 |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 | <img src="pets/idle.svg" width="140" alt="idle"><br><sub>Classic</sub> | <img src="pets/idle.coffee.svg" width="140" alt="idle.coffee"><br><sub>Coffee</sub> | <img src="pets/idle.tune.svg" width="140" alt="idle.tune"><br><sub>Humming</sub> | <img src="pets/idle.yawn.svg" width="140" alt="idle.yawn"><br><sub>Yawn</sub> | <img src="pets/idle.peach.svg" width="140" alt="idle.peach"><br><sub>Peach · Tết only</sub> | <img src="pets/idle.keepie-ups.svg" width="140" alt="idle.keepie-ups"><br><sub>Keepie-ups</sub> | <img src="pets/idle.hoops.svg" width="140" alt="idle.hoops"><br><sub>Hoops</sub> | <img src="pets/idle.fishing.svg" width="140" alt="idle.fishing"><br><sub>Fishing</sub> |
-| <img src="pets/idle.kickflip.svg" width="140" alt="idle.kickflip"><br><sub>Kickflip</sub> | <img src="pets/idle.real-crab.svg" width="140" alt="idle.real-crab"><br><sub>Real crab</sub> | <img src="pets/idle.claw-machine.svg" width="140" alt="idle.claw-machine"><br><sub>Claw machine</sub> | <img src="pets/idle.boxing.svg" width="140" alt="idle.boxing"><br><sub>Boxing</sub> |  |  |  |  |
+| <img src="pets/idle.kickflip.svg" width="140" alt="idle.kickflip"><br><sub>Kickflip</sub> | <img src="pets/idle.real-crab.svg" width="140" alt="idle.real-crab"><br><sub>Real crab</sub> | <img src="pets/idle.claw-machine.svg" width="140" alt="idle.claw-machine"><br><sub>Claw machine</sub> | <img src="pets/idle.boxing.svg" width="140" alt="idle.boxing"><br><sub>Boxing</sub> | <img src="pets/idle.yoga.svg" width="140" alt="idle.yoga"><br><sub>Yoga</sub> |  |  |  |
 
 ### **sleeping** — Idle for over 10 minutes (3 late at night)
 
@@ -53,7 +53,7 @@ The first three looks of each mood are from [clawd-crew](https://github.com/hudc
 
 | Look 1 | Look 2 | Look 3 | Look 4 | Look 5 | Look 6 | Look 7 | Look 8 |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| <img src="pets/running.svg" width="140" alt="running"><br><sub>Classic</sub> | <img src="pets/running.treadmill.svg" width="140" alt="running.treadmill"><br><sub>Treadmill</sub> | <img src="pets/running.carry.svg" width="140" alt="running.carry"><br><sub>Carry</sub> | <img src="pets/running.jog.svg" width="140" alt="running.jog"><br><sub>Jog</sub> | <img src="pets/running.squat.svg" width="140" alt="running.squat"><br><sub>Squat</sub> | <img src="pets/running.gatling.svg" width="140" alt="running.gatling"><br><sub>Gatling</sub> |  |  |
+| <img src="pets/running.svg" width="140" alt="running"><br><sub>Classic</sub> | <img src="pets/running.treadmill.svg" width="140" alt="running.treadmill"><br><sub>Treadmill</sub> | <img src="pets/running.carry.svg" width="140" alt="running.carry"><br><sub>Carry</sub> | <img src="pets/running.jog.svg" width="140" alt="running.jog"><br><sub>Jog</sub> | <img src="pets/running.squat.svg" width="140" alt="running.squat"><br><sub>Squat</sub> | <img src="pets/running.gatling.svg" width="140" alt="running.gatling"><br><sub>Gatling</sub> | <img src="pets/running.bazooka.svg" width="140" alt="running.bazooka"><br><sub>Bazooka</sub> |  |
 
 ### **browsing** — On the web (WebFetch, WebSearch, browser)
 
@@ -95,13 +95,13 @@ The first three looks of each mood are from [clawd-crew](https://github.com/hudc
 
 | Look 1 | Look 2 | Look 3 | Look 4 | Look 5 | Look 6 | Look 7 | Look 8 |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| <img src="pets/done.svg" width="140" alt="done"><br><sub>Classic</sub> | <img src="pets/done.trophy.svg" width="140" alt="done.trophy"><br><sub>Trophy</sub> | <img src="pets/done.dance.svg" width="140" alt="done.dance"><br><sub>Dance</sub> | <img src="pets/done.wink.svg" width="140" alt="done.wink"><br><sub>Wink</sub> | <img src="pets/done.roid.svg" width="140" alt="done.roid"><br><sub>Juiced</sub> | <img src="pets/done.clap.svg" width="140" alt="done.clap"><br><sub>Clap</sub> | <img src="pets/done.pole.svg" width="140" alt="done.pole"><br><sub>Pole dance</sub> |  |
+| <img src="pets/done.svg" width="140" alt="done"><br><sub>Classic</sub> | <img src="pets/done.trophy.svg" width="140" alt="done.trophy"><br><sub>Trophy</sub> | <img src="pets/done.dance.svg" width="140" alt="done.dance"><br><sub>Dance</sub> | <img src="pets/done.wink.svg" width="140" alt="done.wink"><br><sub>Wink</sub> | <img src="pets/done.roid.svg" width="140" alt="done.roid"><br><sub>Juiced</sub> | <img src="pets/done.clap.svg" width="140" alt="done.clap"><br><sub>Clap</sub> | <img src="pets/done.pole.svg" width="140" alt="done.pole"><br><sub>Pole dance</sub> | <img src="pets/done.katana.svg" width="140" alt="done.katana"><br><sub>Katana</sub> |
 
 ### **error** — A command failed; tests failed
 
 | Look 1 | Look 2 | Look 3 | Look 4 | Look 5 | Look 6 | Look 7 | Look 8 |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| <img src="pets/error.svg" width="140" alt="error"><br><sub>Classic</sub> | <img src="pets/error.smoke.svg" width="140" alt="error.smoke"><br><sub>Smoke</sub> | <img src="pets/error.rain.svg" width="140" alt="error.rain"><br><sub>Rain</sub> | <img src="pets/error.debug.svg" width="140" alt="error.debug"><br><sub>Debug</sub> | <img src="pets/error.fart.svg" width="140" alt="error.fart"><br><sub>Toot</sub> | <img src="pets/error.tongue.svg" width="140" alt="error.tongue"><br><sub>Raspberry</sub> |  |  |
+| <img src="pets/error.svg" width="140" alt="error"><br><sub>Classic</sub> | <img src="pets/error.smoke.svg" width="140" alt="error.smoke"><br><sub>Smoke</sub> | <img src="pets/error.rain.svg" width="140" alt="error.rain"><br><sub>Rain</sub> | <img src="pets/error.debug.svg" width="140" alt="error.debug"><br><sub>Debug</sub> | <img src="pets/error.fart.svg" width="140" alt="error.fart"><br><sub>Toot</sub> | <img src="pets/error.tongue.svg" width="140" alt="error.tongue"><br><sub>Raspberry</sub> | <img src="pets/error.flamethrower.svg" width="140" alt="error.flamethrower"><br><sub>Flamethrower</sub> |  |
 
 ### **compacting** — Compacting
 

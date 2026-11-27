@@ -3645,12 +3645,14 @@ export const VARIANTS = {
   ['error', 'error.debug', 'Debug'], ['compacting', 'compacting.sweep', 'Sweep'],
   ['waiting', 'waiting.butt', 'Wiggle'], ['error', 'error.fart', 'Toot'], ['done', 'done.wink', 'Wink'],
   ['error', 'error.tongue', 'Raspberry'], ['typing', 'typing.nod', 'Nod off'],
-  ['running', 'running.jog', 'Jog'], ['running', 'running.squat', 'Squat'], ['running', 'running.gatling', 'Gatling'],
+  ['running', 'running.jog', 'Jog'], ['running', 'running.squat', 'Squat'], ['running', 'running.gatling', 'Gatling'], ['running', 'running.bazooka', 'Bazooka'],
   ['done', 'done.roid', 'Juiced'], ['idle', 'idle.stretch', 'Stretch'], ['idle', 'idle.drink', 'Water'], ['done', 'done.clap', 'Clap'], ['thinking', 'thinking.toilet', 'Toilet'], ['idle', 'idle.peach', 'Peach'], ['idle', 'idle.lixi', 'Lì xì'], ['thinking', 'thinking.power', 'Power up'],
-  ['idle', 'idle.keepie-ups', 'Keepie-ups'], ['idle', 'idle.hoops', 'Hoops'], ['idle', 'idle.fishing', 'Fishing'], ['idle', 'idle.kickflip', 'Kickflip'], ['idle', 'idle.real-crab', 'Real crab'], ['idle', 'idle.claw-machine', 'Claw machine'], ['idle', 'idle.boxing', 'Boxing'],
+  ['idle', 'idle.keepie-ups', 'Keepie-ups'], ['idle', 'idle.hoops', 'Hoops'], ['idle', 'idle.fishing', 'Fishing'], ['idle', 'idle.kickflip', 'Kickflip'], ['idle', 'idle.real-crab', 'Real crab'], ['idle', 'idle.claw-machine', 'Claw machine'], ['idle', 'idle.boxing', 'Boxing'], ['idle', 'idle.yoga', 'Yoga'],
   ['thinking', 'thinking.cooking', 'Cooking'],
   ['responding', 'responding.sax', 'Saxophone'],
   ['browsing', 'browsing.dino', 'Dino'],
+  ['done', 'done.katana', 'Katana'],
+  ['error', 'error.flamethrower', 'Flamethrower'],
   ['sleeping', 'sleeping.snot-bubble', 'Snot bubble'], ['compacting', 'compacting.suitcase', 'Suitcase'],
 ].forEach(([mood, anim, label]) => VARIANTS[mood].push([anim, label]))
 
@@ -4584,97 +4586,1246 @@ Object.assign(ANIMS, {
   },
 })
 
-// Heavy 6-barrel rotating Gatling gun with ammo belt, Rambo bandana, muzzle
-// blast, streaming tracers and a continuous arc of ejecting brass shells.
-PROPS.gatling = (g, { n = 0, dx = -5, breathe = 0 } = {}) => {
+// Heavy underslung M134 Gatling gun carried across Clawd's hip: planted heavy
+// gunner stance (no frantic vertical hop), top D-grip handlebar, 7px rotating
+// overheated barrels, 4-phase morphing muzzle flash, 3px tracer rounds, brass
+// shell fountain, and geometric sonic shockwave VFX.
+PROPS.gatling = (g, { n = 0, dx = -5, gunDx = 0 } = {}) => {
   const bx = BX + dx
-  const by = BY + (breathe ? 1 : 0)
+  const by = BY
 
-  // Red Rambo headband with fluttering tails at the back of his head.
+  // Red Rambo headband with fluttering tail behind his head.
   box(g, bx, by, BODY_W, 1, R)
-  put(g, bx - 1, by, R)
-  put(g, Math.max(0, bx - 2), by + (n % 2), R)
+  if (bx > 0) put(g, bx - 1, by + (n % 3 === 0 ? 1 : 0), R)
 
-  // Left hand gripping top carry rail & right hand on rear trigger housing.
-  box(g, bx + BODY_W - 1, by + 3, 2, 2, B)
-  box(g, bx + BODY_W - 4, by + 5, 3, 2, S)
+  // Heavy underslung receiver & motor block slung across his waist (`x = 4..8`).
+  const rx = bx + 3 + gunDx
+  const ry = by + 4
+  box(g, rx, ry, 5, 4, D)
+  box(g, rx + 1, ry + 1, 3, 2, G)
+  put(g, rx + 2, ry + 1, L)
 
-  // Steel receiver housing + hanging brass ammo belt (below eye line `by + 1..3`).
-  const gx = bx + 9 // x = 11 at dx = -4, 10 at dx = -5
-  const gy = by + 4
-  box(g, gx, gy, 4, 4, D)
-  box(g, gx + 1, gy + 1, 2, 2, G)
-  put(g, gx + 1, Math.min(H - 1, gy + 4), n % 2 ? Y : OR)
-  put(g, gx + 2, Math.min(H - 1, gy + 4), n % 2 ? OR : Y)
+  // Top chainsaw-style D-grip handlebar centered cleanly between his eyes.
+  box(g, rx + 1, ry - 1, 3, 1, L)
+  put(g, rx + 1, ry, L)
+  put(g, rx + 3, ry, L)
+  box(g, rx + 1, ry - 1, 2, 1, B)
+  // Rear trigger arm gripping left back corner of receiver.
+  box(g, Math.max(0, bx + 1), by + 5, 2, 2, S)
+  box(g, rx - 1, ry + 1, 2, 2, B)
 
-  // Rotating 6-barrel cluster (`x = gx + 4 .. gx + 7`) + front barrel clamp.
+  // Olive ammo box + vibrating golden brass bullet belt feeding up into breech.
+  const ax = rx + 1
+  put(g, ax, ry + 4, n % 2 ? Y : OR)
+  put(g, ax + 1, ry + 4, n % 2 ? OR : Y)
+  box(g, ax - 1, ry + 5, 3, 1, GR)
+
+  // 7px rotating 6-barrel cluster (`x = rx + 5 .. rx + 11`) with 2 clamp rings
+  // and red-hot overheating barrel tips.
+  const gx = rx + 5
   const spin = n % 3
   for (let row = 0; row < 3; row++) {
     const c = row === spin ? L : row === (spin + 1) % 3 ? G : D
-    box(g, gx + 4, gy + row, 4, 1, c)
+    box(g, gx, ry + row, 7, 1, c)
   }
-  box(g, gx + 6, gy, 1, 3, D)
-  put(g, gx + 7, gy + spin, WT)
+  box(g, gx + 2, ry, 1, 3, D)
+  box(g, gx + 4, ry, 1, 3, D)
+  box(g, gx + 5, ry, 2, 3, n % 2 === 0 ? R : OR)
+  put(g, gx + 6, ry + spin, WT)
 
-  // High-RPM muzzle blast (`x = gx + 8 .. gx + 10`).
-  const mx = gx + 8
-  if (n % 2 === 0) {
-    box(g, mx, gy, 2, 3, Y)
-    put(g, mx, gy + 1, WT)
-    put(g, mx + 2, gy - 1, OR)
-    put(g, mx + 2, gy + 1, WT)
-    put(g, mx + 2, gy + 3, OR)
+  // 3-phase strobing muzzle cone (big cone -> lance + ember rays -> tight snap)
+  // against a clean dark background for unmistakable high-RPM flicker.
+  const mx = gx + 7
+  const phase = n % 3
+  if (phase === 0) {
+    box(g, mx, ry, 2, 3, WT)
+    put(g, mx, ry + 1, WT)
+    put(g, mx + 2, ry, Y)
+    put(g, mx + 2, ry + 1, WT)
+    put(g, mx + 2, ry + 2, Y)
+    put(g, mx + 3, ry - 1, OR)
+    put(g, mx + 3, ry + 1, Y)
+    put(g, mx + 3, ry + 3, OR)
+  } else if (phase === 1) {
+    box(g, mx, ry + 1, 3, 1, WT)
+    put(g, mx, ry, Y)
+    put(g, mx, ry + 2, Y)
+    put(g, mx + 2, ry - 1, OR)
+    put(g, mx + 2, ry + 3, OR)
   } else {
-    box(g, mx, gy + 1, 2, 1, WT)
-    put(g, mx + 1, gy, Y)
-    put(g, mx + 1, gy + 2, Y)
-    put(g, mx + 3, gy + 1, Y)
+    box(g, mx, ry + 1, 2, 1, WT)
+    put(g, mx, ry, Y)
+    put(g, mx, ry + 2, Y)
   }
 
-  // Continuous flying tracer rounds across the right side (`x = mx + 2 .. 23`).
+  // Distinct 3px elongated tracer rounds (`[OR, Y, WT]`) streaming cleanly out.
   for (let k = 0; k < 2; k++) {
-    const tx = mx + 2 + ((n * 2 + k * 3) % 5)
-    const ty = gy + (k === 0 ? 0 : 2)
-    if (tx < W) {
-      put(g, tx, ty, Y)
-      if (tx + 1 < W) put(g, tx + 1, ty, WT)
+    const start = mx + 2 + ((n * 2 + k * 3) % 5)
+    const ty = ry + ((n + k) % 3)
+    const seg = [OR, Y, WT]
+    for (let i = 0; i < 3; i++) {
+      const tx = start + i
+      if (tx >= mx + 3 && tx < W) put(g, tx, ty, seg[i])
     }
   }
 
-  // Continuous fountain of spent brass shells arcing high over his head.
+  // Curling barrel heat smoke separated cleanly above mid-barrel (`x = gx + 2..4`),
+  // plus 2px spent brass shell casings arcing back & down.
+  const sy = ry - 2 - (n % 2)
+  put(g, gx + 2, ry - 1, G)
+  put(g, gx + 3 + (n % 2), sy, L)
+  if (n % 2 === 0) put(g, gx + 4, sy - 1, G)
+
   const arc = [
-    [gx + 1, by + 2],
-    [gx - 1, by - 2],
-    [gx - 4, by - 3],
-    [gx - 7, by - 2],
-    [Math.max(0, gx - 9), by + 3],
-    [Math.max(0, gx - 10), 17],
+    [rx + 1, by - 1],
+    [bx + 1, by - 2],
+    [0, by + 2],
+    [0, 15],
   ]
   for (let i = 0; i < arc.length; i += 2) {
     const [sx, sy] = arc[(i + n) % arc.length]
-    put(g, sx, sy, (i + n) % 4 === 0 ? OR : Y)
+    const c = (i + n) % 4 === 0 ? OR : Y
+    put(g, sx, sy, c)
+    if (sx + 1 < W) put(g, sx + 1, sy, c)
   }
 }
 HELD.add('gatling')
 
 Object.assign(ANIMS, {
-  // Continuous full-auto Gatling spray: braced Rambo Clawd rocks back with
-  // heavy recoil as spinning barrels belt out tracers and rain brass shells.
+  // Continuous full-auto Gatling spray: Clawd braces solidly with minimal
+  // body jitter while the underslung M134 kicks in his hands, morphing blasts,
+  // streaming 3px bullets, brass shells, and sonic shockwave VFX.
   'running.gatling': {
     ms: 100,
     frames: loop(12, n => {
-      const recoil = n % 2
-      const dx = recoil ? -5 : -4
+      const gunDx = n % 2 ? -1 : 0
+      const dx = (n >= 4 && n <= 6) || n >= 10 ? -6 : -5
       return {
         dx,
-        breathe: recoil,
-        legs: recoil ? 'walkB' : 'walkA',
+        legs: n % 4 < 2 ? 'stand' : 'walkA',
         armL: 'none',
         armR: 'none',
         eyes: n >= 4 && n <= 8 ? 'wince' : 'right',
-        props: [['gatling', { n, dx, breathe: recoil }]],
+        props: [['gatling', { n, dx, gunDx }]],
       }
     }),
+  },
+})
+
+// 45-60 degree three-quarter Clawd (10x10 silhouette): preserves Clawd's
+// iconic 2 eyes and 4-leg boxy charm while freeing right-side VFX room and
+// separating shadowed side wall vs brightly fire-lit front face.
+const draw34Clawd = (
+  g,
+  { x = 2, y = BY, sq = 0, lit = false, eyes = 'open', legs = 'stand', headband = false } = {},
+) => {
+  const bw = 10
+  const bh = Math.max(5, BODY_H - sq)
+  const bx = x
+  const by = y + sq
+
+  // Three clean cel-shaded planar regions (no noisy vertical stripes!):
+  // cols 0..1 = side plane turned away (shadowed), cols 2..7 = main front torso,
+  // cols 8..9 = leading edge plane facing fire/blast.
+  const backC = lit === 'boom' ? D : lit ? DR : S
+  const midC = lit === 'boom' ? S : B
+  const rimC = lit ? MB : B
+
+  if (legs !== 'none') {
+    const legCols = legs === 'lunge' ? [0, 2, 7, 9] : [1, 3, 6, 8]
+    const ground = GROUND
+    const top = by + bh
+    legCols.forEach((off, i) => {
+      let bottom = legs === 'tuck' ? top + 1 : ground
+      if (legs === 'walkA' && i % 2 === 0) bottom -= 1
+      if (legs === 'walkB' && i % 2 === 1) bottom -= 1
+      const lc = i < 2 ? backC : off >= 8 ? rimC : midC
+      for (let ly = top; ly < bottom; ly++) put(g, bx + off, ly, lc)
+    })
+  }
+
+  box(g, bx, by, 2, bh, backC)
+  box(g, bx + 2, by, 6, bh, midC)
+  box(g, bx + 8, by, 2, bh, rimC)
+
+  // Warm corner catchlights facing intense flame / explosion.
+  if (lit === 'fire' || lit === 'boom') {
+    put(g, bx + 9, by, Y)
+    put(g, bx + 9, by + bh - 1, Y)
+    if (lit === 'boom') put(g, bx + 9, by + 1, WT)
+  }
+
+  if (headband) {
+    box(g, bx, by, 2, 1, lit ? D : DR)
+    box(g, bx + 2, by, 8, 1, R)
+    if (lit) put(g, bx + 9, by, Y)
+  }
+
+  // Two perspective-shifted eyes (`bx + 4` near, `bx + 8` far) in 45-60 deg view.
+  const ey = by + (sq > 0 ? 1 : 2)
+  const ex0 = bx + 4
+  const ex1 = bx + 8
+  switch (eyes) {
+    case 'closed':
+      box(g, ex0, ey + 1, 2, 1, K)
+      box(g, ex1 - 1, ey + 1, 2, 1, K)
+      break
+    case 'wide':
+      box(g, ex0, ey, 1, Math.min(3, bh - 2), K)
+      box(g, ex1, ey, 1, Math.min(3, bh - 2), K)
+      break
+    case 'shock':
+      // Bugged-out white eyes with tiny pinpoint pupils for slapstick shock!
+      box(g, ex0 - 1, ey, 2, 3, WT)
+      put(g, ex0, ey + 1, K)
+      box(g, ex1 - 1, ey, 2, 3, WT)
+      put(g, ex1, ey + 1, K)
+      break
+    case 'fierce':
+      box(g, ex0, ey, 1, 2, K)
+      put(g, ex0 + 1, ey, K)
+      box(g, ex1, ey, 1, 2, K)
+      put(g, ex1 - 1, ey, K)
+      break
+    case 'wince':
+      put(g, ex0 - 1, ey, K)
+      put(g, ex0, ey + 1, K)
+      put(g, ex0 - 1, ey + 2, K)
+      put(g, ex1, ey, K)
+      put(g, ex1 - 1, ey + 1, K)
+      put(g, ex1, ey + 2, K)
+      break
+    case 'happy':
+      put(g, ex0 - 1, ey + 1, K)
+      put(g, ex0, ey, K)
+      put(g, ex0 + 1, ey + 1, K)
+      put(g, ex1 - 1, ey + 1, K)
+      put(g, ex1, ey, K)
+      break
+    case 'wink':
+      box(g, ex0, ey, 1, 2, K)
+      box(g, ex1 - 1, ey + 1, 2, 1, K)
+      break
+    default:
+      box(g, ex0, ey, 1, 2, K)
+      box(g, ex1, ey, 1, 2, K)
+  }
+}
+
+// 1) ERROR.FLAMETHROWER — 45-60 deg three-quarter Clawd with angled backpack tank,
+// perforated pyro lance, rolling billowing napalm wave, and clean planar fire lighting.
+PROPS.flamethrower = (
+  g,
+  { bx = 2, dy = 0, sq = 0, lit = false, eyes = 'open', legs = 'stand', fire = 0, bugX = 20, bugState = 'crawl', steam = 0, headFire = 0, headSmoke = 0, alert = false } = {},
+) => {
+  const topY = BY + dy
+  const by = topY + sq
+  const isFiring = fire > 0 && fire < 6
+
+  // Angled fuel tank tucked cleanly behind Clawd's shadowed left shoulder (`x = 0..1`).
+  const tx = Math.max(0, bx - 2)
+  box(g, tx, by - 1, 2, 7, lit ? D : R)
+  put(g, tx, by - 2, lit ? K : L)
+  if (!lit) put(g, tx, by + 1, DR)
+  box(g, tx + 1, by + 5, 4, 1, K)
+  put(g, bx + 3, by + 4, K)
+
+  draw34Clawd(g, { x: bx, y: topY, sq, lit, eyes, legs })
+
+  // Meme head-crown fire & post-poof singed smoke tuft!
+  if (headFire === 1) {
+    put(g, bx + 5, by - 1, OR)
+    put(g, bx + 6, by - 1, Y)
+    put(g, bx + 6, by - 2, R)
+  } else if (headFire === 2) {
+    art(g, bx + 4, by - 3, ['.r..', 'ryr.', 'yoo.', 'yyo.'], { y: Y, o: OR, r: R })
+  } else if (headFire === 3) {
+    // Tall startled crown blaze (`y = by - 4 .. by - 1`) while leaping in shock!
+    art(
+      g,
+      bx + 4,
+      by - 4,
+      [
+        '..r..',
+        '.ryr.',
+        'rroor',
+        'wyyoo',
+      ],
+      { w: WT, y: Y, o: OR, r: R },
+    )
+  } else if (headFire === 4) {
+    // Whipped sideways flame putting itself out as he shakes mid-air.
+    art(
+      g,
+      bx + 3,
+      by - 3,
+      [
+        'r.r..',
+        '.yoor',
+        '.wyyo',
+      ],
+      { w: WT, y: Y, o: OR, r: R },
+    )
+  } else if (headSmoke === 1) {
+    box(g, bx + 5, by, 3, 1, D)
+    put(g, bx + 5, by - 1, G)
+    put(g, bx + 6, by - 2, L)
+    put(g, bx + 7, by - 3, G)
+  } else if (headSmoke === 2) {
+    put(g, bx + 5, by, D)
+    put(g, bx + 6, by - 2, L)
+  }
+
+  if (alert) {
+    glyph(g, '!', bx + 11, Math.max(0, by - 2), WT)
+  }
+
+  // Underslung heavy flamethrower gripped cleanly at waist (`y = by + 5`) below eyes.
+  const gx = bx + 5
+  const gy = by + 5
+  box(g, bx + 4, gy - 1, 2, 2, lit ? S : B) // near rear trigger claw
+  box(g, gx, gy, 7, 2, D)
+  box(g, gx + 2, gy, 3, 1, lit ? B : L) // perforated cooling jacket
+  box(g, bx + 10, gy - 1, 2, 2, lit ? MB : B) // far hand steadying barrel
+  box(g, gx + 5, gy - 1, 2, 3, lit ? OR : G) // flared igniter bell (`x = bx + 10..11`)
+  put(g, gx + 7, gy, isFiring || eyes === 'fierce' ? Y : OR) // live pilot spark
+
+  // Green bug -> sizzling scorched shell -> smoking ash pile on the right (`x = 19..22`).
+  if (bugState === 'crawl' || bugState === 'panic') {
+    box(g, bugX, 15, 3, 2, GR)
+    put(g, bugX, 14, GR)
+    put(g, bugX + 2, 14, GR)
+    put(g, bugX, 17, K)
+    put(g, bugX + 2, 17, K)
+    if (bugState === 'panic') {
+      put(g, bugX + 1, 11, WT)
+      put(g, bugX + 1, 13, WT)
+    }
+  } else if (bugState === 'toast') {
+    box(g, bugX, 16, 3, 1, D)
+    put(g, bugX + 1, 15, OR)
+    put(g, bugX + 2, 17, R)
+  } else if (bugState === 'ash') {
+    box(g, bugX, 16, 3, 1, G)
+    put(g, bugX + 1, 16, D)
+    put(g, bugX + 1, 14 - (steam % 2), L)
+    if (steam % 2 === 0) put(g, bugX + 2, 12, G)
+  }
+
+  // Rolling napalm fire stream strictly centered on nozzle bell (`y = gy-1..gy+1` = `13..15`).
+  const fx = gx + 7
+  if (fire === 1) {
+    art(
+      g,
+      fx,
+      gy - 3,
+      [
+        '......yy..',
+        '..wwyyoor.',
+        'wwwyyooorr',
+        'wwwyyooorr',
+        'wwyyooorr.',
+        '....roor..',
+      ],
+      { w: WT, y: Y, o: OR, r: R },
+    )
+  } else if (fire >= 2 && fire <= 5) {
+    const maps = [
+      [
+        '.......d.r.',
+        '.....ddryo.',
+        '....rryooor',
+        '...yyoooor.',
+        '...yyoooorr',
+        '..wyyoooorr',
+        '..wwyyyooor',
+        '.wwwyyyooor',
+        '.wwwyyyyoor',
+        'wwwwyyyyoor',
+        'wwwwyyyyoor',
+        'wwwwyyyooor',
+        '..wwyyooorr',
+        '....rooorr.',
+      ],
+      [
+        '......d..r.',
+        '....dryoor.',
+        '...rryooor.',
+        '..yyoooorr.',
+        '..wyyoooorr',
+        '..wyyyooorr',
+        '.wwwyyyooor',
+        '.wwwyyyooor',
+        'wwwwyyyyoor',
+        'wwwwyyyyoor',
+        'wwwwyyyooor',
+        'wwyyoooorr.',
+        '...rooorr..',
+        '....rrr....',
+      ],
+      [
+        '........d..',
+        '.....drryo.',
+        '....ryoooor',
+        '...yyoooor.',
+        '...yyoooorr',
+        '..wyyoooorr',
+        '.wwyyyooorr',
+        '.wwwyyyooor',
+        '.wwwyyyyoor',
+        'wwwwyyyyoor',
+        'wwwwyyyyoor',
+        'wwwyyyooorr',
+        '..wyyooorr.',
+        '....roor...',
+      ],
+      [
+        '.....d.r...',
+        '....dryoor.',
+        '...rryooorr',
+        '..ryoooorr.',
+        '..wyyoooorr',
+        '.wwyyoooorr',
+        '.wwwyyyooor',
+        '.wwwyyyyoor',
+        'wwwwyyyyoor',
+        'wwwwyyyyoor',
+        'wwwyyyooorr',
+        '..wwyoooorr',
+        '...rooorr..',
+        '....rrr....',
+      ],
+    ]
+    art(g, fx, 4, maps[(fire - 2) % maps.length], { w: WT, y: Y, o: OR, r: R, d: D })
+    put(g, Math.min(23, fx + 8 + (fire % 3)), 2, OR)
+    put(g, Math.min(23, fx + 6 + (fire % 4)), 17, R)
+  } else if (fire === 6) {
+    art(
+      g,
+      16,
+      5,
+      [
+        '.d.d..',
+        '..ooyo',
+        '..oorr',
+        '...ro.',
+      ],
+      { y: Y, o: OR, r: R, d: D },
+    )
+    put(g, fx + 1, gy - 1, L)
+  } else if (steam) {
+    put(g, fx + 1 + (steam % 2), gy - 1 - (steam % 2), L)
+  }
+}
+HELD.add('flamethrower')
+HATLESS.add('error.flamethrower')
+
+// Helper to draw clean diagonal/horizontal manga slash lines across the dark canvas.
+const drawSlashLine = (g, x0, y0, x1, y1, core, aura) => {
+  const steps = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0))
+  for (let i = 0; i <= steps; i++) {
+    const t = steps === 0 ? 0 : i / steps
+    const x = Math.round(x0 + (x1 - x0) * t)
+    const y = Math.round(y0 + (y1 - y0) * t)
+    if (aura) put(g, x, y + 1, aura)
+    if (core) put(g, x, y, core)
+  }
+}
+
+// 2) DONE.KATANA — 45-60 deg 3/4 Samurai Clawd:
+// focus & thumb pop -> radiant unsheathe aura flash -> inverted anime impact flicker
+// -> pitch-dark sequential razor slashes -> clean front-space *SHING!* sheathe.
+PROPS.katana = (
+  g,
+  { bx = 1, sq = 0, eyes = 'open', legs = 'stand', pose = 'draw', blade = 0, aura = false, glint = false, flash = '', darkSlash = 0, click = false, petalY } = {},
+) => {
+  // Inverted / strobe impact flashes ("toàn phần khung nhấp nháy, tối lại").
+  if (flash === 'invert') {
+    box(g, 0, 0, W, 18, WT)
+    // Crisp black 3/4 Clawd silhouette with headband tail mid-dash + diagonal slash cleave.
+    box(g, 8, 9, 10, 7, K)
+    put(g, 6, 10, K)
+    put(g, 7, 9, K)
+    box(g, 9, 16, 1, 2, K)
+    box(g, 11, 16, 1, 2, K)
+    box(g, 14, 16, 1, 2, K)
+    box(g, 16, 16, 1, 2, K)
+    put(g, 12, 11, WT)
+    put(g, 16, 11, WT)
+    drawSlashLine(g, 0, 14, 23, 2, K, BL)
+    return
+  }
+  if (flash === 'strobe') {
+    box(g, 0, 0, W, 18, K)
+    box(g, 1, 3, W - 2, 1, WT)
+    box(g, 3, 14, W - 6, 1, D)
+    box(g, 11, 9, 10, 7, D)
+    put(g, 9, 10, D)
+    put(g, 10, 9, D)
+    box(g, 12, 16, 1, 2, D)
+    box(g, 14, 16, 1, 2, D)
+    box(g, 17, 16, 1, 2, D)
+    box(g, 19, 16, 1, 2, D)
+    put(g, 15, 11, WT)
+    put(g, 19, 11, WT)
+    return
+  }
+  if (flash === 'snap') {
+    box(g, 0, 0, W, 18, WT)
+    drawSlashLine(g, 0, 15, 23, 2, BL, K)
+    return
+  }
+
+  // Pitch-dark manga sequence: razor cuts appear one by one while previous scars fade.
+  if (darkSlash > 0) {
+    box(g, 0, 0, W, 18, K)
+    // Crouched 3/4 dark samurai silhouette in lower right (`x=13..22`), crisp proportions.
+    box(g, 13, 10, 9, 6, D)
+    put(g, 11, 11, D)
+    put(g, 12, 10, D)
+    put(g, 14, 16, D)
+    put(g, 16, 16, D)
+    put(g, 19, 16, D)
+    put(g, 21, 16, D)
+    put(g, 17, 12, WT)
+    put(g, 20, 12, Y)
+
+    if (darkSlash === 1) {
+      drawSlashLine(g, 0, 15, 22, 1, WT, BL)
+      put(g, 22, 1, Y)
+    } else if (darkSlash === 2) {
+      drawSlashLine(g, 0, 15, 22, 1, BL, 0)
+      drawSlashLine(g, 2, 1, 22, 13, WT, BL)
+      box(g, 10, 7, 2, 2, Y)
+    } else if (darkSlash === 3) {
+      drawSlashLine(g, 0, 15, 22, 1, D, 0)
+      drawSlashLine(g, 2, 1, 22, 13, BL, 0)
+      drawSlashLine(g, 0, 6, 23, 6, WT, BL)
+      put(g, 0, 6, WT)
+      put(g, 23, 6, WT)
+    } else if (darkSlash === 4) {
+      drawSlashLine(g, 0, 6, 23, 6, BL, 0)
+      drawSlashLine(g, 5, 16, 18, 0, WT, BL)
+      drawSlashLine(g, 13, 0, 23, 9, WT, Y)
+      put(g, 14, 5, WT)
+      put(g, 16, 4, Y)
+    } else if (darkSlash >= 5) {
+      drawSlashLine(g, 5, 16, 18, 0, BL, 0)
+      drawSlashLine(g, 0, 6, 23, 6, D, 0)
+      drawSlashLine(g, 13, 0, 23, 9, D, 0)
+    }
+
+    if (darkSlash >= 4) {
+      put(g, 4, darkSlash === 4 ? 3 : 5, PK)
+      put(g, 19, darkSlash === 4 ? 4 : 6, PK)
+      if (darkSlash >= 5) {
+        put(g, 8, 10, PK)
+        put(g, 22, 11, PK)
+      }
+    }
+    return
+  }
+
+  // Radiant unsheathe aura star burst right as the katana snaps free!
+  if (aura) {
+    box(g, bx + 9, 1, 1, 16, BL)
+    box(g, bx + 10, 3, 1, 12, WT)
+    box(g, 0, 11, 23, 1, BL)
+    box(g, 2, 12, 19, 1, WT)
+    drawSlashLine(g, bx + 3, 4, bx + 16, 16, BL, 0)
+    drawSlashLine(g, bx + 16, 4, bx + 3, 16, BL, 0)
+  }
+
+  draw34Clawd(g, { x: bx, y: BY, sq, lit: aura ? 'fire' : false, eyes, legs, headband: true })
+
+  // Trailing red headband ribbon tail behind 3/4 Clawd.
+  const hy = BY + sq
+  if (bx > 0) put(g, bx - 1, hy + (sq ? 0 : 1), R)
+  if (bx > 1) put(g, bx - 2, hy + 1, R)
+
+  const wy = hy + (sq ? 5 : 6)
+  if (pose === 'draw') {
+    // Scabbard angled cleanly across his waist (`x = bx-1..bx+7`), tsuba + hilt on right front.
+    box(g, Math.max(0, bx - 1), wy, 7, 1, K)
+    put(g, bx + 6, wy, Y) // gold tsuba guard
+    if (blade > 0) {
+      box(g, bx + 7, wy, blade, 1, WT)
+    }
+    box(g, bx + 7 + blade, wy, 2, 1, D)
+    box(g, bx + 5, wy - 1, 2, 2, B)
+    if (glint) {
+      put(g, bx + 6, wy - 1, WT)
+      put(g, bx + 7, wy - 2, Y)
+    }
+  } else if (pose === 'unsheathe') {
+    // Swept forward high diagonal katana flashing at apex of the aura!
+    box(g, Math.max(0, bx - 1), wy, 7, 1, K)
+    drawSlashLine(g, bx + 9, wy - 1, bx + 16, wy - 8, WT, BL)
+    put(g, bx + 8, wy, Y)
+    box(g, bx + 7, wy - 1, 2, 2, MB)
+  } else if (pose === 'sheathe') {
+    // Calm on right (`bx = 12`), scabbard held at front hip (`x = 12..19`) while steel blade
+    // slides in cleanly across open left space (`x = 7..11`) -> crisp *CLICK!* clear of eyes.
+    box(g, bx, wy, 8, 1, K)
+    put(g, bx, wy, Y) // gold tsuba right at leading front edge (`x = 12`)
+    if (blade > 0) {
+      box(g, Math.max(0, bx - blade), wy, blade, 1, WT)
+      put(g, Math.max(0, bx - blade - 1), wy, BL)
+    }
+    box(g, bx + 1, wy - 1, 2, 2, B)
+    if (click) {
+      put(g, bx, wy - 2, WT)
+      put(g, bx - 1, wy - 1, Y)
+      put(g, bx + 1, wy - 1, Y)
+      put(g, bx, wy, WT)
+      put(g, bx, wy + 1, Y)
+    }
+  }
+
+  if (petalY !== undefined) {
+    put(g, 3, petalY, PK)
+    put(g, 22, Math.min(16, petalY + 2), PK)
+    put(g, 8, Math.min(16, petalY + 3), PK)
+  }
+}
+HELD.add('katana')
+HATLESS.add('done.katana')
+
+// 3) RUNNING.BAZOOKA — 45-60 deg 3/4 Clawd fires RPG rocket completely off-screen,
+// gets slammed straight onto the floor and rolls backwards across the ground via
+// momentum (no balloon float or shape warp), pancakes flat, then lifts his chin
+// peeking 1-eye-closed / 1-eye-open right as the distant explosion wave arrives.
+const drawGroundRoll = (g, bx, roll) => {
+  if (roll === 1) {
+    // 90 deg CCW on ground (`8x8`, y=10..17): face tilted up-left, eyes stacked vertically on left!
+    box(g, bx, 10, 8, 6, B)
+    box(g, bx, 16, 8, 2, S)
+    box(g, bx + 1, 11, 2, 1, K)
+    box(g, bx + 1, 14, 2, 1, K)
+    // Tucked foot bumps neatly along right side (`col 7`).
+    put(g, bx + 7, 10, S)
+    put(g, bx + 7, 17, S)
+  } else if (roll === 2) {
+    // 180 deg upside-down on ground (`8x8`, y=10..17): back shaded top, tucked feet at top edge!
+    box(g, bx, 10, 8, 2, S)
+    box(g, bx, 12, 8, 6, B)
+    box(g, bx + 2, 15, 1, 2, K)
+    box(g, bx + 5, 15, 1, 2, K)
+    put(g, bx + 1, 9, S)
+    put(g, bx + 6, 9, B)
+  } else if (roll === 3) {
+    // 270 deg on ground (`8x8`, y=10..17): eyes rotated onto front/right face!
+    box(g, bx, 10, 8, 2, S)
+    box(g, bx, 12, 8, 6, B)
+    box(g, bx + 5, 11, 2, 1, K)
+    box(g, bx + 5, 14, 2, 1, K)
+    put(g, bx, 10, S)
+    put(g, bx, 17, S)
+  } else if (roll === 4) {
+    // Final 360 deg ground skid (`9x7`, y=11..17) flattening forward onto belly!
+    box(g, bx, 11, 2, 7, S)
+    box(g, bx + 2, 11, 7, 7, B)
+    put(g, bx + 3, 13, K)
+    put(g, bx + 4, 14, K)
+    put(g, bx + 7, 13, K)
+    put(g, bx + 6, 14, K)
+  }
+}
+
+const drawSplatClawd = (g, bx, splatMode, lit, eyes) => {
+  // Pure pitch-black silhouette inside peak white-out shockwave (`lit === 'black'`).
+  if (lit === 'black') {
+    box(g, bx, 12, 10, 6, K)
+    put(g, Math.max(0, bx - 1), 16, K)
+    put(g, Math.max(0, bx - 1), 17, K)
+    return
+  }
+
+  const backC = lit === 'charred' ? K : lit === 'dim' ? K : lit === 'boom' ? D : lit ? DR : S
+  const midC = lit === 'charred' ? D : lit === 'dim' ? D : lit === 'boom' ? S : B
+  const rimC = lit === 'charred' ? G : lit === 'dim' ? G : lit ? MB : B
+
+  if (splatMode === 'flat') {
+    box(g, bx, 13, 2, 5, backC)
+    box(g, bx + 2, 13, 8, 5, midC)
+    box(g, bx + 3, 15, 2, 1, K)
+    box(g, bx + 7, 15, 2, 1, K)
+    return
+  }
+
+  // Chest/chin propped up (`10x6`, y=12..17) preserving Clawd's clean rectangular form.
+  box(g, bx, 12, 2, 6, backC)
+  box(g, bx + 2, 12, 6, 6, midC)
+  box(g, bx + 8, 12, 2, 6, rimC)
+  if (lit === 'dim') {
+    box(g, bx + 9, 12, 1, 6, WT)
+    put(g, bx + 3, 14, L)
+    put(g, bx + 4, 14, L)
+    box(g, bx + 7, 13, 1, 2, WT)
+    return
+  }
+  if (lit === 'charred') {
+    // Stunned blinking white eyes on soot-darkened face!
+    box(g, bx + 3, 13, 2, 2, WT)
+    box(g, bx + 7, 13, 2, 2, WT)
+    put(g, bx + 4, 14, K)
+    put(g, bx + 8, 14, K)
+    return
+  }
+  if (lit) box(g, bx, 12, 5, 1, lit === 'boom' ? D : DR)
+  if (lit === 'fire' || lit === 'boom') {
+    put(g, bx + 9, 12, Y)
+    put(g, bx + 9, 17, Y)
+    if (lit === 'boom') put(g, bx + 9, 13, WT)
+  }
+
+  if (eyes === 'peekUp') {
+    box(g, bx + 3, 14, 2, 1, K)
+    box(g, bx + 7, 13, 2, 2, K)
+    put(g, bx + 8, 13, WT)
+  } else if (eyes === 'wink') {
+    box(g, bx + 3, 14, 2, 1, K)
+    put(g, bx + 6, 14, K)
+    put(g, bx + 7, 13, K)
+    put(g, bx + 8, 14, K)
+  }
+}
+
+const drawNuclearSky = (g, phase) => {
+  // Huge-radius distant horizon light & shockwave wall centered far off-screen
+  // (`cx = 40`) so wavefronts curve gently (~2px across 18 rows) instead of tight circles.
+  const cx = 40
+  const cy = 11
+  for (let y = 0; y < 18; y++) {
+    for (let x = 0; x < W; x++) {
+      const d = Math.hypot(cx - x, (cy - y) * 0.85)
+      if (phase === 1) {
+        if (d < 18) put(g, x, y, WT)
+        else if (d < 19.5) put(g, x, y, Y)
+        else if (d < 21.5) put(g, x, y, OR)
+        else if (d < 23.5) put(g, x, y, DR)
+      } else if (phase === 2) {
+        if (d < 21) put(g, x, y, WT)
+        else if (d < 23.5) put(g, x, y, Y)
+        else if (d < 25.5) put(g, x, y, OR)
+        else if (d < 27.5) put(g, x, y, R)
+        else if (d < 29.5) put(g, x, y, DR)
+      } else if (phase === 3) {
+        if (d < 29) put(g, x, y, WT)
+        else if (d < 31.5) put(g, x, y, Y)
+        else if (d < 34) put(g, x, y, OR)
+        else if (d < 36) put(g, x, y, R)
+        else if (d < 38) put(g, x, y, DR)
+      } else if (phase === 4) {
+        if (d < 39) put(g, x, y, WT)
+        else if (d < 42) put(g, x, y, Y)
+        else put(g, x, y, OR)
+      } else if (phase === 5) {
+        if (d < 20) put(g, x, y, OR)
+        else if (d < 23) put(g, x, y, R)
+        else if (d < 26) put(g, x, y, DR)
+      }
+    }
+  }
+
+  if (phase === 2) {
+    // Broad gently-bowed leading shockwave crescent (`WT` + `BL`) sweeping leftward.
+    for (let y = 0; y < 18; y++) {
+      const rx = Math.round(13 + Math.pow((y - 10) / 10, 2) * 2.5)
+      if (rx >= 0 && rx < W) {
+        put(g, rx, y, WT)
+        if (rx + 1 < W) put(g, rx + 1, y, BL)
+      }
+    }
+  } else if (phase === 3) {
+    // Broad distant Mach wave crest (`Y`/`WT`/`BL`) + kicked ground grit slamming past Clawd.
+    for (let y = 0; y < 18; y++) {
+      const sx = Math.round(7 + Math.pow((y - 10) / 10, 2) * 2.5)
+      if (sx >= 0 && sx < W) {
+        put(g, sx, y, WT)
+        if (sx + 1 < W) put(g, sx + 1, y, BL)
+        if (sx - 1 >= 0) put(g, sx - 1, y, Y)
+      }
+    }
+    put(g, 5, 17, OR)
+    put(g, 6, 16, Y)
+    put(g, 11, 16, Y)
+    put(g, 12, 17, OR)
+  } else if (phase === 4) {
+    box(g, 1, 3, 6, 1, Y)
+    box(g, 10, 5, 7, 1, BL)
+    box(g, 2, 8, 8, 1, OR)
+    box(g, 13, 10, 8, 1, Y)
+    box(g, 12, 15, 9, 1, BL)
+    put(g, 0, 16, Y)
+  } else if (phase === 5) {
+    put(g, 21, 6, Y)
+    put(g, 19, 11, OR)
+    put(g, 22, 15, Y)
+  }
+}
+
+PROPS.bazooka = (
+  g,
+  { bx = 8, y = BY, sq = 0, roll = 0, splat = '', lit = false, eyes = 'open', legs = 'stand', tube = 'shoulder', warhead = true, blast = false, rocketX, skyLight = 0, boom = 0, dust = 0 } = {},
+) => {
+  if (skyLight > 0) drawNuclearSky(g, skyLight)
+
+  if (roll > 0) {
+    drawGroundRoll(g, bx, roll)
+  } else if (splat) {
+    drawSplatClawd(g, bx, splat, lit, eyes)
+  } else {
+    draw34Clawd(g, { x: bx, y, sq, lit, eyes, legs })
+  }
+
+  if (tube === 'shoulder') {
+    const tx = bx - 3
+    const ty = y + sq - 2
+    box(g, tx, ty, 2, 3, D)
+    box(g, tx + 2, ty, 9, 2, GR)
+    box(g, tx + 2, ty + 2, 9, 1, D)
+    put(g, tx + 9, ty - 1, Y)
+    box(g, bx + 4, ty + 2, 2, 2, lit ? MB : B)
+    if (warhead) {
+      box(g, tx + 11, ty + 1, 2, 1, L)
+      box(g, tx + 12, ty, 2, 3, R)
+      put(g, tx + 14, ty + 1, R)
+    }
+    if (blast) {
+      put(g, tx + 11, ty + 1, WT)
+      put(g, tx + 12, ty, Y)
+      put(g, tx + 12, ty + 2, Y)
+      art(
+        g,
+        0,
+        ty - 2,
+        [
+          'rr...',
+          'oorw.',
+          'yoorw',
+          'yyorw',
+          'yoorw',
+          'oorw.',
+          'rr...',
+        ],
+        { w: WT, y: Y, o: OR, r: R },
+      )
+    }
+  } else if (tube === 'withClawd') {
+    // Still clutching the launcher across himself as knockback slams him backward!
+    drawSlashLine(g, bx - 1, 13, bx + 6, 8, GR, D)
+    box(g, bx - 2, 13, 2, 2, D)
+    box(g, bx + 2, 11, 2, 2, B)
+  } else if (tube === 'flyLeft') {
+    // Hit dirt -> launcher whips backward & exits off the far-left edge!
+    box(g, 0, 12, 3, 2, GR)
+    box(g, 0, 14, 3, 1, D)
+    put(g, 3, 12, G)
+  } else if (tube === 'pullLeft') {
+    // Reaches back left edge to hoist the RPG back up onto shoulder.
+    box(g, 0, 12, 5, 2, GR)
+    box(g, 0, 14, 5, 1, D)
+    box(g, bx, 12, 2, 2, B)
+  }
+
+  // Speeding rocket ONLY on firing / exit beat before tumbling!
+  if (rocketX !== undefined && rocketX < W) {
+    box(g, rocketX, 6, 3, 2, WT)
+    if (rocketX + 3 < W) {
+      put(g, rocketX + 3, 6, R)
+      put(g, rocketX + 3, 7, R)
+    }
+    if (rocketX - 1 >= 0) put(g, rocketX - 1, 6, Y)
+    if (rocketX - 2 >= 0) put(g, rocketX - 2, 7, L)
+  }
+
+  // Ground dirt & rolling dust clouds (no anime speed-lines!).
+  if (dust === 1) {
+    // Dirt kicking up behind knockback launch onto floor.
+    box(g, bx + 8, 16, 2, 2, G)
+    put(g, bx + 9, 15, L)
+    put(g, bx + 11, 17, BR)
+  } else if (dust === 2) {
+    // Heavy ground impact dirt burst as Clawd hits floor & gun flies off!
+    box(g, bx + 7, 15, 3, 3, G)
+    put(g, bx + 6, 14, L)
+    put(g, bx + 8, 14, L)
+    put(g, bx + 10, 16, L)
+    put(g, bx + 11, 17, BR)
+  } else if (dust === 3) {
+    // Rolling skid dirt tumbling off the floor.
+    box(g, bx + 8, 16, 2, 2, L)
+    put(g, bx + 7, 15, G)
+    put(g, bx + 10, 17, G)
+  } else if (dust === 4) {
+    // Pancake belly-slam dirt puffs kicking both sides.
+    put(g, 0, 16, L)
+    put(g, 10, 16, L)
+    put(g, 11, 17, G)
+  }
+
+  // DISTANT RIGHT-EDGE HORIZON EXPLOSION (`x = 17..23`), smaller horizon scale
+  // so it looks FAR AWAY, with shockwave wind skimming left toward Clawd!
+  if (boom === 1) {
+    art(
+      g,
+      19,
+      6,
+      [
+        '..www',
+        '.ywww',
+        'yywww',
+        'yywww',
+        '.yyww',
+        '..yww',
+        '..yow',
+        '.yoor',
+        'ooorr',
+      ],
+      { w: WT, y: Y, o: OR, r: R },
+    )
+    put(g, 18, 9, WT)
+    put(g, 17, 13, Y)
+  } else if (boom === 2) {
+    art(
+      g,
+      17,
+      4,
+      [
+        '..yyyww',
+        '.yoowww',
+        'rooorww',
+        'rroorrw',
+        '.rrryyw',
+        '...yyoo',
+        '...yyow',
+        '..yooor',
+        '..ooorr',
+        '.ooorrr',
+        'rrrrrr.',
+      ],
+      { w: WT, y: Y, o: OR, r: R },
+    )
+    // Shockwave gust sweeping left across ground (`x = 12..15`).
+    put(g, 15, 16, Y)
+    put(g, 14, 17, OR)
+    put(g, 12, 15, L)
+  } else if (boom === 3) {
+    art(
+      g,
+      17,
+      3,
+      [
+        '..dddd.',
+        '.doorrd',
+        'drrorrd',
+        'ddrrord',
+        '.dddrrd',
+        '...yor.',
+        '..ryor.',
+        '..roorr',
+        '..drord',
+        '.ddrorr',
+        '.ddddrd',
+      ],
+      { y: Y, o: OR, r: R, d: D },
+    )
+    put(g, 15, 17, OR)
+    put(g, 11, 14, L)
+  } else if (boom === 4) {
+    art(
+      g,
+      18,
+      3,
+      [
+        '.ggddd',
+        'gddrrd',
+        'gdrrrd',
+        '.gddd.',
+        '..drd.',
+        '..drd.',
+        '..gdd.',
+        '..gdg.',
+        '.ggdg.',
+        '.dddd.',
+      ],
+      { r: R, d: D, g: G },
+    )
+  } else if (boom === 5) {
+    // Wispy embers & faint smoke tendrils drifting on right horizon.
+    put(g, 20, 7, L)
+    put(g, 22, 9, G)
+    put(g, 21, 11, G)
+    put(g, 23, 13, D)
+    put(g, 22, 15, OR)
+    put(g, 20, 16, G)
+  }
+}
+HELD.add('bazooka')
+HATLESS.add('running.bazooka')
+
+// 4) IDLE.YOGA — Pure boxy Clawd yoga comedy: calm deep breath -> lowers into wide splits
+// trying hard to grab his splayed feet -> snaps & flips headfirst into an accidental
+// no-hands Headstand (`clawdFlipped`, arms mid-air, all 4 legs straight UP!).
+const YOGA_MAP = { B, K, W: WT, L }
+
+const YOGA_POSES = {
+  // Frame 3: lowers onto mat starting wide splits, arms reaching outward, >.< strain.
+  split1: [
+    '........................',
+    '........................',
+    '......BBBBBBBBBBBB......',
+    '......BBBBBBBBBBBB......',
+    '......BBKBBBBBBKBB......',
+    '......BBKBBBBBBKBB......',
+    '....BBBBBBBBBBBBBBBB....',
+    '....BBBBBBBBBBBBBBBB....',
+    '......BBBBBBBBBBBB......',
+    '....BBBB..B..B..BBBB....',
+  ],
+  // Frames 4-5: wide splits flat along the cyan mat, arms reaching down toward splayed feet.
+  split2: [
+    '........................',
+    '........................',
+    '......BBBBBBBBBBBB......',
+    '......BKBBBBBBBBKB......',
+    '......BBKBBBBBBKBB......',
+    '......BKBBBBBBBBKB......',
+    '....BBBBBBBBBBBBBBBB....',
+    '....BBBBBBBBBBBBBBBB....',
+    '......BBBBBBBBBBBB......',
+    '....BBBB..B..B..BBBB....',
+  ],
+  // Frames 6-7: MAX splits stretch — arms reach all the way down to clutch splayed feet!
+  split3: [
+    '........................',
+    '........................',
+    '......BBBBBBBBBBBB......',
+    '......BKBBBBBBBBKB......',
+    '......BBKBBBBBBKBB......',
+    '......BKBBBBBBBBKB......',
+    '......BBBBBBBBBBBB......',
+    '....BBBBBBBBBBBBBBBB....',
+    '....BBBBBBBBBBBBBBBB....',
+    '....BBBB..B..B..BBBB....',
+  ],
+  // Frame 8: *SNAP!* Springs up flipping inverted mid-air, 4 legs straight up, arms tucked mid-body!
+  flop1: [
+    '.......B.B....B.B.......',
+    '.......B.B....B.B.......',
+    '......BBBBBBBBBBBB......',
+    '......BBBBBBBBBBBB......',
+    '....BBBBBBBBBBBBBBBB....',
+    '....BBBBBBBBBBBBBBBB....',
+    '......BBKBBBBBBKBB......',
+    '......BBKBBBBBBKBB......',
+    '......BBBBBBBBBBBB......',
+    '.......W........W.......',
+  ],
+  // Frame 9: slams cleanly crown-first onto cyan mat, all 4 legs straight up, NO hands on ground!
+  flop2: [
+    '........................',
+    '.......B.B....B.B.......',
+    '.......B.B....B.B.......',
+    '......BBBBBBBBBBBB......',
+    '......BBBBBBBBBBBB......',
+    '....BBBBBBBBBBBBBBBB....',
+    '....BBBBBBBBBBBBBBBB....',
+    '......BBKBBBBBBKBB......',
+    '......BBKBBBBBBKBB......',
+    '.....LBBBBBBBBBBBBL.....',
+  ],
+}
+
+PROPS.yoga = (
+  g,
+  {
+    pose = 'mat',
+    dx = 0,
+    sweat = 0,
+    alert = false,
+    dizzy = 0,
+    sparkle = 0,
+    breath = false,
+    thud = false,
+  } = {},
+) => {
+  // Calm cyan yoga mat along floor (`y = 17`) with rolled bolster on left (`x = 2..3`).
+  box(g, 4, 17, 16, 1, BL)
+  box(g, 2, 16, 2, 2, NV)
+  put(g, 2, 16, BL)
+
+  if (breath) {
+    put(g, 5, 5, L)
+    put(g, 18, 5, L)
+  }
+
+  const rows = YOGA_POSES[pose]
+  if (rows) art(g, dx, pose === 'flop1' ? 4 : 7, rows, YOGA_MAP)
+
+  if (sweat >= 1) {
+    put(g, 3 + dx, 10, BL)
+    put(g, 20 + dx, 10, BL)
+  }
+  if (sweat >= 2) {
+    put(g, 2 + dx, 12, BL)
+    put(g, 21 + dx, 12, BL)
+  }
+  if (sweat >= 3) {
+    put(g, 1 + dx, 14, BL)
+    put(g, 22 + dx, 14, BL)
+  }
+  if (alert) glyph(g, '!', 20, 4, WT)
+  if (thud) {
+    put(g, 3, 16, L); put(g, 4, 15, WT)
+    put(g, 19, 15, WT); put(g, 20, 16, L)
+  }
+  if (dizzy === 1) {
+    put(g, 7, 4, Y); put(g, 16, 5, WT)
+  } else if (dizzy === 2) {
+    put(g, 11, 4, WT); put(g, 18, 5, Y)
+  }
+  if (sparkle === 1) {
+    put(g, 4, 7, Y); put(g, 19, 8, WT); put(g, 12, 3, Y)
+  } else if (sparkle === 2) {
+    put(g, 5, 8, WT); put(g, 18, 7, Y); put(g, 12, 4, WT)
+  }
+}
+HATLESS.add('idle.yoga')
+
+Object.assign(ANIMS, {
+  // Error Flamethrower: 45-60 deg 3/4 Clawd roasts green bug with huge napalm wall,
+  // smugly grins while an ember ignites his crown, then leaps sky-high in buggy-eyed shock!
+  'error.flamethrower': {
+    ms: 120,
+    frames: [
+      { hide: true, props: [['flamethrower', { bx: 2, eyes: 'open', bugX: 21, bugState: 'crawl' }]] },
+      { hide: true, props: [['flamethrower', { bx: 2, eyes: 'open', bugX: 20, bugState: 'crawl' }]] },
+      { hide: true, props: [['flamethrower', { bx: 2, eyes: 'fierce', bugX: 19, bugState: 'panic' }]] },
+      { hide: true, props: [['flamethrower', { bx: 2, sq: 1, lit: 'fire', eyes: 'wince', fire: 1, bugX: 20, bugState: 'panic' }]] },
+      ...loop(7, n => ({
+        hide: true,
+        props: [[
+          'flamethrower',
+          {
+            bx: n % 2 ? 1 : 2,
+            sq: 1,
+            lit: 'fire',
+            eyes: 'wince',
+            fire: 2 + (n % 4),
+            bugX: 20,
+            bugState: n < 4 ? 'panic' : 'toast',
+          },
+        ]],
+      })),
+      { hide: true, props: [['flamethrower', { bx: 2, lit: 'warm', eyes: 'open', fire: 6, bugX: 20, bugState: 'ash', steam: 1 }]] },
+      // Thinks the job is totally done: smug grin & relieved sigh while ash smokes cleanly.
+      { hide: true, props: [['flamethrower', { bx: 2, eyes: 'happy', bugX: 20, bugState: 'ash', steam: 2 }]] },
+      { hide: true, props: [['flamethrower', { bx: 2, eyes: 'closed', bugX: 20, bugState: 'ash', steam: 3 }]] },
+      // Suddenly his own crown catches fire (`headFire: 1 -> 2`)!
+      { hide: true, props: [['flamethrower', { bx: 2, eyes: 'wink', headFire: 1, bugX: 20, bugState: 'ash', steam: 4 }]] },
+      { hide: true, props: [['flamethrower', { bx: 2, eyes: 'wide', headFire: 2, bugX: 20, bugState: 'ash', steam: 5 }]] },
+      // GIANT STARTLED JUMP + BUGGED-OUT SHOCK EYES (`!`)!
+      { hide: true, props: [['flamethrower', { bx: 2, dy: -3, legs: 'tuck', eyes: 'shock', headFire: 3, alert: true, bugX: 20, bugState: 'ash', steam: 1 }]] },
+      { hide: true, props: [['flamethrower', { bx: 1, dy: -2, legs: 'tuck', eyes: 'shock', headFire: 4, alert: true, bugX: 20, bugState: 'ash', steam: 2 }]] },
+      // Drops back to floor with a heavy thud & singed smoking crown!
+      { hide: true, props: [['flamethrower', { bx: 2, sq: 1, eyes: 'shock', headSmoke: 1, bugX: 20, bugState: 'ash', steam: 3 }]] },
+      { hide: true, props: [['flamethrower', { bx: 2, eyes: 'wince', headSmoke: 2, bugX: 22, bugState: 'crawl' }]] },
+    ],
+  },
+  // Done Katana: 45-60 deg 3/4 samurai crouch -> thumb pop glint -> radiant
+  // unsheathe aura -> inverted impact strobe -> pitch-dark sequential slashes -> *SHING!* sheathe.
+  'done.katana': {
+    ms: 115,
+    frames: [
+      { hide: true, props: [['katana', { bx: 1, eyes: 'open', pose: 'draw' }]] },
+      { hide: true, props: [['katana', { bx: 1, sq: 1, eyes: 'closed', pose: 'draw' }]] },
+      { hide: true, props: [['katana', { bx: 1, sq: 1, eyes: 'fierce', pose: 'draw', blade: 2, glint: true }]] },
+      { hide: true, props: [['katana', { bx: 3, sq: 1, eyes: 'fierce', legs: 'lunge', pose: 'unsheathe', aura: true }]] },
+      { hide: true, props: [['katana', { flash: 'invert' }]] },
+      { hide: true, props: [['katana', { flash: 'strobe' }]] },
+      { hide: true, props: [['katana', { darkSlash: 1 }]] },
+      { hide: true, props: [['katana', { darkSlash: 2 }]] },
+      { hide: true, props: [['katana', { darkSlash: 3 }]] },
+      { hide: true, props: [['katana', { darkSlash: 4 }]] },
+      { hide: true, props: [['katana', { darkSlash: 5 }]] },
+      { hide: true, props: [['katana', { flash: 'snap' }]] },
+      { hide: true, props: [['katana', { bx: 12, eyes: 'closed', pose: 'sheathe', blade: 5, petalY: 4 }]] },
+      { hide: true, props: [['katana', { bx: 12, eyes: 'closed', pose: 'sheathe', blade: 2, petalY: 7 }]] },
+      { hide: true, props: [['katana', { bx: 12, eyes: 'wink', pose: 'sheathe', blade: 0, click: true, petalY: 10 }]] },
+      { hide: true, props: [['katana', { bx: 12, eyes: 'happy', pose: 'sheathe', blade: 0, click: true, petalY: 12 }]] },
+      { hide: true, props: [['katana', { bx: 12, eyes: 'happy', pose: 'sheathe', blade: 0, petalY: 14 }]] },
+      { hide: true, props: [['katana', { bx: 8, eyes: 'open', legs: 'walkA', pose: 'draw' }]] },
+      { hide: true, props: [['katana', { bx: 4, eyes: 'open', legs: 'walkB', pose: 'draw' }]] },
+      { hide: true, props: [['katana', { bx: 1, eyes: 'open', pose: 'draw' }]] },
+    ],
+  },
+  // Running Bazooka: 45-60 deg 3/4 Clawd fires RPG rocket completely off-screen ->
+  // gets knocked straight down onto the ground & rolls across the floor via inertia ->
+  // pancakes flat -> lifts face 1-eye-closed/1-eye-open right as the distant blast wave arrives.
+  'running.bazooka': {
+    ms: 110,
+    frames: [
+      { hide: true, props: [['bazooka', { bx: 8, eyes: 'open', tube: 'shoulder', warhead: true }]] },
+      { hide: true, props: [['bazooka', { bx: 8, sq: 1, eyes: 'fierce', tube: 'shoulder', warhead: true }]] },
+      // Fires: big rear backblast + rocket exits right!
+      { hide: true, props: [['bazooka', { bx: 7, y: 8, sq: 1, eyes: 'wince', legs: 'tuck', tube: 'shoulder', warhead: false, blast: true, rocketX: 20 }]] },
+      // Knocked back onto dirt clutching launcher -> hits dirt & launcher flies off left edge!
+      { hide: true, props: [['bazooka', { bx: 5, roll: 1, tube: 'withClawd', dust: 1 }]] },
+      { hide: true, props: [['bazooka', { bx: 3, roll: 2, tube: 'flyLeft', dust: 2 }]] },
+      { hide: true, props: [['bazooka', { bx: 2, roll: 3, tube: 'none', dust: 3 }]] },
+      { hide: true, props: [['bazooka', { bx: 1, roll: 4, tube: 'none', dust: 3 }]] },
+      { hide: true, props: [['bazooka', { bx: 1, roll: 2, tube: 'none', dust: 1 }]] },
+      // Pancakes flat on dirt -> lifts chin peeking -> quiet dark beat!
+      { hide: true, props: [['bazooka', { bx: 1, splat: 'flat', tube: 'none', dust: 4 }]] },
+      { hide: true, props: [['bazooka', { bx: 1, splat: 'lift', eyes: 'peekUp', tube: 'none' }]] },
+      // Cinematic nuclear horizon flash: dim glow right -> swelling flash -> blinding white-out
+      // overtaking the sky as Clawd darkens into a crisp black silhouette in the shockwave!
+      { hide: true, props: [['bazooka', { bx: 1, splat: 'lift', eyes: 'peekUp', tube: 'none', skyLight: 1 }]] },
+      { hide: true, props: [['bazooka', { bx: 1, splat: 'lift', lit: 'boom', eyes: 'peekUp', tube: 'none', skyLight: 2 }]] },
+      { hide: true, props: [['bazooka', { bx: 1, splat: 'lift', lit: 'dim', eyes: 'peekUp', tube: 'none', skyLight: 3 }]] },
+      { hide: true, props: [['bazooka', { bx: 1, splat: 'lift', lit: 'black', tube: 'none', skyLight: 4 }]] },
+      { hide: true, props: [['bazooka', { bx: 1, splat: 'lift', lit: 'charred', tube: 'none', skyLight: 5 }]] },
+      // Sky settles dark with lingering distant smoke, Clawd shakes clean -> pulls RPG back!
+      { hide: true, props: [['bazooka', { bx: 1, splat: 'lift', eyes: 'wink', tube: 'none', boom: 5 }]] },
+      { hide: true, props: [['bazooka', { bx: 2, y: 8, sq: 1, eyes: 'happy', tube: 'pullLeft' }]] },
+      { hide: true, props: [['bazooka', { bx: 5, y: 8, eyes: 'open', legs: 'walkA', tube: 'shoulder', warhead: true }]] },
+      { hide: true, props: [['bazooka', { bx: 8, y: 8, eyes: 'open', tube: 'shoulder', warhead: true }]] },
+    ],
+  },
+  // Idle Yoga: calm inhale -> kneeling backbend reaching both arms for rear feet ->
+  // grip slips -> flops nose-first into a no-hands upside-down Headstand (`clawdFlipped`)!
+  'idle.yoga': {
+    ms: 125,
+    frames: [
+      { armL: 'rest', armR: 'rest', eyes: 'open', props: [['yoga', {}]] },
+      { breathe: 1, armL: 'up', armR: 'up', eyes: 'closed', props: [['yoga', { breath: true }]] },
+      { squash: 1, armL: 'mid', armR: 'mid', eyes: 'closed', props: [['yoga', {}]] },
+      { hide: true, props: [['yoga', { pose: 'split1', sweat: 1 }]] },
+      { hide: true, props: [['yoga', { pose: 'split2', sweat: 1 }]] },
+      { hide: true, props: [['yoga', { pose: 'split2', dx: 1, sweat: 2 }]] },
+      { hide: true, props: [['yoga', { pose: 'split3', sweat: 3 }]] },
+      { hide: true, props: [['yoga', { pose: 'split3', dx: -1, sweat: 3, alert: true }]] },
+      // Snap! Flips cleanly headfirst toward crown with NO hands bracing!
+      { hide: true, props: [['yoga', { pose: 'flop1' }]] },
+      { hide: true, props: [['yoga', { pose: 'flop2' }]] },
+      // THUD! No-hands Headstand (`armL/R: 'rest'` stays mid-air off mat, 4 legs straight UP!)
+      { flip: true, squash: 1, dy: -1, armL: 'rest', armR: 'rest', eyes: 'wince', props: [['yoga', { thud: true }]] },
+      { flip: true, dy: -1, dx: -1, armL: 'down', armR: 'down', eyes: 'x', props: [['yoga', { dizzy: 1 }]] },
+      { flip: true, dy: -1, dx: 1, armL: 'rest', armR: 'rest', eyes: 'wide', props: [['yoga', { dizzy: 2 }]] },
+      // Realizes he nailed a no-hands Headstand -> proud zen vibes!
+      { flip: true, dy: -1, armL: 'rest', armR: 'rest', eyes: 'happy', props: [['yoga', { sparkle: 1 }]] },
+      { flip: true, dy: -1, armL: 'rest', armR: 'rest', eyes: 'happy', props: [['yoga', { sparkle: 2 }]] },
+      { flip: true, dy: -1, armL: 'rest', armR: 'rest', eyes: 'happy', props: [['yoga', { sparkle: 1 }]] },
+      { flip: true, dy: -1, armL: 'rest', armR: 'rest', eyes: 'wink', props: [['yoga', { breath: true }]] },
+      // Drops upright back onto mat cleanly & bows ready to loop:
+      { lie: 1, eyes: 'wince', props: [['yoga', {}]] },
+      { squash: 1, armL: 'mid', armR: 'mid', eyes: 'happy', props: [['yoga', {}]] },
+      { armL: 'rest', armR: 'rest', eyes: 'wink', props: [['yoga', {}]] },
+      { armL: 'rest', armR: 'rest', eyes: 'open', props: [['yoga', {}]] },
+      { armL: 'rest', armR: 'rest', eyes: 'open', props: [['yoga', {}]] },
+    ],
   },
 })
 
