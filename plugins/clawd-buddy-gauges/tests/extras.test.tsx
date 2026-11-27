@@ -103,8 +103,11 @@ test('sprites: the new physical activities are registered and render valid frame
     ['idle', 'idle.boxing', 27],
     ['thinking', 'thinking.cooking', 24],
     ['running', 'running.gatling', 12],
+    ['running', 'running.bazooka', 19],
     ['responding', 'responding.sax', 24],
     ['browsing', 'browsing.dino', 23],
+    ['done', 'done.katana', 20],
+    ['error', 'error.flamethrower', 20],
     ['sleeping', 'sleeping.snot-bubble', 20],
     ['compacting', 'compacting.suitcase', 18],
   ]

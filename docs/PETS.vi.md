@@ -53,7 +53,7 @@ Ba kiểu đầu của mỗi trạng thái lấy từ [clawd-crew](https://githu
 
 | Kiểu 1 | Kiểu 2 | Kiểu 3 | Kiểu 4 | Kiểu 5 | Kiểu 6 | Kiểu 7 | Kiểu 8 |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| <img src="pets/running.svg" width="140" alt="running"><br><sub>Classic</sub> | <img src="pets/running.treadmill.svg" width="140" alt="running.treadmill"><br><sub>Treadmill</sub> | <img src="pets/running.carry.svg" width="140" alt="running.carry"><br><sub>Carry</sub> | <img src="pets/running.jog.svg" width="140" alt="running.jog"><br><sub>Jog</sub> | <img src="pets/running.squat.svg" width="140" alt="running.squat"><br><sub>Squat</sub> | <img src="pets/running.gatling.svg" width="140" alt="running.gatling"><br><sub>Gatling</sub> |  |  |
+| <img src="pets/running.svg" width="140" alt="running"><br><sub>Classic</sub> | <img src="pets/running.treadmill.svg" width="140" alt="running.treadmill"><br><sub>Treadmill</sub> | <img src="pets/running.carry.svg" width="140" alt="running.carry"><br><sub>Carry</sub> | <img src="pets/running.jog.svg" width="140" alt="running.jog"><br><sub>Jog</sub> | <img src="pets/running.squat.svg" width="140" alt="running.squat"><br><sub>Squat</sub> | <img src="pets/running.gatling.svg" width="140" alt="running.gatling"><br><sub>Gatling</sub> | <img src="pets/running.bazooka.svg" width="140" alt="running.bazooka"><br><sub>Bazooka</sub> |  |
 
 ### **browsing** — Lên web (WebFetch, WebSearch, browser)
 
@@ -95,13 +95,13 @@ Ba kiểu đầu của mỗi trạng thái lấy từ [clawd-crew](https://githu
 
 | Kiểu 1 | Kiểu 2 | Kiểu 3 | Kiểu 4 | Kiểu 5 | Kiểu 6 | Kiểu 7 | Kiểu 8 |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| <img src="pets/done.svg" width="140" alt="done"><br><sub>Classic</sub> | <img src="pets/done.trophy.svg" width="140" alt="done.trophy"><br><sub>Trophy</sub> | <img src="pets/done.dance.svg" width="140" alt="done.dance"><br><sub>Dance</sub> | <img src="pets/done.wink.svg" width="140" alt="done.wink"><br><sub>Wink</sub> | <img src="pets/done.roid.svg" width="140" alt="done.roid"><br><sub>Juiced</sub> | <img src="pets/done.clap.svg" width="140" alt="done.clap"><br><sub>Clap</sub> | <img src="pets/done.pole.svg" width="140" alt="done.pole"><br><sub>Pole dance</sub> |  |
+| <img src="pets/done.svg" width="140" alt="done"><br><sub>Classic</sub> | <img src="pets/done.trophy.svg" width="140" alt="done.trophy"><br><sub>Trophy</sub> | <img src="pets/done.dance.svg" width="140" alt="done.dance"><br><sub>Dance</sub> | <img src="pets/done.wink.svg" width="140" alt="done.wink"><br><sub>Wink</sub> | <img src="pets/done.roid.svg" width="140" alt="done.roid"><br><sub>Juiced</sub> | <img src="pets/done.clap.svg" width="140" alt="done.clap"><br><sub>Clap</sub> | <img src="pets/done.pole.svg" width="140" alt="done.pole"><br><sub>Pole dance</sub> | <img src="pets/done.katana.svg" width="140" alt="done.katana"><br><sub>Katana</sub> |
 
 ### **error** — Lệnh lỗi; test fail
 
 | Kiểu 1 | Kiểu 2 | Kiểu 3 | Kiểu 4 | Kiểu 5 | Kiểu 6 | Kiểu 7 | Kiểu 8 |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| <img src="pets/error.svg" width="140" alt="error"><br><sub>Classic</sub> | <img src="pets/error.smoke.svg" width="140" alt="error.smoke"><br><sub>Smoke</sub> | <img src="pets/error.rain.svg" width="140" alt="error.rain"><br><sub>Rain</sub> | <img src="pets/error.debug.svg" width="140" alt="error.debug"><br><sub>Debug</sub> | <img src="pets/error.fart.svg" width="140" alt="error.fart"><br><sub>Toot</sub> | <img src="pets/error.tongue.svg" width="140" alt="error.tongue"><br><sub>Raspberry</sub> |  |  |
+| <img src="pets/error.svg" width="140" alt="error"><br><sub>Classic</sub> | <img src="pets/error.smoke.svg" width="140" alt="error.smoke"><br><sub>Smoke</sub> | <img src="pets/error.rain.svg" width="140" alt="error.rain"><br><sub>Rain</sub> | <img src="pets/error.debug.svg" width="140" alt="error.debug"><br><sub>Debug</sub> | <img src="pets/error.fart.svg" width="140" alt="error.fart"><br><sub>Toot</sub> | <img src="pets/error.tongue.svg" width="140" alt="error.tongue"><br><sub>Raspberry</sub> | <img src="pets/error.flamethrower.svg" width="140" alt="error.flamethrower"><br><sub>Flamethrower</sub> |  |
 
 ### **compacting** — Đang /compact
 
