@@ -2,7 +2,7 @@
 
 [Tiếng Việt](PETS.vi.md)
 
-Each mood has three to twelve looks; the buddy picks one at random when the mood changes (in the morning it leans to coffee, late at night to yawns). Click it in the desktop app to step to the next look of the mood it is in, wrapping round after the last.
+Each mood has three to thirteen looks; the buddy picks one at random when the mood changes (in the morning it leans to coffee, late at night to yawns). Click it in the desktop app to step to the next look of the mood it is in, wrapping round after the last.
 
 The first three looks of each mood are from [clawd-crew](https://github.com/hudcolighting/clawd-crew) (GPL-3.0-or-later), except Wizard (thinking) and Carry (running), our own, which moved up when Cube and Progress were archived. The rest were drawn for clawd-buddy-gauges from the same body, eyes, arms and legs.
 
@@ -11,7 +11,7 @@ The first three looks of each mood are from [clawd-crew](https://github.com/hudc
 | Look 1 | Look 2 | Look 3 | Look 4 | Look 5 | Look 6 | Look 7 | Look 8 |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 | <img src="pets/idle.svg" width="140" alt="idle"><br><sub>Classic</sub> | <img src="pets/idle.coffee.svg" width="140" alt="idle.coffee"><br><sub>Coffee</sub> | <img src="pets/idle.tune.svg" width="140" alt="idle.tune"><br><sub>Humming</sub> | <img src="pets/idle.yawn.svg" width="140" alt="idle.yawn"><br><sub>Yawn</sub> | <img src="pets/idle.peach.svg" width="140" alt="idle.peach"><br><sub>Peach · Tết only</sub> | <img src="pets/idle.keepie-ups.svg" width="140" alt="idle.keepie-ups"><br><sub>Keepie-ups</sub> | <img src="pets/idle.hoops.svg" width="140" alt="idle.hoops"><br><sub>Hoops</sub> | <img src="pets/idle.fishing.svg" width="140" alt="idle.fishing"><br><sub>Fishing</sub> |
-| <img src="pets/idle.kickflip.svg" width="140" alt="idle.kickflip"><br><sub>Kickflip</sub> | <img src="pets/idle.real-crab.svg" width="140" alt="idle.real-crab"><br><sub>Real crab</sub> | <img src="pets/idle.claw-machine.svg" width="140" alt="idle.claw-machine"><br><sub>Claw machine</sub> | <img src="pets/idle.boxing.svg" width="140" alt="idle.boxing"><br><sub>Boxing</sub> |  |  |  |  |
+| <img src="pets/idle.kickflip.svg" width="140" alt="idle.kickflip"><br><sub>Kickflip</sub> | <img src="pets/idle.real-crab.svg" width="140" alt="idle.real-crab"><br><sub>Real crab</sub> | <img src="pets/idle.claw-machine.svg" width="140" alt="idle.claw-machine"><br><sub>Claw machine</sub> | <img src="pets/idle.boxing.svg" width="140" alt="idle.boxing"><br><sub>Boxing</sub> | <img src="pets/idle.yoga.svg" width="140" alt="idle.yoga"><br><sub>Yoga</sub> |  |  |  |
 
 ### **sleeping** — Idle for over 10 minutes (3 late at night)
 

@@ -3647,7 +3647,7 @@ export const VARIANTS = {
   ['error', 'error.tongue', 'Raspberry'], ['typing', 'typing.nod', 'Nod off'],
   ['running', 'running.jog', 'Jog'], ['running', 'running.squat', 'Squat'], ['running', 'running.gatling', 'Gatling'], ['running', 'running.bazooka', 'Bazooka'],
   ['done', 'done.roid', 'Juiced'], ['idle', 'idle.stretch', 'Stretch'], ['idle', 'idle.drink', 'Water'], ['done', 'done.clap', 'Clap'], ['thinking', 'thinking.toilet', 'Toilet'], ['idle', 'idle.peach', 'Peach'], ['idle', 'idle.lixi', 'Lì xì'], ['thinking', 'thinking.power', 'Power up'],
-  ['idle', 'idle.keepie-ups', 'Keepie-ups'], ['idle', 'idle.hoops', 'Hoops'], ['idle', 'idle.fishing', 'Fishing'], ['idle', 'idle.kickflip', 'Kickflip'], ['idle', 'idle.real-crab', 'Real crab'], ['idle', 'idle.claw-machine', 'Claw machine'], ['idle', 'idle.boxing', 'Boxing'],
+  ['idle', 'idle.keepie-ups', 'Keepie-ups'], ['idle', 'idle.hoops', 'Hoops'], ['idle', 'idle.fishing', 'Fishing'], ['idle', 'idle.kickflip', 'Kickflip'], ['idle', 'idle.real-crab', 'Real crab'], ['idle', 'idle.claw-machine', 'Claw machine'], ['idle', 'idle.boxing', 'Boxing'], ['idle', 'idle.yoga', 'Yoga'],
   ['thinking', 'thinking.cooking', 'Cooking'],
   ['responding', 'responding.sax', 'Saxophone'],
   ['browsing', 'browsing.dino', 'Dino'],
@@ -5565,6 +5565,135 @@ PROPS.bazooka = (
 HELD.add('bazooka')
 HATLESS.add('running.bazooka')
 
+// 4) IDLE.YOGA — Pure boxy Clawd yoga comedy: calm deep breath -> lowers into wide splits
+// trying hard to grab his splayed feet -> snaps & flips headfirst into an accidental
+// no-hands Headstand (`clawdFlipped`, arms mid-air, all 4 legs straight UP!).
+const YOGA_MAP = { B, K, W: WT, L }
+
+const YOGA_POSES = {
+  // Frame 3: lowers onto mat starting wide splits, arms reaching outward, >.< strain.
+  split1: [
+    '........................',
+    '........................',
+    '......BBBBBBBBBBBB......',
+    '......BBBBBBBBBBBB......',
+    '......BBKBBBBBBKBB......',
+    '......BBKBBBBBBKBB......',
+    '....BBBBBBBBBBBBBBBB....',
+    '....BBBBBBBBBBBBBBBB....',
+    '......BBBBBBBBBBBB......',
+    '....BBBB..B..B..BBBB....',
+  ],
+  // Frames 4-5: wide splits flat along the cyan mat, arms reaching down toward splayed feet.
+  split2: [
+    '........................',
+    '........................',
+    '......BBBBBBBBBBBB......',
+    '......BKBBBBBBBBKB......',
+    '......BBKBBBBBBKBB......',
+    '......BKBBBBBBBBKB......',
+    '....BBBBBBBBBBBBBBBB....',
+    '....BBBBBBBBBBBBBBBB....',
+    '......BBBBBBBBBBBB......',
+    '....BBBB..B..B..BBBB....',
+  ],
+  // Frames 6-7: MAX splits stretch — arms reach all the way down to clutch splayed feet!
+  split3: [
+    '........................',
+    '........................',
+    '......BBBBBBBBBBBB......',
+    '......BKBBBBBBBBKB......',
+    '......BBKBBBBBBKBB......',
+    '......BKBBBBBBBBKB......',
+    '......BBBBBBBBBBBB......',
+    '....BBBBBBBBBBBBBBBB....',
+    '....BBBBBBBBBBBBBBBB....',
+    '....BBBB..B..B..BBBB....',
+  ],
+  // Frame 8: *SNAP!* Springs up flipping inverted mid-air, 4 legs straight up, arms tucked mid-body!
+  flop1: [
+    '.......B.B....B.B.......',
+    '.......B.B....B.B.......',
+    '......BBBBBBBBBBBB......',
+    '......BBBBBBBBBBBB......',
+    '....BBBBBBBBBBBBBBBB....',
+    '....BBBBBBBBBBBBBBBB....',
+    '......BBKBBBBBBKBB......',
+    '......BBKBBBBBBKBB......',
+    '......BBBBBBBBBBBB......',
+    '.......W........W.......',
+  ],
+  // Frame 9: slams cleanly crown-first onto cyan mat, all 4 legs straight up, NO hands on ground!
+  flop2: [
+    '........................',
+    '.......B.B....B.B.......',
+    '.......B.B....B.B.......',
+    '......BBBBBBBBBBBB......',
+    '......BBBBBBBBBBBB......',
+    '....BBBBBBBBBBBBBBBB....',
+    '....BBBBBBBBBBBBBBBB....',
+    '......BBKBBBBBBKBB......',
+    '......BBKBBBBBBKBB......',
+    '.....LBBBBBBBBBBBBL.....',
+  ],
+}
+
+PROPS.yoga = (
+  g,
+  {
+    pose = 'mat',
+    dx = 0,
+    sweat = 0,
+    alert = false,
+    dizzy = 0,
+    sparkle = 0,
+    breath = false,
+    thud = false,
+  } = {},
+) => {
+  // Calm cyan yoga mat along floor (`y = 17`) with rolled bolster on left (`x = 2..3`).
+  box(g, 4, 17, 16, 1, BL)
+  box(g, 2, 16, 2, 2, NV)
+  put(g, 2, 16, BL)
+
+  if (breath) {
+    put(g, 5, 5, L)
+    put(g, 18, 5, L)
+  }
+
+  const rows = YOGA_POSES[pose]
+  if (rows) art(g, dx, pose === 'flop1' ? 4 : 7, rows, YOGA_MAP)
+
+  if (sweat >= 1) {
+    put(g, 3 + dx, 10, BL)
+    put(g, 20 + dx, 10, BL)
+  }
+  if (sweat >= 2) {
+    put(g, 2 + dx, 12, BL)
+    put(g, 21 + dx, 12, BL)
+  }
+  if (sweat >= 3) {
+    put(g, 1 + dx, 14, BL)
+    put(g, 22 + dx, 14, BL)
+  }
+  if (alert) glyph(g, '!', 20, 4, WT)
+  if (thud) {
+    put(g, 3, 16, L); put(g, 4, 15, WT)
+    put(g, 19, 15, WT); put(g, 20, 16, L)
+  }
+  if (dizzy === 1) {
+    put(g, 7, 4, Y); put(g, 16, 5, WT)
+  } else if (dizzy === 2) {
+    put(g, 11, 4, WT); put(g, 18, 5, Y)
+  }
+  if (sparkle === 1) {
+    put(g, 4, 7, Y); put(g, 19, 8, WT); put(g, 12, 3, Y)
+  } else if (sparkle === 2) {
+    put(g, 5, 8, WT); put(g, 18, 7, Y); put(g, 12, 4, WT)
+  }
+}
+HATLESS.add('idle.yoga')
+
 Object.assign(ANIMS, {
   // Error Flamethrower: 45-60 deg 3/4 Clawd roasts green bug with huge napalm wall,
   // smugly grins while an ember ignites his crown, then leaps sky-high in buggy-eyed shock!
@@ -5663,6 +5792,39 @@ Object.assign(ANIMS, {
       { hide: true, props: [['bazooka', { bx: 2, y: 8, sq: 1, eyes: 'happy', tube: 'pullLeft' }]] },
       { hide: true, props: [['bazooka', { bx: 5, y: 8, eyes: 'open', legs: 'walkA', tube: 'shoulder', warhead: true }]] },
       { hide: true, props: [['bazooka', { bx: 8, y: 8, eyes: 'open', tube: 'shoulder', warhead: true }]] },
+    ],
+  },
+  // Idle Yoga: calm inhale -> kneeling backbend reaching both arms for rear feet ->
+  // grip slips -> flops nose-first into a no-hands upside-down Headstand (`clawdFlipped`)!
+  'idle.yoga': {
+    ms: 125,
+    frames: [
+      { armL: 'rest', armR: 'rest', eyes: 'open', props: [['yoga', {}]] },
+      { breathe: 1, armL: 'up', armR: 'up', eyes: 'closed', props: [['yoga', { breath: true }]] },
+      { squash: 1, armL: 'mid', armR: 'mid', eyes: 'closed', props: [['yoga', {}]] },
+      { hide: true, props: [['yoga', { pose: 'split1', sweat: 1 }]] },
+      { hide: true, props: [['yoga', { pose: 'split2', sweat: 1 }]] },
+      { hide: true, props: [['yoga', { pose: 'split2', dx: 1, sweat: 2 }]] },
+      { hide: true, props: [['yoga', { pose: 'split3', sweat: 3 }]] },
+      { hide: true, props: [['yoga', { pose: 'split3', dx: -1, sweat: 3, alert: true }]] },
+      // Snap! Flips cleanly headfirst toward crown with NO hands bracing!
+      { hide: true, props: [['yoga', { pose: 'flop1' }]] },
+      { hide: true, props: [['yoga', { pose: 'flop2' }]] },
+      // THUD! No-hands Headstand (`armL/R: 'rest'` stays mid-air off mat, 4 legs straight UP!)
+      { flip: true, squash: 1, dy: -1, armL: 'rest', armR: 'rest', eyes: 'wince', props: [['yoga', { thud: true }]] },
+      { flip: true, dy: -1, dx: -1, armL: 'down', armR: 'down', eyes: 'x', props: [['yoga', { dizzy: 1 }]] },
+      { flip: true, dy: -1, dx: 1, armL: 'rest', armR: 'rest', eyes: 'wide', props: [['yoga', { dizzy: 2 }]] },
+      // Realizes he nailed a no-hands Headstand -> proud zen vibes!
+      { flip: true, dy: -1, armL: 'rest', armR: 'rest', eyes: 'happy', props: [['yoga', { sparkle: 1 }]] },
+      { flip: true, dy: -1, armL: 'rest', armR: 'rest', eyes: 'happy', props: [['yoga', { sparkle: 2 }]] },
+      { flip: true, dy: -1, armL: 'rest', armR: 'rest', eyes: 'happy', props: [['yoga', { sparkle: 1 }]] },
+      { flip: true, dy: -1, armL: 'rest', armR: 'rest', eyes: 'wink', props: [['yoga', { breath: true }]] },
+      // Drops upright back onto mat cleanly & bows ready to loop:
+      { lie: 1, eyes: 'wince', props: [['yoga', {}]] },
+      { squash: 1, armL: 'mid', armR: 'mid', eyes: 'happy', props: [['yoga', {}]] },
+      { armL: 'rest', armR: 'rest', eyes: 'wink', props: [['yoga', {}]] },
+      { armL: 'rest', armR: 'rest', eyes: 'open', props: [['yoga', {}]] },
+      { armL: 'rest', armR: 'rest', eyes: 'open', props: [['yoga', {}]] },
     ],
   },
 })

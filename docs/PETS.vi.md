@@ -2,7 +2,7 @@
 
 [English](PETS.md)
 
-Mỗi trạng thái có từ 3 tới 12 kiểu, pet chọn ngẫu nhiên một kiểu khi đổi trạng thái (sáng sớm hay uống cà phê, khuya hay ngáp). Bấm vào pet trên app desktop để đổi lần lượt sang kiểu kế tiếp của trạng thái đang hiện, hết thì quay lại kiểu đầu.
+Mỗi trạng thái có từ 3 tới 13 kiểu, pet chọn ngẫu nhiên một kiểu khi đổi trạng thái (sáng sớm hay uống cà phê, khuya hay ngáp). Bấm vào pet trên app desktop để đổi lần lượt sang kiểu kế tiếp của trạng thái đang hiện, hết thì quay lại kiểu đầu.
 
 Ba kiểu đầu của mỗi trạng thái lấy từ [clawd-crew](https://github.com/hudcolighting/clawd-crew) (GPL-3.0), trừ Wizard (thinking) và Carry (running): hai kiểu tự vẽ này được đẩy lên khi Cube và Progress bị cất. Các kiểu còn lại tự vẽ cho clawd-buddy-gauges, cùng bộ thân, mắt, tay, chân.
 
@@ -11,7 +11,7 @@ Ba kiểu đầu của mỗi trạng thái lấy từ [clawd-crew](https://githu
 | Kiểu 1 | Kiểu 2 | Kiểu 3 | Kiểu 4 | Kiểu 5 | Kiểu 6 | Kiểu 7 | Kiểu 8 |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 | <img src="pets/idle.svg" width="140" alt="idle"><br><sub>Classic</sub> | <img src="pets/idle.coffee.svg" width="140" alt="idle.coffee"><br><sub>Coffee</sub> | <img src="pets/idle.tune.svg" width="140" alt="idle.tune"><br><sub>Humming</sub> | <img src="pets/idle.yawn.svg" width="140" alt="idle.yawn"><br><sub>Yawn</sub> | <img src="pets/idle.peach.svg" width="140" alt="idle.peach"><br><sub>Peach · chỉ dịp Tết</sub> | <img src="pets/idle.keepie-ups.svg" width="140" alt="idle.keepie-ups"><br><sub>Keepie-ups</sub> | <img src="pets/idle.hoops.svg" width="140" alt="idle.hoops"><br><sub>Hoops</sub> | <img src="pets/idle.fishing.svg" width="140" alt="idle.fishing"><br><sub>Fishing</sub> |
-| <img src="pets/idle.kickflip.svg" width="140" alt="idle.kickflip"><br><sub>Kickflip</sub> | <img src="pets/idle.real-crab.svg" width="140" alt="idle.real-crab"><br><sub>Real crab</sub> | <img src="pets/idle.claw-machine.svg" width="140" alt="idle.claw-machine"><br><sub>Claw machine</sub> | <img src="pets/idle.boxing.svg" width="140" alt="idle.boxing"><br><sub>Boxing</sub> |  |  |  |  |
+| <img src="pets/idle.kickflip.svg" width="140" alt="idle.kickflip"><br><sub>Kickflip</sub> | <img src="pets/idle.real-crab.svg" width="140" alt="idle.real-crab"><br><sub>Real crab</sub> | <img src="pets/idle.claw-machine.svg" width="140" alt="idle.claw-machine"><br><sub>Claw machine</sub> | <img src="pets/idle.boxing.svg" width="140" alt="idle.boxing"><br><sub>Boxing</sub> | <img src="pets/idle.yoga.svg" width="140" alt="idle.yoga"><br><sub>Yoga</sub> |  |  |  |
 
 ### **sleeping** — Rảnh lâu hơn 10 phút (khuya thì 3 phút)
 
