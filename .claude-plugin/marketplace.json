@@ -12,7 +12,7 @@
       "name": "clawd-buddy-gauges",
       "source": "./plugins/clawd-buddy-gauges",
       "description": "An animated Clawd buddy on the left, context and usage gauges in the middle, a Compact button on the right",
-      "version": "0.3.27",
+      "version": "0.3.34",
       "category": "fun"
     }
   ]

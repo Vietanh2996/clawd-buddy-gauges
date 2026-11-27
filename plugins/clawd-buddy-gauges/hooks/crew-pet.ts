@@ -49,7 +49,7 @@ const PREFER: Record<DayPart, Partial<Record<Mood, string[]>>> = {
 // looks kept for their moment, never picked at random or by a click: the reminders' stretch and drink
 const CUED = new Set(['idle.stretch', 'idle.drink'])
 // looks put away: still drawn by crew-sprites.js (docs/PETS.md lists them), never shown
-export const ARCHIVED = new Set(['idle.crab', 'thinking.cube', 'thinking.ultrathink', 'running.progress', 'idle.lixi'])
+export const ARCHIVED = new Set(['idle.crab', 'thinking.cube', 'thinking.ultrathink', 'running.progress', 'idle.lixi', 'compacting.squeeze', 'idle', 'idle.coffee'])
 // looks kept for their season: the peach-branch photo only over Tết
 const SEASONAL: Record<string, string> = { 'idle.peach': 'tet' }
 let season: string | null = null
@@ -59,8 +59,8 @@ const variantsOf = (mood: Mood): [string, string][] =>
 
 const randomAnim = (mood: Mood, part: DayPart = 'day') => {
   const pick = <T,>(xs: T[]) => xs[Math.floor(Math.random() * xs.length)]!
-  const preferred = PREFER[part][mood]
-  if (preferred && Math.random() < 0.75) return pick(preferred)
+  const preferred = PREFER[part][mood]?.filter(anim => !ARCHIVED.has(anim))
+  if (preferred?.length && Math.random() < 0.75) return pick(preferred)
   return pick(variantsOf(mood))[0]
 }
 
